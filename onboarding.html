@@ -211,6 +211,7 @@ body{font-family:'Atkinson Hyperlegible',sans-serif;background:var(--page);color
 const WEBHOOK_ONBOARDING = 'https://hook.eu1.make.com/rvqvyby3rd3e3a9hxcj0nm4yyvuodmhx';
 const WEBHOOK_INBOX_SCAN  = 'https://hook.eu1.make.com/nbctb3hsxdcl51yizbn83yjz62n21kif';
 const WEBHOOK_COMPLETE    = 'https://hook.eu1.make.com/v1tzj7w92zfivbg5f9dy5nzfcl7uugel';
+const WEBHOOK_GET_TASKS   = 'https://hook.eu1.make.com/wf7stpc95ag1w1x1kevxp6v6d1r62qdk'; // same as dashboard
 
 // ─── STATE ───────────────────────────────────────────────────────────────────
 let userData = {
@@ -220,11 +221,17 @@ let userData = {
   theme: 'calm',
   tone: '',
   update_time: '',
-  telegram: '',
+  morning_time: '07:30',
+  evening_time: '18:00',
+  quiet_hours_start: '22:00',
+  quiet_hours_end: '07:00',
+  language: 'English',
   whatsapp: '',
   urgent_whatsapp: false,
   urgent_telegram: false,
-  urgent_keywords: ''
+  telegram: '',
+  urgent_keywords: '',
+  family_names: ''
 };
 
 let currentStep = 0;
@@ -272,6 +279,15 @@ function step0() {
       <label>Your email address</label>
       <input type="email" id="inputEmail" placeholder="you@example.com" value="${userData.email}" autocomplete="email">
       <div class="hint">This is the inbox Qwell Me will help you manage.</div>
+    </div>
+    <div class="field">
+      <label>Language <span style="font-size:12px;font-weight:400;color:var(--muted)">(optional)</span></label>
+      <select id="inputLanguage">
+        ${['English','Hebrew','French','Spanish','German','Dutch','Italian','Portuguese','Arabic'].map(l =>
+          `<option value="${l}" ${userData.language===l?'selected':''}>${l}</option>`
+        ).join('')}
+      </select>
+      <div class="hint">Qwell will use this language on your dashboard.</div>
     </div>
     <button class="btn-primary" id="btnNext0">Continue →</button>
     <p class="reassure">🔒 Your data is only used to run Qwell Me. We never sell or share it.</p>
@@ -406,7 +422,14 @@ function step4() {
       <input type="text" id="inputUrgentKeywords"
         placeholder="e.g. King David High, Mrs Finn, direct debit, dentist, Mum"
         value="${userData.urgent_keywords}">
-      <div class="hint">Separate with commas. Qwell Me will always flag emails matching these — regardless of how they look.</div>
+      <div class="hint">Separate with commas. Qwell will always flag emails matching these.</div>
+    </div>
+    <div class="field">
+      <label>Family members <span style="font-size:12px;font-weight:400;color:var(--muted)">(optional)</span></label>
+      <input type="text" id="inputFamilyNames"
+        placeholder="e.g. Dan, Ava, Theo, Nico"
+        value="${userData.family_names}">
+      <div class="hint">First names only. Qwell uses these to spot emails that are personal — not just admin.</div>
     </div>
     <div style="background:var(--navy-soft);border:1px solid var(--navy-line);border-radius:var(--r-sm);padding:14px 16px;margin-bottom:24px">
       <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--teal);margin-bottom:8px">We'll always flag these automatically</div>
@@ -445,7 +468,29 @@ function step5() {
         <span>Only when something needs me</span>
       </div>
     </div>
-    <button class="btn-primary" id="btnNext5" ${!userData.update_time?'disabled':''}>Continue →</button>
+    <div id="timePickers" style="margin-top:20px;display:grid;gap:14px;${!userData.update_time || userData.update_time==='urgent_only' ? 'display:none' : ''}">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="field" id="morningTimeField" style="margin:0">
+          <label>Morning update</label>
+          <input type="time" id="inputMorningTime" value="${userData.morning_time}">
+        </div>
+        <div class="field" id="eveningTimeField" style="margin:0">
+          <label>Evening update</label>
+          <input type="time" id="inputEveningTime" value="${userData.evening_time}">
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="field" style="margin:0">
+          <label>Quiet hours start <span style="font-size:11px;font-weight:400;color:var(--muted)">no alerts after</span></label>
+          <input type="time" id="inputQuietStart" value="${userData.quiet_hours_start}">
+        </div>
+        <div class="field" style="margin:0">
+          <label>Quiet hours end</label>
+          <input type="time" id="inputQuietEnd" value="${userData.quiet_hours_end}">
+        </div>
+      </div>
+    </div>
+    <button class="btn-primary" id="btnNext5" ${!userData.update_time?'disabled':''} style="margin-top:24px">Continue →</button>
     <button class="btn-secondary" id="btnBack5">← Back</button>
   `;
 }
@@ -485,7 +530,7 @@ function step6() {
         <div class="scan-step-icon waiting" id="scanIcon3">🧠</div>
         <div class="scan-step-text">
           <strong>Building your priority list</strong>
-          <span>Claude is thinking through what matters</span>
+          <span>Qwell is working out what matters most</span>
         </div>
       </div>
     </div>
@@ -529,6 +574,7 @@ function wireStep(step) {
       }
       userData.name = name;
       userData.email = email;
+      userData.language = document.getElementById('inputLanguage').value;
       // Send initial data to Make
       sendToMake(WEBHOOK_ONBOARDING, { name, email, status: 'started', timestamp: new Date().toISOString() });
       render(1);
@@ -584,6 +630,9 @@ function wireStep(step) {
     document.getElementById('inputUrgentKeywords').addEventListener('input', e => {
       userData.urgent_keywords = e.target.value;
     });
+    document.getElementById('inputFamilyNames').addEventListener('input', e => {
+      userData.family_names = e.target.value;
+    });
     document.getElementById('btnNext4').addEventListener('click', () => render(5));
     document.getElementById('btnBack4').addEventListener('click', () => render(3));
   }
@@ -595,8 +644,19 @@ function wireStep(step) {
         document.querySelectorAll('[data-time]').forEach(o => o.classList.remove('selected'));
         opt.classList.add('selected');
         document.getElementById('btnNext5').disabled = false;
+        // Show/hide time pickers based on selection
+        const pickers = document.getElementById('timePickers');
+        const showMorning = ['morning','both'].includes(userData.update_time);
+        const showEvening = ['evening','both'].includes(userData.update_time);
+        pickers.style.display = (showMorning || showEvening) ? 'grid' : 'none';
+        document.getElementById('morningTimeField').style.display = showMorning ? '' : 'none';
+        document.getElementById('eveningTimeField').style.display = showEvening ? '' : 'none';
       });
     });
+    document.getElementById('inputMorningTime').addEventListener('change', e => userData.morning_time = e.target.value);
+    document.getElementById('inputEveningTime').addEventListener('change', e => userData.evening_time = e.target.value);
+    document.getElementById('inputQuietStart').addEventListener('change', e => userData.quiet_hours_start = e.target.value);
+    document.getElementById('inputQuietEnd').addEventListener('change', e => userData.quiet_hours_end = e.target.value);
     document.getElementById('btnNext5').addEventListener('click', () => {
       render(6);
       const profile = {
@@ -606,9 +666,17 @@ function wireStep(step) {
         tone: userData.tone,
         age_group: userData.age_group,
         update_time: userData.update_time,
-        telegram: userData.telegram,
+        morning_time: userData.morning_time,
+        evening_time: userData.evening_time,
+        quiet_hours_start: userData.quiet_hours_start,
+        quiet_hours_end: userData.quiet_hours_end,
+        language: userData.language,
         whatsapp: userData.whatsapp,
-        urgent_keywords: userData.urgent_keywords
+        telegram: userData.telegram,
+        urgent_keywords: userData.urgent_keywords,
+        family_names: userData.family_names,
+        created_at: new Date().toISOString(),
+        active: true
       };
       localStorage.setItem('qwellme_user', JSON.stringify(profile));
       sendToMake(WEBHOOK_ONBOARDING, {
@@ -646,45 +714,98 @@ function wireStep(step) {
   }
 }
 
-// ─── SCAN ANIMATION ──────────────────────────────────────────────────────────
+// ─── SCAN ANIMATION + POLL FOR COMPLETION ────────────────────────────────────
 function startScan() {
   // Fire the inbox scan webhook
   sendToMake(WEBHOOK_INBOX_SCAN, {
     email: userData.email,
     name: userData.name,
+    language: userData.language,
+    urgent_keywords: userData.urgent_keywords,
+    family_names: userData.family_names,
     timestamp: new Date().toISOString()
   });
 
+  // Animate the 4 scan steps — purely visual, does not control the button
   const icons = ['scanIcon0','scanIcon1','scanIcon2','scanIcon3'];
-  const emojis = ['📧','📤','📅','🧠'];
   let i = 0;
+  // Space visual steps across ~90s — but they're just for show
+  const stepDelay = 18000;
 
   function nextIcon() {
     if (i > 0) {
-      const prev = document.getElementById(icons[i-1]);
+      const prev = document.getElementById(icons[i - 1]);
       if (prev) { prev.className = 'scan-step-icon done'; prev.textContent = '✓'; }
     }
     if (i < icons.length) {
       const curr = document.getElementById(icons[i]);
       if (curr) { curr.className = 'scan-step-icon active'; curr.textContent = '⟳'; }
       i++;
-      setTimeout(nextIcon, 14000); // ~56s total across 4 steps
-    } else {
-      // All steps done
-      scanComplete = true;
-      const btnDone = document.getElementById('btnDone');
-      if (btnDone) {
-        btnDone.style.display = 'block';
-        btnDone.textContent = 'Your dashboard is ready →';
-        // Update scan heading
+      setTimeout(nextIcon, stepDelay);
+    }
+    // Note: we do NOT show the button here — polling controls that
+  }
+  setTimeout(nextIcon, 500);
+
+  // Poll Make every 12 seconds to check if the scan is complete
+  // Make should respond to WEBHOOK_INBOX_SCAN with a completion webhook back,
+  // OR we poll a status endpoint. Until that's built, we poll the tasks webhook
+  // to see if tasks have appeared — that's the real signal the scan finished.
+  let pollAttempts = 0;
+  const maxPolls = 20; // 20 × 12s = 4 minutes max wait
+
+  function pollForTasks() {
+    pollAttempts++;
+    fetch(WEBHOOK_GET_TASKS, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: userData.email })
+    })
+    .then(r => r.json())
+    .catch(() => null)
+    .then(data => {
+      // Check if tasks exist in the response
+      const tasks = data?.Body?.array || data?.array || data?.data || (Array.isArray(data) ? data : null);
+      const hasTasks = tasks && tasks.length > 0 && tasks.some(t => t && (t['1'] || t['title']));
+
+      if (hasTasks) {
+        // Scan complete — mark all icons done and show the button
+        icons.forEach(iconId => {
+          const el = document.getElementById(iconId);
+          if (el) { el.className = 'scan-step-icon done'; el.textContent = '✓'; }
+        });
+        scanComplete = true;
+        const btnDone = document.getElementById('btnDone');
+        if (btnDone) {
+          btnDone.style.display = 'block';
+          btnDone.textContent = 'Your dashboard is ready →';
+          btnDone.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
         const h2 = document.querySelector('.scan-wrap h2');
         if (h2) h2.textContent = 'Your inbox has been sorted ✓';
         const p = document.querySelector('.scan-wrap p');
-        if (p) p.textContent = 'Qwell Me has read your emails and built your first priority list.';
+        if (p) p.textContent = 'Qwell has read your emails and built your first priority list.';
+      } else if (pollAttempts < maxPolls) {
+        // Not ready yet — try again in 12 seconds
+        setTimeout(pollForTasks, 12000);
+      } else {
+        // Timed out after 4 minutes — show the button anyway with a softer message
+        const btnDone = document.getElementById('btnDone');
+        if (btnDone) {
+          btnDone.style.display = 'block';
+          btnDone.textContent = 'Go to dashboard →';
+          btnDone.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        const h2 = document.querySelector('.scan-wrap h2');
+        if (h2) h2.textContent = 'Still working on it…';
+        const p = document.querySelector('.scan-wrap p');
+        if (p) p.textContent = 'Your first list is taking a little longer than usual. Head to your dashboard — it will appear shortly.';
       }
-    }
+    });
   }
-  setTimeout(nextIcon, 500);
+
+  // Wait 20 seconds before first poll — give Make time to start
+  setTimeout(pollForTasks, 20000);
 }
 
 // ─── SEND TO MAKE ────────────────────────────────────────────────────────────
