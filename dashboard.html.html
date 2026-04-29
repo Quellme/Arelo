@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Qwell Me — Your Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#3d5a7a;
+  --navy-dark:#2c4260;
+  --navy-mid:#4e6d8c;
+  --navy-soft:#eef2f7;
+  --navy-line:#d0dae6;
+  --teal:#5bbfbf;
+  --teal-soft:#e6f5f5;
+  --teal-dark:#3a9090;
+  --page:#f0f3f7;
+  --surface:#ffffff;
+  --ink:#1e2e3e;
+  --muted:#5a7089;
+  --line:#d0dae6;
+  --urgent:#b83232;
+  --urgent-soft:#fdf2f2;
+  --shadow-xs:0 1px 4px rgba(30,46,62,.07);
+  --shadow-sm:0 3px 10px rgba(30,46,62,.09);
+  --shadow-md:0 8px 28px rgba(30,46,62,.13);
+  --shadow-xl:0 24px 64px rgba(20,35,55,.24);
+  --r-lg:22px; --r-md:14px; --r-sm:10px;
+}
+
+/* ── THEMES ── */
+body.theme-focus{--page:#0f1923;--surface:#1a2a3a;--ink:#e8f0f8;--teal:#00d4d4;--navy-dark:#0a1218;--muted:#6a8aaa;--line:#2a3a4a;--navy-soft:#1a2a3a;--navy-line:#2a3a4a;--teal-soft:#0d2a2a;--teal-dark:#00aaaa}
+body.theme-bright{--page:#fff8f0;--surface:#ffffff;--ink:#2d1a00;--teal:#ff6b35;--navy-dark:#2d1a00;--muted:#8a6040;--line:#f0d8c0;--navy-soft:#fff0e0;--navy-line:#f0d8c0;--teal-soft:#fff0ea;--teal-dark:#cc5520}
+body.theme-dark{--page:#111827;--surface:#1f2937;--ink:#f3f4f6;--teal:#34d399;--navy-dark:#0d1117;--muted:#6b7280;--line:#374151;--navy-soft:#1f2937;--navy-line:#374151;--teal-soft:#064e3b;--teal-dark:#059669}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Atkinson Hyperlegible',sans-serif;background:var(--page);color:var(--ink);min-height:100vh;padding-bottom:100px;transition:background .3s,color .3s}
+button,input,textarea,select{font:inherit}
+
+/* ── TOPBAR ── */
+.topbar{position:sticky;top:0;z-index:20;height:68px;display:flex;align-items:center;justify-content:space-between;padding:0 40px;background:var(--navy-dark)}
+.logo{height:40px}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);font-size:12px;color:rgba(255,255,255,.85)}
+.pulse{width:7px;height:7px;border-radius:50%;background:var(--teal);animation:pulseAnim 2s ease-in-out infinite}
+@keyframes pulseAnim{0%,100%{opacity:1}50%{opacity:.4}}
+.ghost-btn{padding:7px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);color:rgba(255,255,255,.85);font-size:12px;cursor:pointer;transition:background .15s}
+.ghost-btn:hover{background:rgba(255,255,255,.2)}
+
+/* ── PAGE HEADER ── */
+.page-header{padding:22px 40px 12px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:14px}
+.page-header h1{font-family:'DM Serif Display',serif;font-size:24px;font-weight:400;line-height:1.2;color:var(--ink)}
+.page-header p{margin-top:3px;font-size:14px;color:var(--muted)}
+.header-chips{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding-top:2px}
+.hchip{padding:5px 12px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-size:12px;color:var(--muted)}
+.hchip.live{background:var(--teal-soft);border-color:var(--teal);color:var(--teal-dark)}
+
+/* ── BOARD ── */
+.board-wrap{padding:0 40px}
+.board{display:grid;grid-template-columns:1.15fr .95fr .95fr .7fr;gap:14px;align-items:start}
+
+/* ── COLUMNS ── */
+.col{border-radius:var(--r-lg);border:1px solid var(--line);overflow:hidden}
+.col-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 12px}
+.col-head-left{display:flex;align-items:center;gap:8px}
+.col-dot{width:9px;height:9px;border-radius:50%}
+.col-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em}
+.col-sub{padding:0 16px 12px;font-size:12px;color:var(--muted);line-height:1.5}
+.col-count{font-size:11px;font-weight:700;padding:4px 9px;border-radius:999px;background:var(--surface);border:1px solid var(--line);min-width:26px;text-align:center}
+.col-toggle{font-size:11px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer;transition:background .15s}
+.col-toggle:hover{background:var(--page)}
+.col-body{padding:0 12px 12px}
+.col.collapsed .col-body,.col.collapsed .col-sub{display:none}
+
+.col-focus{background:#edf1f7;border-color:#c2cfe0}
+.col-focus .col-dot{background:var(--navy)}
+.col-focus .col-label{color:var(--navy)}
+.col-focus .col-count{color:var(--navy);border-color:#c2cfe0}
+.col-quick{background:#f0f5f3;border-color:#c2d9cf}
+.col-quick .col-dot{background:#2d7a62}
+.col-quick .col-label{color:#2d7a62}
+.col-quick .col-count{color:#2d7a62;border-color:#c2d9cf}
+.col-follow{background:#f4f6f9;border-color:#cdd5e0}
+.col-follow .col-dot{background:var(--navy-mid)}
+.col-follow .col-label{color:var(--navy-mid)}
+.col-follow .col-count{color:var(--navy-mid);border-color:#cdd5e0}
+.col-done{background:#f7f8fa;border-color:#dde3ec}
+.col-done .col-dot{background:#8a9db5}
+.col-done .col-label{color:#8a9db5}
+.col-done .col-count{color:#8a9db5}
+
+/* ── CARDS ── */
+.card{background:var(--surface);border-radius:var(--r-md);padding:14px;margin-bottom:10px;border:1px solid var(--line);box-shadow:var(--shadow-xs);cursor:pointer;transition:box-shadow .15s,transform .15s,border-color .15s;position:relative;animation:cardIn .3s ease both}
+@keyframes cardIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.card:last-child{margin-bottom:0}
+.card:hover{box-shadow:var(--shadow-sm);transform:translateY(-1px);border-color:#ccd8ea}
+.card.urgent-card{border-left:4px solid var(--urgent);padding-left:12px}
+.card-done-state{opacity:.45;background:#f7f8fa;box-shadow:none;cursor:default;pointer-events:none}
+.card-done-state .card-title{text-decoration:line-through;color:var(--muted)}
+
+.card-source{font-size:11px;color:var(--muted);margin-bottom:5px}
+.card-title{font-size:14px;font-weight:700;line-height:1.3;margin-bottom:5px}
+.card-desc{font-size:12px;color:var(--muted);line-height:1.55;margin-bottom:8px}
+.card-chips{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.chip{font-size:10px;padding:3px 8px;border-radius:999px;background:var(--page);border:1px solid var(--line);color:var(--muted)}
+.chip.urgent{background:var(--urgent-soft);border-color:#f5c6c6;color:var(--urgent);font-weight:700}
+.chip.task{background:var(--teal-soft);border-color:#c4e4e6;color:var(--teal-dark);font-weight:700}
+.chip.done-chip{background:#f0fdf6;border-color:#a8dfc0;color:#2d7a62;font-weight:700}
+
+.card-actions{display:flex;gap:6px;margin-top:10px}
+.btn-start{flex:1;padding:8px 10px;border-radius:var(--r-sm);background:var(--teal);border:none;color:white;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s}
+.btn-start:hover{background:var(--teal-dark)}
+.btn-done{padding:8px 12px;border-radius:var(--r-sm);background:var(--surface);border:1px solid var(--line);color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;transition:all .15s}
+.btn-done:hover{background:#f0fdf6;border-color:#c2d9cf;color:#2d7a62}
+.btn-done-only{width:100%;padding:8px 12px;border-radius:var(--r-sm);background:var(--surface);border:1px solid var(--line);color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;transition:all .15s}
+.btn-done-only:hover{background:#f0fdf6;border-color:#c2d9cf;color:#2d7a62}
+
+@keyframes doneFlash{0%{background:#d8f5e8;border-color:#a8dfc0}100%{background:var(--surface);border-color:var(--line)}}
+.card.completing{animation:doneFlash .55s ease forwards;pointer-events:none}
+
+/* ── LOADING STATE ── */
+.loading-wrap{padding:48px 40px;text-align:center}
+.loading-spinner{width:48px;height:48px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--teal);animation:spin 1s linear infinite;margin:0 auto 20px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-wrap h2{font-family:'DM Serif Display',serif;font-size:22px;font-weight:400;color:var(--ink);margin-bottom:8px}
+.loading-wrap p{font-size:14px;color:var(--muted)}
+
+/* ── EMPTY STATE ── */
+.empty-state{padding:40px;text-align:center}
+.empty-icon{font-size:40px;margin-bottom:16px}
+.empty-state h3{font-family:'DM Serif Display',serif;font-size:20px;font-weight:400;color:var(--ink);margin-bottom:8px}
+.empty-state p{font-size:14px;color:var(--muted);line-height:1.6}
+
+/* ── LOGIN SCREEN ── */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--navy-dark)}
+.login-box{background:var(--surface);border-radius:28px;padding:40px;max-width:420px;width:100%;box-shadow:var(--shadow-xl);animation:fadeUp .35s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.login-eyebrow{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--teal);margin-bottom:12px}
+.login-box h2{font-family:'DM Serif Display',serif;font-size:28px;font-weight:400;color:var(--ink);margin-bottom:8px}
+.login-box p{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:28px}
+.login-field label{display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--navy-mid);margin-bottom:7px}
+.login-field input{width:100%;padding:13px 16px;border-radius:var(--r-sm);border:1.5px solid var(--line);background:var(--page);color:var(--ink);font-family:inherit;font-size:15px;outline:none;transition:border-color .15s;margin-bottom:20px}
+.login-field input:focus{border-color:var(--teal)}
+.btn-login{width:100%;padding:15px;border-radius:999px;background:var(--teal);border:none;color:white;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-login:hover{background:var(--teal-dark);transform:translateY(-1px)}
+.login-note{font-size:12px;color:var(--muted);text-align:center;margin-top:14px;line-height:1.6}
+
+/* ── DRAWER ── */
+.drawer-backdrop{position:fixed;inset:0;background:rgba(18,28,44,.35);z-index:30;opacity:0;transition:opacity .2s;pointer-events:none}
+.drawer-backdrop.open{opacity:1;pointer-events:all}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:420px;max-width:100vw;background:var(--surface);border-left:1px solid var(--line);box-shadow:var(--shadow-xl);z-index:35;transform:translateX(100%);transition:transform .28s cubic-bezier(.22,1,.36,1);overflow-y:auto;display:flex;flex-direction:column}
+.drawer.open{transform:translateX(0)}
+.drawer-head{padding:20px 20px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--surface);z-index:2;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.drawer-close{width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:var(--page);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;font-size:16px;color:var(--muted);transition:all .15s}
+.drawer-close:hover{background:var(--line)}
+.drawer-source{font-size:11px;color:var(--muted);margin-bottom:5px}
+.drawer-title{font-family:'DM Serif Display',serif;font-size:22px;font-weight:400;line-height:1.2;color:var(--ink)}
+.drawer-body{padding:18px 20px;display:grid;gap:14px;flex:1}
+.drawer-section-label{font-size:10px;text-transform:uppercase;letter-spacing:.12em;font-weight:700;color:var(--muted);margin-bottom:4px}
+.drawer-section-body{font-size:14px;line-height:1.65;color:var(--ink)}
+.email-preview{background:var(--page);border:1px solid var(--line);border-radius:var(--r-sm);overflow:hidden}
+.email-preview-head{padding:10px 14px;border-bottom:1px solid var(--line);background:var(--surface)}
+.email-preview-from{font-size:12px;font-weight:700;color:var(--ink)}
+.email-preview-subject{font-size:12px;color:var(--muted);margin-top:2px}
+.drawer-actions{padding:0 20px 20px;display:grid;gap:8px}
+.btn-drawer-done{padding:12px 18px;border-radius:999px;background:var(--surface);border:1px solid var(--line);color:var(--ink);font-size:14px;font-weight:700;cursor:pointer;transition:all .15s}
+.btn-drawer-done:hover{background:#f0fdf6;border-color:#c2d9cf;color:#2d7a62}
+.btn-drawer-gmail{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 18px;border-radius:999px;background:var(--teal-soft);border:1px solid #c4e4e6;color:var(--teal-dark);font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;transition:all .15s}
+.btn-drawer-gmail:hover{background:#d0eef0}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:84px;left:50%;transform:translateX(-50%) translateY(16px);background:#1a5e3e;color:white;padding:11px 22px;border-radius:999px;font-size:14px;font-weight:700;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;white-space:nowrap;z-index:100}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── ADD BAR ── */
+.add-bar{position:fixed;bottom:0;left:0;right:0;z-index:20;background:var(--navy-dark);padding:12px 40px;display:flex;align-items:center;gap:14px}
+.add-btn{width:46px;height:46px;border-radius:50%;background:var(--teal);color:white;border:none;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;flex-shrink:0;box-shadow:0 4px 14px rgba(91,191,191,.4);transition:all .15s}
+.add-btn:hover{transform:scale(1.08);background:var(--teal-dark)}
+.add-bar-copy strong{font-size:13px;display:block;color:rgba(255,255,255,.9)}
+.add-bar-copy span{font-size:11px;color:rgba(255,255,255,.55)}
+
+/* ── OVERLAY ── */
+.overlay{position:fixed;inset:0;z-index:50;background:rgba(18,28,44,.55);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:24px}
+.overlay.hidden{display:none}
+.add-box{background:var(--surface);border-radius:28px;width:min(500px,100%);padding:28px;box-shadow:var(--shadow-xl)}
+.add-box h3{font-family:'DM Serif Display',serif;font-size:22px;font-weight:400;color:var(--ink);margin-bottom:16px}
+.add-box textarea{width:100%;padding:13px 16px;border-radius:var(--r-sm);border:1.5px solid var(--line);background:var(--page);color:var(--ink);font-size:15px;resize:none;outline:none;margin-bottom:14px;transition:border-color .15s;font-family:inherit}
+.add-box textarea:focus{border-color:var(--teal)}
+.add-box-btns{display:flex;gap:10px}
+.btn-add-submit{flex:1;padding:12px;border-radius:999px;background:var(--teal);border:none;color:white;font-size:14px;font-weight:700;cursor:pointer}
+.btn-add-cancel{padding:12px 20px;border-radius:999px;background:transparent;border:1.5px solid var(--line);color:var(--muted);font-size:14px;font-weight:700;cursor:pointer}
+
+/* ── REWARD ── */
+.reward-strip{margin:14px 40px 0;padding:14px 20px;background:var(--navy);border-radius:var(--r-md);display:flex;align-items:center;gap:14px;animation:stripIn .4s ease}
+@keyframes stripIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.reward-strip.hidden{display:none}
+.reward-icon{font-size:22px}
+.reward-copy strong{font-size:15px;color:#fff;display:block}
+.reward-copy span{font-size:12px;color:var(--teal)}
+
+/* ── NOT READY STATE ── */
+.not-ready-wrap{max-width:540px;margin:60px auto;padding:0 24px;text-align:center}
+.not-ready-icon{font-size:52px;margin-bottom:20px}
+.not-ready-wrap h2{font-family:'DM Serif Display',serif;font-size:28px;font-weight:400;color:var(--ink);margin-bottom:10px}
+.not-ready-wrap p{font-size:15px;color:var(--muted);line-height:1.7;margin-bottom:28px}
+.not-ready-steps{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;text-align:left;margin-bottom:28px}
+.not-ready-step{display:flex;align-items:center;gap:14px;padding:16px 20px;border-bottom:1px solid var(--line)}
+.not-ready-step:last-child{border-bottom:none}
+.nrs-icon{font-size:20px;flex-shrink:0}
+.nrs-text strong{font-size:14px;font-weight:700;display:block;color:var(--ink)}
+.nrs-text span{font-size:12px;color:var(--muted)}
+.btn-demo{display:inline-flex;align-items:center;gap:8px;padding:13px 28px;border-radius:999px;background:var(--teal);border:none;color:white;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;text-decoration:none;transition:all .2s}
+.btn-demo:hover{background:var(--teal-dark);transform:translateY(-1px)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .board{grid-template-columns:1fr 1fr}
+}
+@media(max-width:600px){
+  .topbar,.page-header,.board-wrap,.add-bar{padding-left:16px;padding-right:16px}
+  .board{grid-template-columns:1fr}
+  .drawer{width:100%;top:auto;height:85vh;border-radius:24px 24px 0 0;border-left:none;border-top:1px solid var(--line)}
+}
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN SCREEN (shown if no user saved) ── -->
+<div id="loginScreen" class="login-wrap" style="display:none">
+  <div class="login-box">
+    <div class="login-eyebrow">Welcome back</div>
+    <h2>Your dashboard is waiting.</h2>
+    <p>Enter the email address you used when you signed up for Qwell Me.</p>
+    <div class="login-field">
+      <label>Your email</label>
+      <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email">
+    </div>
+    <button class="btn-login" id="btnLogin">Open my dashboard →</button>
+    <p class="login-note">New to Qwell Me? <a href="onboarding.html" style="color:var(--teal-dark)">Get started here</a></p>
+  </div>
+</div>
+
+<!-- ── MAIN DASHBOARD (shown when user is known) ── -->
+<div id="mainDashboard" style="display:none">
+
+  <div class="topbar">
+    <img src="data:image/png;base64,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" class="logo" alt="Qwell Me">
+    <div class="topbar-right">
+      <div class="pill"><div class="pulse"></div><span id="userNamePill">Loading...</span></div>
+      <button class="ghost-btn" id="refreshBtn">↻ Refresh</button>
+      <button class="ghost-btn" id="signOutBtn">Sign out</button>
+    </div>
+  </div>
+
+  <!-- Loading state -->
+  <div id="loadingState" class="loading-wrap">
+    <div class="loading-spinner"></div>
+    <h2>Getting your tasks…</h2>
+    <p>Pulling your latest priority list from Qwell Me.</p>
+  </div>
+
+  <!-- Not ready state (no tasks yet) -->
+  <div id="notReadyState" class="not-ready-wrap" style="display:none">
+    <div class="not-ready-icon">⏳</div>
+    <h2>We're still setting you up.</h2>
+    <p>Your inbox hasn't been scanned yet — we'll send you a message as soon as your dashboard is ready. Usually within a few hours.</p>
+    <div class="not-ready-steps">
+      <div class="not-ready-step">
+        <span class="nrs-icon">✅</span>
+        <div class="nrs-text"><strong>Onboarding complete</strong><span>Your preferences are saved</span></div>
+      </div>
+      <div class="not-ready-step">
+        <span class="nrs-icon">⏳</span>
+        <div class="nrs-text"><strong>Inbox connection</strong><span>We're connecting your Gmail — usually within a few hours</span></div>
+      </div>
+      <div class="not-ready-step">
+        <span class="nrs-icon">🔒</span>
+        <div class="nrs-text"><strong>First scan</strong><span>Claude will read your emails and build your first list</span></div>
+      </div>
+    </div>
+    <a href="demo.html" class="btn-demo">Preview the demo dashboard →</a>
+  </div>
+
+  <!-- Live dashboard board -->
+  <div id="liveBoard" style="display:none">
+    <div class="page-header">
+      <div>
+        <h1 id="greetingText">Good morning.</h1>
+        <p id="greetingSubtext">Here's what needs you today.</p>
+      </div>
+      <div class="header-chips">
+        <div class="hchip live" id="taskCountChip">Loading...</div>
+        <div class="hchip" id="datechip"></div>
+      </div>
+    </div>
+
+    <div class="reward-strip hidden" id="rewardStrip">
+      <div class="reward-icon">🎉</div>
+      <div class="reward-copy">
+        <strong id="rewardText"></strong>
+        <span id="rewardSub">One less thing in your head.</span>
+      </div>
+    </div>
+
+    <div class="board-wrap">
+      <div class="board">
+        <div class="col col-focus" id="col-focus">
+          <div class="col-head">
+            <div class="col-head-left">
+              <div class="col-dot"></div>
+              <span class="col-label">Focus</span>
+            </div>
+            <span class="col-count" id="count-focus">0</span>
+          </div>
+          <div class="col-sub">Needs your attention today</div>
+          <div class="col-body" id="cards-focus"></div>
+        </div>
+        <div class="col col-quick" id="col-quick">
+          <div class="col-head">
+            <div class="col-head-left">
+              <div class="col-dot"></div>
+              <span class="col-label">Quick wins</span>
+            </div>
+            <div style="display:flex;gap:6px;align-items:center">
+              <span class="col-count" id="count-quick">0</span>
+              <button class="col-toggle" id="toggle-quick">Hide</button>
+            </div>
+          </div>
+          <div class="col-sub">Under 5 minutes each</div>
+          <div class="col-body" id="cards-quick"></div>
+        </div>
+        <div class="col col-follow" id="col-follow">
+          <div class="col-head">
+            <div class="col-head-left">
+              <div class="col-dot"></div>
+              <span class="col-label">Parked</span>
+            </div>
+            <div style="display:flex;gap:6px;align-items:center">
+              <span class="col-count" id="count-follow">0</span>
+              <button class="col-toggle" id="toggle-follow">Hide</button>
+            </div>
+          </div>
+          <div class="col-sub">Safe to deal with later</div>
+          <div class="col-body" id="cards-follow"></div>
+        </div>
+        <div class="col col-done" id="col-done">
+          <div class="col-head">
+            <div class="col-head-left">
+              <div class="col-dot"></div>
+              <span class="col-label">Done</span>
+            </div>
+            <div style="display:flex;gap:6px;align-items:center">
+              <span class="col-count" id="count-done">0</span>
+              <button class="col-toggle" id="toggle-done">Hide</button>
+            </div>
+          </div>
+          <div class="col-body" id="cards-done"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add task bar -->
+  <div class="add-bar">
+    <button class="add-btn" id="addBtn">+</button>
+    <div class="add-bar-copy">
+      <strong>Add something</strong>
+      <span>Capture a task and Qwell Me will sort it</span>
+    </div>
+  </div>
+
+</div><!-- end mainDashboard -->
+
+<!-- Drawer -->
+<div class="drawer-backdrop" id="drawerBackdrop"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-head">
+    <div>
+      <div class="drawer-source" id="dSource"></div>
+      <div class="drawer-title" id="dTitle"></div>
+    </div>
+    <button class="drawer-close" id="drawerClose">✕</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+  <div class="drawer-actions" id="drawerActions"></div>
+</div>
+
+<!-- Add task overlay -->
+<div class="overlay hidden" id="addOverlay">
+  <div class="add-box">
+    <h3>What do you need to add?</h3>
+    <textarea id="addInput" rows="3" placeholder="e.g. Reply to Tom about the invoice, Book dentist appointment…"></textarea>
+    <div class="add-box-btns">
+      <button class="btn-add-submit" id="addSubmitBtn">Add it →</button>
+      <button class="btn-add-cancel" id="addCancelBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── WEBHOOK ──────────────────────────────────────────────────────────────────
+const WEBHOOK_GET_TASKS = 'https://hook.eu1.make.com/wf7stpc95ag1w1x1kevxp6v6d1r62qdk';
+
+// ── FIELD MAP (numbered keys — Make Search Rows, 0-indexed from sheet) ──────
+// 0=title  1=sender  2=created  3=due  4=status  5=action  6=priority
+// 7=subject  8=sender_name  9=message_id  10=snoozed_until  11=completed_at  12=account
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+let currentUser = null;
+let allTasks = [];
+let doneTasks = [];
+let activeDrawerId = null;
+
+// ── BOOT ─────────────────────────────────────────────────────────────────────
+function boot() {
+  const saved = localStorage.getItem('qwellme_user');
+  if (saved) {
+    try {
+      currentUser = JSON.parse(saved);
+      applyTheme(currentUser.theme || 'calm');
+      showDashboard();
+    } catch(e) {
+      showLogin();
+    }
+  } else {
+    showLogin();
+  }
+}
+
+function showLogin() {
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('mainDashboard').style.display = 'none';
+}
+
+function showDashboard() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('mainDashboard').style.display = 'block';
+  document.getElementById('userNamePill').textContent = currentUser.name || currentUser.email;
+  loadTasks();
+}
+
+function applyTheme(theme) {
+  document.body.className = `theme-${theme}`;
+}
+
+// ── LOGIN ────────────────────────────────────────────────────────────────────
+document.getElementById('btnLogin').addEventListener('click', function() {
+  const email = document.getElementById('loginEmail').value.trim();
+  if (!email || !email.includes('@')) {
+    alert('Please enter a valid email address.');
+    return;
+  }
+  currentUser = { email };
+  localStorage.setItem('qwellme_user', JSON.stringify(currentUser));
+  showDashboard();
+});
+
+document.getElementById('loginEmail').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') document.getElementById('btnLogin').click();
+});
+
+document.getElementById('signOutBtn').addEventListener('click', function() {
+  localStorage.removeItem('qwellme_user');
+  currentUser = null;
+  allTasks = [];
+  doneTasks = [];
+  showLogin();
+});
+
+document.getElementById('refreshBtn').addEventListener('click', loadTasks);
+
+// ── LOAD TASKS ────────────────────────────────────────────────────────────────
+async function loadTasks() {
+  document.getElementById('loadingState').style.display = 'block';
+  document.getElementById('liveBoard').style.display = 'none';
+  document.getElementById('notReadyState').style.display = 'none';
+
+  try {
+    const raw = await fetchAllTasks(currentUser.email);
+
+    allTasks = raw
+      .filter(t => t && t['0'] && (t['4'] || '').toLowerCase() === 'open')
+      .map((t, i) => ({
+        id:          t['9']  || `task-${i}`,
+        title:       t['0']  || 'Untitled task',
+        sender:      t['8']  || t['1'] || 'Unknown',
+        senderEmail: t['1']  || '',
+        subject:     t['7']  || '',
+        account:     t['12'] || currentUser.email || '',
+        action:      t['5']  || 'TASK',
+        priority:    t['6']  || '',
+        due:         t['3']  || '',
+        created:     t['2']  || '',
+        lane: getLane(t, i)
+      }));
+
+    doneTasks = raw
+      .filter(t => t && ['done','DONE','completed','COMPLETED'].includes((t['4'] || '')))
+      .map((t, i) => ({
+        id:     t['9']  || `done-${i}`,
+        title:  t['0']  || 'Handled',
+        sender: t['8']  || t['1'] || ''
+      }));
+
+    if (allTasks.length === 0 && doneTasks.length === 0) {
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('notReadyState').style.display = 'block';
+      return;
+    }
+
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('liveBoard').style.display = 'block';
+    setGreeting();
+    render();
+    if (!localStorage.getItem('qwellme_seenStartOverlay')) {
+      setTimeout(() => {
+        showStartOverlay();
+        localStorage.setItem('qwellme_seenStartOverlay', 'true');
+      }, 700);
+    }
+
+  } catch(err) {
+    console.error('Failed to load tasks:', err);
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('notReadyState').style.display = 'block';
+  }
+}
+
+async function fetchAllTasks(email) {
+  const response = await fetch(WEBHOOK_GET_TASKS, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email })
+  }).then(r => r.json()).catch(() => null);
+
+  if (!response) return [];
+
+  // Make returns an array of task objects
+  if (Array.isArray(response)) return response;
+
+  // Wrapped in a Body/array envelope
+  if (response?.Body?.array) return response.Body.array;
+  if (response?.array) return response.array;
+  if (response?.data) return response.data;
+
+  // Single task object returned
+  if (response['title'] || response['message_id']) return [response];
+
+  return [];
+}
+
+// ── LANE ASSIGNMENT ──────────────────────────────────────────────────────────
+function getLane(task, index) {
+  const due      = task['3'] || '';
+  const title    = (task['0'] || '').toLowerCase();
+  const priority = (task['6'] || '').toLowerCase();
+  const today    = Math.floor(Date.now() / 86400000) + 25569;
+
+  if (priority === 'high' || priority === 'urgent') return 'focus';
+  if (due && due !== 'NONE' && parseInt(due) <= today + 2) return 'focus';
+  if (/(urgent|today|deadline|payment|reply|confirm|consent|direct debit|detention|behaviour)/i.test(title)) return 'focus';
+  if (priority === 'low') return 'follow';
+  if (/(quick|unsubscribe|filter|1 min|2 min)/i.test(title)) return 'quick';
+  if (index < 3) return 'focus';
+  if (index < 6) return 'quick';
+  return 'follow';
+}
+
+// ── GREETING ──────────────────────────────────────────────────────────────────
+function setGreeting() {
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+
+  const user = currentUser || {};
+  const name = user.name ? `, ${user.name.split(' ')[0]}` : '';
+
+  const focusTasks = allTasks.filter(t => t.lane === 'focus');
+  const focusCount = focusTasks.length;
+
+  let message = '';
+
+  if (user.tone === 'gentle') {
+    message = focusCount > 0
+      ? `Let's keep things simple — start with one thing.`
+      : `Everything's calm right now. Take it steady.`;
+  }
+  else if (user.tone === 'direct') {
+    message = focusCount > 0
+      ? `You have ${focusCount} priority task${focusCount > 1 ? 's' : ''}. Start with the first.`
+      : `Nothing urgent — you're on track.`;
+  }
+  else if (user.tone === 'brief') {
+    message = focusCount > 0
+      ? `${focusCount} task${focusCount > 1 ? 's' : ''}. Start.`
+      : `All clear.`;
+  }
+  else {
+    message = focusCount > 0
+      ? `${focusCount} thing${focusCount > 1 ? 's' : ''} need${focusCount === 1 ? 's' : ''} you today.`
+      : 'Everything is under control.';
+  }
+
+  document.getElementById('greetingText').textContent = `${greeting}${name}.`;
+  document.getElementById('greetingSubtext').textContent = message;
+
+  document.getElementById('taskCountChip').textContent =
+    `${allTasks.length} open task${allTasks.length !== 1 ? 's' : ''}`;
+
+  const now = new Date();
+  document.getElementById('datechip').textContent = now.toLocaleDateString('en-GB', {
+    weekday: 'long', day: 'numeric', month: 'long'
+  });
+}
+
+// ── RENDER ───────────────────────────────────────────────────────────────────
+function render() {
+  ['focus','quick','follow'].forEach(renderCol);
+  renderDone();
+  renderCounts();
+}
+
+function renderCol(lane) {
+  const el = document.getElementById(`cards-${lane}`);
+  const tasks = allTasks.filter(t => t.lane === lane);
+  el.innerHTML = tasks.map((t, i) => cardHTML(t, i)).join('') ||
+    `<div class="empty-state"><div class="empty-icon">✨</div><p style="font-size:13px;color:var(--muted)">Nothing here right now.</p></div>`;
+
+  el.querySelectorAll('.btn-done,.btn-done-only').forEach(b =>
+    b.addEventListener('click', e => { e.stopPropagation(); markDone(b.dataset.id); })
+  );
+  el.querySelectorAll('.card[data-id]').forEach(c =>
+    c.addEventListener('click', () => openDrawer(c.dataset.id))
+  );
+}
+
+function renderDone() {
+  const el = document.getElementById('cards-done');
+  const all = doneTasks.concat(
+    allTasks.filter(t => t.lane === 'done').map(t => ({ id: t.id, title: t.title, sender: t.sender }))
+  );
+  el.innerHTML = all.map(d => `
+    <div class="card card-done-state">
+      <div class="card-source">✓ Handled</div>
+      <div class="card-title">${d.title}</div>
+      ${d.sender ? `<div class="card-desc">${d.sender}</div>` : ''}
+    </div>`).join('') || `<div style="padding:16px 12px;font-size:13px;color:var(--muted)">Nothing marked done yet.</div>`;
+}
+
+function renderCounts() {
+  ['focus','quick','follow'].forEach(l => {
+    document.getElementById(`count-${l}`).textContent = allTasks.filter(t => t.lane === l).length;
+  });
+  document.getElementById('count-done').textContent = doneTasks.length;
+}
+
+function cardHTML(task, index) {
+  const isUrgent = task.lane === 'focus';
+  const dueLabel = task.due ? formatDue(task.due) : null;
+  const chips = [
+    dueLabel ? `<span class="chip urgent">${dueLabel}</span>` : '',
+    task.action === 'TASK' ? `<span class="chip task">Action needed</span>` : '',
+    task.action === 'UNSUBSCRIBE' ? `<span class="chip">Unsubscribe</span>` : '',
+    task.action === 'FILTER' ? `<span class="chip">Set filter</span>` : '',
+  ].filter(Boolean).join('');
+
+  const actions = task.lane === 'focus'
+    ? `<div class="card-actions">
+         <button class="btn-done" data-id="${task.id}" style="flex:1">Mark done ✓</button>
+       </div>`
+    : `<button class="btn-done-only" data-id="${task.id}">Mark done ✓</button>`;
+
+  return `
+    <div class="card ${isUrgent ? 'urgent-card' : ''}" data-id="${task.id}" style="animation-delay:${index * 0.06}s">
+      <div class="card-source">📧 ${escHtml(task.sender)}</div>
+      <div class="card-title">${escHtml(task.title)}</div>
+      ${task.subject ? `<div class="card-desc">${escHtml(task.subject)}</div>` : ''}
+      ${chips ? `<div class="card-chips">${chips}</div>` : ''}
+      ${actions}
+    </div>`;
+}
+
+function formatDue(due) {
+  if (!due) return null;
+  const num = parseInt(due);
+  if (isNaN(num)) return due;
+  // Excel serial date to JS date
+  const d = new Date((num - 25569) * 86400 * 1000);
+  const today = new Date(); today.setHours(0,0,0,0);
+  const diff = Math.round((d - today) / 86400000);
+  if (diff < 0) return 'Overdue';
+  if (diff === 0) return 'Due today';
+  if (diff === 1) return 'Due tomorrow';
+  if (diff <= 7) return `Due ${d.toLocaleDateString('en-GB',{weekday:'long'})}`;
+  return `Due ${d.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}`;
+}
+
+function escHtml(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── MARK DONE ────────────────────────────────────────────────────────────────
+function markDone(id) {
+  const idx = allTasks.findIndex(t => t.id === id);
+  if (idx === -1) return;
+  const task = allTasks[idx];
+
+  const cardEl = document.querySelector(`.card[data-id="${id}"]`);
+  if (cardEl) {
+    cardEl.classList.add('completing');
+    setTimeout(() => finalise(task), 560);
+  } else {
+    finalise(task);
+  }
+  closeDrawer();
+}
+
+function finalise(task) {
+  allTasks = allTasks.filter(t => t.id !== task.id);
+  doneTasks.unshift({ id: `d-${task.id}`, title: task.title, sender: task.sender });
+  renderCounts();
+  renderCol(task.lane);
+  renderDone();
+  showReward(task.title);
+  setGreeting();
+}
+
+function showReward(title) {
+  const s = document.getElementById('rewardStrip');
+  document.getElementById('rewardText').textContent = `${title} — done.`;
+  s.classList.remove('hidden');
+  s.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  setTimeout(() => s.classList.add('hidden'), 4500);
+  showToast('Done. One less thing ✓');
+}
+
+// ── DRAWER ───────────────────────────────────────────────────────────────────
+function openDrawer(id) {
+  const task = allTasks.find(t => t.id === id);
+  if (!task) return;
+  activeDrawerId = id;
+
+  document.getElementById('dSource').textContent = `📧 ${task.sender}`;
+  document.getElementById('dTitle').textContent = task.title;
+
+  const dueLabel = task.due ? formatDue(task.due) : null;
+
+  document.getElementById('drawerBody').innerHTML = `
+    ${task.subject ? `
+      <div class="email-preview">
+        <div class="email-preview-head">
+          <div class="email-preview-from">${escHtml(task.sender)} &lt;${escHtml(task.senderEmail)}&gt;</div>
+          <div class="email-preview-subject">${escHtml(task.subject)}</div>
+        </div>
+      </div>` : ''}
+    ${dueLabel ? `<div><div class="drawer-section-label">When</div><div class="drawer-section-body" style="color:var(--urgent);font-weight:700">${dueLabel}</div></div>` : ''}
+    ${task.priority ? `<div><div class="drawer-section-label">Priority</div><div class="drawer-section-body">${escHtml(task.priority)}</div></div>` : ''}
+    <div><div class="drawer-section-label">Action</div><div class="drawer-section-body">${escHtml(task.action)}</div></div>
+    <div><div class="drawer-section-label">Account</div><div class="drawer-section-body" style="color:var(--muted);font-size:13px">${escHtml(task.account)}</div></div>
+  `;
+
+  const gmailUrl = task.id && !task.id.startsWith('task-') ? `https://mail.google.com/mail/u/0/#inbox/${task.id}` : null;
+
+  document.getElementById('drawerActions').innerHTML = `
+    ${gmailUrl ? `<a class="btn-drawer-gmail" href="${gmailUrl}" target="_blank" rel="noopener">Open in Gmail ↗</a>` : ''}
+    <button class="btn-drawer-done" data-id="${task.id}">Mark as done ✓</button>
+  `;
+
+  document.querySelector('.btn-drawer-done').addEventListener('click', () => {
+    closeDrawer();
+    markDone(task.id);
+  });
+
+  document.getElementById('drawerBackdrop').classList.add('open');
+  document.getElementById('drawer').classList.add('open');
+}
+
+function closeDrawer() {
+  document.getElementById('drawerBackdrop').classList.remove('open');
+  document.getElementById('drawer').classList.remove('open');
+  activeDrawerId = null;
+}
+
+document.getElementById('drawerClose').addEventListener('click', closeDrawer);
+document.getElementById('drawerBackdrop').addEventListener('click', closeDrawer);
+
+// ── COLUMN TOGGLES ────────────────────────────────────────────────────────────
+['quick','follow','done'].forEach(lane => {
+  document.getElementById(`toggle-${lane}`).addEventListener('click', function() {
+    const col = document.getElementById(`col-${lane}`);
+    col.classList.toggle('collapsed');
+    this.textContent = col.classList.contains('collapsed') ? 'Show' : 'Hide';
+  });
+});
+
+// ── ADD TASK ─────────────────────────────────────────────────────────────────
+document.getElementById('addBtn').addEventListener('click', () => {
+  document.getElementById('addOverlay').classList.remove('hidden');
+  setTimeout(() => document.getElementById('addInput').focus(), 50);
+});
+
+document.getElementById('addCancelBtn').addEventListener('click', () => {
+  document.getElementById('addOverlay').classList.add('hidden');
+});
+
+document.getElementById('addSubmitBtn').addEventListener('click', () => {
+  const v = document.getElementById('addInput').value.trim();
+  if (!v) return;
+  const lower = v.toLowerCase();
+  let lane = 'follow';
+  if (/(today|tomorrow|urgent|payment|due|deadline|school|confirm|consent|call)/i.test(lower)) lane = 'focus';
+  else if (/(quick|check|reply|message|order|book|email|text)/i.test(lower)) lane = 'quick';
+
+  const newTask = {
+    id: `cap-${Date.now()}`,
+    title: v.slice(0, 80),
+    sender: 'Added by you',
+    senderEmail: '',
+    subject: '',
+    account: currentUser.email,
+    action: 'TASK',
+    notes: '',
+    due: '',
+    created: '',
+    lane
+  };
+  allTasks.unshift(newTask);
+  document.getElementById('col-' + lane).classList.remove('collapsed');
+  render();
+  setGreeting();
+  document.getElementById('addOverlay').classList.add('hidden');
+  document.getElementById('addInput').value = '';
+  showToast('Captured — Qwell Me has sorted it ✓');
+});
+
+document.getElementById('addInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); document.getElementById('addSubmitBtn').click(); }
+});
+
+document.getElementById('addOverlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('addOverlay')) document.getElementById('addOverlay').classList.add('hidden');
+});
+
+// ── TOAST ────────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ── ESCAPE ───────────────────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  closeDrawer();
+  document.getElementById('addOverlay').classList.add('hidden');
+});
+
+
+// ── START TASK OVERLAY + GUIDE ────────────────────────────────────────────────
+let guideStep = 0;
+let chosenTaskId = null;
+
+function getFirstFocusTask() {
+  const focus = allTasks.filter(t => t.lane === 'focus');
+  return focus.length ? focus[0] : allTasks[0];
+}
+
+function showStartOverlay() {
+  const task = getFirstFocusTask();
+  if (!task) return;
+  chosenTaskId = task.id;
+  const overlay = document.createElement('div');
+  overlay.id = 'startOverlay';
+  overlay.className = 'overlay';
+  overlay.innerHTML = `
+    <div class="add-box">
+      <h3>Let's start here</h3>
+      <p style="margin-bottom:14px;color:var(--muted)">This is the easiest place to begin.</p>
+      <div class="card urgent-card" style="cursor:default;pointer-events:none">
+        <div class="card-source">📧 ${escHtml(task.sender)}</div>
+        <div class="card-title">${escHtml(task.title)}</div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:14px">
+        <button class="btn-add-submit" onclick="startFirstTask()">Start this →</button>
+        <button class="btn-add-cancel" onclick="closeStartOverlay()">See everything</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+}
+
+function closeStartOverlay() {
+  const el = document.getElementById('startOverlay');
+  if (el) el.remove();
+}
+
+function startFirstTask() {
+  closeStartOverlay();
+  const card = document.querySelector(`.card[data-id="${chosenTaskId}"]`);
+  if (!card) return;
+  card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  card.style.boxShadow = '0 0 0 3px var(--teal)';
+  setTimeout(() => { card.style.boxShadow = ''; }, 2000);
+  startGuide();
+}
+
+// ── GUIDE ─────────────────────────────────────────────────────────────────────
+function startGuide() {
+  if (localStorage.getItem('qwellme_seenGuide')) return;
+  guideStep = 0;
+  showGuide();
+}
+
+function showGuide() {
+  let guide = document.getElementById('guideBox');
+  if (!guide) {
+    guide = document.createElement('div');
+    guide.id = 'guideBox';
+    Object.assign(guide.style, {
+      position: 'fixed',
+      zIndex: '100',
+      background: 'var(--surface)',
+      padding: '18px 20px',
+      borderRadius: '14px',
+      boxShadow: 'var(--shadow-md)',
+      maxWidth: '260px',
+      border: '1px solid var(--line)',
+      fontFamily: 'inherit'
+    });
+    document.body.appendChild(guide);
+  }
+
+  const btnStyle = 'margin-top:12px;width:100%;padding:10px;border-radius:999px;background:var(--teal);border:none;color:white;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer';
+
+  if (guideStep === 0) {
+    const el = document.querySelector(`.card[data-id="${chosenTaskId}"]`);
+    if (!el) return;
+    guide.innerHTML = `
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--teal);margin-bottom:6px">Start here</div>
+      <strong style="font-size:14px;color:var(--ink)">This is your first task.</strong>
+      <p style="font-size:13px;color:var(--muted);margin-top:4px;line-height:1.5">Click on it to see what needs doing, or just mark it done when you're finished.</p>
+      <button style="${btnStyle}" onclick="nextGuide()">Got it →</button>
+    `;
+    positionGuide(guide, el);
+  }
+  else if (guideStep === 1) {
+    const el = document.getElementById('addBtn');
+    guide.innerHTML = `
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--teal);margin-bottom:6px">Add anything</div>
+      <strong style="font-size:14px;color:var(--ink)">Got something else to do?</strong>
+      <p style="font-size:13px;color:var(--muted);margin-top:4px;line-height:1.5">Tap + to capture it and Qwell Me will sort it into the right place.</p>
+      <button style="${btnStyle}" onclick="nextGuide()">Next →</button>
+    `;
+    positionGuide(guide, el);
+  }
+  else if (guideStep === 2) {
+    guide.innerHTML = `
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--teal);margin-bottom:6px">You're all set</div>
+      <strong style="font-size:14px;color:var(--ink)">One thing at a time.</strong>
+      <p style="font-size:13px;color:var(--muted);margin-top:4px;line-height:1.5">Qwell Me updates your list every morning. Just focus on what's in front of you.</p>
+      <button style="${btnStyle}" onclick="endGuide()">Let's go ✓</button>
+    `;
+    guide.style.top = '80px';
+    guide.style.left = '40px';
+  }
+}
+
+function nextGuide() {
+  guideStep++;
+  showGuide();
+}
+
+function endGuide() {
+  const g = document.getElementById('guideBox');
+  if (g) g.remove();
+  localStorage.setItem('qwellme_seenGuide', 'true');
+}
+
+function positionGuide(guide, el) {
+  const rect = el.getBoundingClientRect();
+  const top = Math.min(rect.bottom + 12, window.innerHeight - 200);
+  const left = Math.max(Math.min(rect.left, window.innerWidth - 280), 16);
+  guide.style.top = top + 'px';
+  guide.style.left = left + 'px';
+}
+
+// ── BOOT ─────────────────────────────────────────────────────────────────────
+boot();
+</script>
+</body>
+</html>
