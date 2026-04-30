@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Qwell ND Mode</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root{--teal:#4fb6b6;--teal-soft:#e9f7f7;--page:#f4f7fb;--surface:#ffffff;--ink:#172433;--muted:#6a7f95;--line:#dbe3ee;--urgent:#c84b4b}
+body{font-family:Inter;background:var(--page);margin:0;color:var(--ink)}
+.container{max-width:1100px;margin:auto;padding:24px}
+.card{background:var(--surface);border-radius:16px;padding:20px;margin-bottom:16px;border:1px solid var(--line)}
+.header{font-family:'DM Serif Display';font-size:26px;margin-bottom:10px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.hidden{display:none}
+button{padding:10px 14px;border:none;border-radius:10px;cursor:pointer;font-weight:600}
+.primary{background:var(--teal);color:white}
+.secondary{background:var(--surface);border:1px solid var(--line);color:var(--muted)}
+.item{padding:14px;border-radius:12px;margin-bottom:10px;background:var(--surface);cursor:pointer;display:flex;justify-content:space-between;gap:12px;border:1px solid var(--line)}
+.item.avoid{border-left:4px solid var(--urgent)}
+.meta{font-size:12px;color:var(--muted)}
+.layout{display:grid;grid-template-columns:1.2fr .8fr;gap:18px}
+.qwell{margin-top:12px;background:var(--teal-soft);padding:12px;border-radius:10px;font-size:13px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;z-index:1000}
+.modal-card{background:white;border-radius:16px;padding:20px;max-width:420px;width:90%}
+@keyframes floatWave {
+  0%{transform:translateX(-50%) translateY(0)}
+  50%{transform:translateX(-50%) translateY(6px)}
+  100%{transform:translateX(-50%) translateY(0)}
+}
+
+#qwell-waves{
+  animation: floatWave 4s ease-in-out infinite;
+  z-index:999;
+}
+</style>
+</head>
+<body>
+
+<!-- Qwell floating presence (only shows after modal) -->
+<svg id="qwell-waves" class="hidden" viewBox="0 0 500 100" style="position:fixed;top:20px;left:50%;transform:translateX(-50%);width:220px;opacity:0.9;pointer-events:none;z-index:999">
+  <path d="M0 50 Q 50 10 100 50 T 200 50 T 300 50 T 400 50 T 500 50" stroke="#4fb6b6" stroke-width="4" fill="none"/>
+  <path d="M0 60 Q 50 30 100 60 T 200 60 T 300 60 T 400 60 T 500 60" stroke="#7fd1d1" stroke-width="3" fill="none"/>
+  <path d="M0 70 Q 50 50 100 70 T 200 70 T 300 70 T 400 70 T 500 70" stroke="#b2e4e4" stroke-width="2" fill="none"/>
+</svg>
+
+<div id="modal" class="modal">
+  <div class="modal-card">
+    <div style="display:flex;justify-content:flex-end">
+      <button type="button" class="secondary" style="font-size:11px" onclick="skipToday()">Don’t show today</button>
+    </div>
+
+    <div class="header">Hey — how are you feeling?</div>
+    <div class="grid">
+      <button type="button" class="mode-btn" onclick="setState('easy')">🧹 I want something easy</button>
+      <button type="button" class="mode-btn" onclick="setState('focus')">📋 I want to see everything</button>
+      <button type="button" class="mode-btn" onclick="setState('overwhelmed')">😮‍💨 I’m overwhelmed</button>
+    </div>
+
+    <div class="meta" style="margin-top:12px">What do you want to focus on?</div>
+    <div class="grid">
+      <button type="button" onclick="setIntent('school')">🎒 School</button>
+      <button type="button" onclick="setIntent('money')">💳 Money</button>
+      <button type="button" onclick="setIntent('catchup')">📬 Catch up</button>
+      <button type="button" onclick="setIntent('clutter')">🧹 Clean up clutter</button>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+<div id="app" class="hidden">
+  <div style="margin-bottom:12px">
+    <button type="button" class="secondary" onclick="goBack()">← Back</button>
+  </div>
+  <div class="layout">
+    <div id="list" class="card"></div>
+    <div id="detail" class="card"></div>
+  </div>
+</div>
+</div>
+
+<script>
+
+// 👉 PUT YOUR WEBHOOK HERE (same as your main dashboard)
+const WEBHOOK = 'https://hook.eu1.make.com/wf7stpc95ag1w1x1kevxp6v6d1r62qdk';
+
+// simple loader using your real data
+async function loadTasks(){
+  try{
+    const res = await fetch(WEBHOOK, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ email: 'srmemfy' }) // 👈 change if needed
+    });
+
+    const data = await res.json();
+
+    // VERY simple mapping (safe + works with your Make response)
+    return (Array.isArray(data) ? data : [data]).map((t,i)=>({
+      title: t.title || t['1'] || 'Task',
+      category: mapCategory(t),
+      due: formatDue(t.due || t['4']),
+      summary: t.subject || t['9'] || '',
+      avoid: isAvoidTask(t)
+    }));
+
+  }catch(e){
+    console.log('fallback demo data');
+    return [
+      {title:"ParentPay balance",category:"school",due:"Today",summary:"Outstanding balance",avoid:true},
+      {title:"PayPal £425",category:"money",due:"Today",summary:"Payment due",avoid:true}
+    ];
+  }
+}
+
+function mapCategory(t){
+  const text = (t.title || t['1'] || '').toLowerCase();
+  if(text.includes('pay') || text.includes('bill')) return 'money';
+  if(text.includes('school') || text.includes('parent')) return 'school';
+  return 'catchup';
+}
+
+function isAvoidTask(t){
+  const text = (t.title || t['1'] || '').toLowerCase();
+  return /pay|due|urgent|confirm/.test(text);
+}
+
+function formatDue(d){
+  if(!d || d==='NONE') return 'None';
+  return d;
+}
+
+let tasks=[];
+let selected=null;
+let mode='school';
+let state='easy';
+
+async function init(){
+  tasks = await loadTasks();
+
+  const today = new Date().toDateString();
+  if(localStorage.getItem('qwell_skip')===today){
+    document.getElementById('modal').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+
+    // show waves on auto entry
+    const waves = document.getElementById('qwell-waves');
+    waves.classList.remove('hidden');
+    waves.style.display = 'block';
+
+    render();
+  }
+}
+}
+
+init();
+
+function setState(s){ state=s; }
+
+function setIntent(m){
+  mode = m;
+  document.getElementById('modal').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+
+  // show waves AFTER entering dashboard
+  const waves = document.getElementById('qwell-waves');
+  waves.classList.remove('hidden');
+  waves.style.display = 'block';
+
+  render();
+}
+
+function getFiltered(){
+  let data = tasks.filter(t=>t.category===mode);
+
+  if(state==='easy'){
+    return data.filter(t=>!t.avoid).slice(0,1);
+  }
+
+  if(state==='overwhelmed'){
+    // show only 1–2 simplest items, not nothing
+    return data.sort((a,b)=> (a.avoid===b.avoid)?0 : a.avoid?1:-1).slice(0,2);
+  }
+
+  return data;
+}
+
+function render(){
+  let list=getFiltered();
+  document.getElementById('list').style.display = state==='easy' ? 'none' : 'block';
+  if(list.length && !selected) selected=list[0].title;
+
+  document.getElementById('list').innerHTML=list.map(t=>`
+    <div class="item ${t.avoid?'avoid':''}" onclick="select('${t.title}')">
+      <div>
+        <strong>${t.title}</strong>
+        <div class="meta">${t.due}</div>
+      </div>
+      <button type="button" class="primary">Start</button>
+    </div>
+  `).join('');
+
+  renderDetail();
+}
+
+function select(title){selected=title;render();}
+
+function renderDetail(){
+  let t=tasks.find(x=>x.title===selected);
+  if(!t) return;
+
+  let message = '';
+  if(state==='easy') message = "This won’t take long. Just do 2 mins.";
+  if(state==='focus') message = "Worth doing now.";
+  if(state==='overwhelmed') message = "Let’s keep this light — just do a tiny part. You don’t need to finish.";
+
+  document.getElementById('detail').innerHTML=`
+    <div class="header">${t.title}</div>
+    <div class="meta">Due: ${t.due}</div>
+    <div class="qwell">${message}</div>
+    <button type="button" class="primary" style="margin-top:10px">Start</button>
+  `;
+}
+
+function goBack(){
+  document.getElementById('modal').classList.remove('hidden');
+  document.getElementById('app').classList.add('hidden');
+  selected=null;
+}
+
+function skipToday(){
+  localStorage.setItem('qwell_skip', new Date().toDateString());
+  document.getElementById('modal').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+
+  // show waves
+  const waves = document.getElementById('qwell-waves');
+  waves.classList.remove('hidden');
+  waves.style.display = 'block';
+
+  render();
+}
+
+</script>
+
+</body>
+</html>
+
