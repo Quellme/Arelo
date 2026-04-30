@@ -1,0 +1,1792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Qwell Me</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:#3d5a7a;
+  --navy-dark:#2c4260;
+  --navy-mid:#4e6d8c;
+  --navy-soft:#eef2f7;
+  --navy-line:#d0dae6;
+  --teal:#5bbfbf;
+  --teal-soft:#e6f5f5;
+  --teal-dark:#3a9090;
+  --teal-glow:rgba(91,191,191,0.45);
+  --page:#f0f3f7;
+  --surface:#ffffff;
+  --ink:#1e2e3e;
+  --muted:#5a7089;
+  --line:#d0dae6;
+  --urgent:#c0392b;
+  --urgent-soft:#fdf0ef;
+  --shadow-sm:0 2px 8px rgba(30,46,62,.08);
+  --shadow-md:0 8px 28px rgba(30,46,62,.13);
+  --shadow-xl:0 24px 64px rgba(20,35,55,.22);
+  --r-lg:20px; --r-md:14px; --r-sm:8px;
+  --sidebar-w:252px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Atkinson Hyperlegible',sans-serif;background:var(--page);color:var(--ink);display:flex}
+button,input,select{font:inherit}
+
+/* ══════════════════════════════════════════
+   SIDEBAR
+══════════════════════════════════════════ */
+.sidebar {
+  width:var(--sidebar-w);
+  flex-shrink:0;
+  background:var(--navy-dark);
+  display:flex;
+  flex-direction:column;
+  height:100vh;
+  overflow:hidden;
+  position:relative;
+  z-index:10;
+}
+.sidebar-logo {
+  padding:22px 20px 18px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  flex-shrink:0;
+}
+.logo-mark {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  text-decoration:none;
+}
+.logo-orb-mini {
+  width:28px;height:28px;
+  border-radius:50%;
+  background:radial-gradient(circle at 35% 35%, #fff, var(--teal));
+  box-shadow:0 0 10px var(--teal-glow);
+  flex-shrink:0;
+  animation:orbPulse 3s ease-in-out infinite alternate;
+}
+@keyframes orbPulse {
+  from{box-shadow:0 0 8px var(--teal-glow)}
+  to{box-shadow:0 0 18px var(--teal-glow), 0 0 30px rgba(91,191,191,.2)}
+}
+.logo-text {
+  font-family:'DM Serif Display',serif;
+  font-size:17px;font-weight:400;
+  color:#fff;letter-spacing:-.01em;
+}
+.logo-text span{color:var(--teal)}
+
+.sidebar-section {
+  padding:14px 10px 6px;
+  flex-shrink:0;
+}
+.sidebar-section-label {
+  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;
+  color:rgba(255,255,255,.35);
+  padding:0 10px;margin-bottom:4px;
+}
+.nav-item {
+  display:flex;align-items:center;gap:10px;
+  padding:9px 12px;
+  border-radius:10px;
+  cursor:pointer;
+  transition:all .15s;
+  position:relative;
+  text-decoration:none;
+}
+.nav-item:hover{background:rgba(255,255,255,.08)}
+.nav-item.active{background:rgba(91,191,191,.15);border:1px solid rgba(91,191,191,.25)}
+.nav-icon {
+  width:18px;height:18px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;opacity:.7;
+  flex-shrink:0;
+}
+.nav-item.active .nav-icon{opacity:1}
+.nav-label {
+  font-size:13px;font-weight:700;
+  color:rgba(255,255,255,.7);
+  flex:1;
+}
+.nav-item.active .nav-label{color:#fff}
+.nav-count {
+  font-size:11px;font-weight:700;
+  padding:2px 8px;border-radius:999px;
+  background:rgba(255,255,255,.12);
+  color:rgba(255,255,255,.7);
+  min-width:24px;text-align:center;
+}
+.nav-item.active .nav-count {
+  background:var(--teal);
+  color:#fff;
+}
+.nav-count.urgent {
+  background:var(--urgent);
+  color:#fff;
+}
+
+.sidebar-divider {
+  height:1px;
+  background:rgba(255,255,255,.08);
+  margin:8px 16px;
+}
+
+.sidebar-upcoming {
+  margin-top:auto;
+  padding:10px 10px 20px;
+  flex-shrink:0;
+  border-top:1px solid rgba(255,255,255,.08);
+}
+.upcoming-label {
+  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;
+  color:rgba(255,255,255,.35);
+  padding:10px 10px 8px;
+}
+.upcoming-item {
+  display:flex;align-items:center;gap:10px;
+  padding:7px 10px;border-radius:8px;
+  cursor:pointer;transition:background .15s;
+}
+.upcoming-item:hover{background:rgba(255,255,255,.07)}
+.upcoming-time {
+  font-size:11px;font-weight:700;
+  color:var(--teal);
+  min-width:44px;
+}
+.upcoming-title {
+  font-size:12px;color:rgba(255,255,255,.65);
+  line-height:1.3;
+}
+
+.sidebar-scroll {
+  flex:1;overflow-y:auto;scrollbar-width:none;
+}
+.sidebar-scroll::-webkit-scrollbar{display:none}
+
+/* ══════════════════════════════════════════
+   MAIN CONTENT
+══════════════════════════════════════════ */
+.main {
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  height:100vh;
+  overflow:hidden;
+}
+.main-header {
+  padding:20px 28px 0;
+  display:flex;align-items:flex-start;justify-content:space-between;
+  flex-shrink:0;
+}
+.main-header-left h1 {
+  font-family:'DM Serif Display',serif;
+  font-size:26px;font-weight:400;
+  color:var(--navy);line-height:1.2;
+}
+.main-header-sub {
+  font-size:13px;color:var(--muted);margin-top:2px;
+}
+.header-progress-bar {
+  height:3px;width:100%;
+  background:var(--navy-line);
+  border-radius:999px;margin-top:8px;
+  overflow:hidden;
+}
+.header-progress-fill {
+  height:100%;
+  background:linear-gradient(90deg, var(--teal), var(--teal-dark));
+  border-radius:999px;
+  transition:width .6s cubic-bezier(.22,1,.36,1);
+}
+.header-actions {
+  display:flex;gap:8px;align-items:center;
+  padding-top:2px;
+}
+.icon-btn {
+  width:36px;height:36px;border-radius:50%;
+  border:1px solid var(--line);
+  background:var(--surface);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;cursor:pointer;
+  transition:all .15s;color:var(--muted);
+}
+.icon-btn:hover{background:var(--navy-soft);border-color:var(--navy-line)}
+.avatar-btn {
+  width:36px;height:36px;border-radius:50%;
+  background:var(--navy);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;color:#fff;
+  cursor:pointer;letter-spacing:.02em;
+  border:2px solid var(--navy-mid);
+}
+
+.main-body {
+  flex:1;overflow-y:auto;
+  padding:16px 28px 40px;
+  scrollbar-width:thin;
+  scrollbar-color:var(--navy-line) transparent;
+}
+
+/* ══════════════════════════════════════════
+   GREETING STRIP
+══════════════════════════════════════════ */
+.greeting-strip {
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--r-lg);
+  padding:18px 20px;
+  display:flex;align-items:center;gap:16px;
+  margin-bottom:20px;
+  cursor:pointer;
+  transition:all .2s;
+  position:relative;
+  overflow:hidden;
+}
+.greeting-strip:hover{box-shadow:var(--shadow-sm);transform:translateY(-1px)}
+.greeting-strip::before {
+  content:'';
+  position:absolute;top:0;left:0;right:0;
+  height:3px;
+  background:linear-gradient(90deg, var(--teal), transparent);
+}
+.greeting-orb-small {
+  width:44px;height:44px;flex-shrink:0;
+  border-radius:50%;
+  background:radial-gradient(circle at 35% 35%, #fff 0%, #c8eaea 40%, var(--teal) 100%);
+  box-shadow:0 0 16px rgba(91,191,191,.4);
+  animation:orbMorph 6s ease-in-out infinite;
+}
+@keyframes orbMorph {
+  0%,100%{border-radius:60% 40% 55% 45% / 50% 60% 40% 50%}
+  33%{border-radius:45% 55% 40% 60% / 60% 40% 55% 45%}
+  66%{border-radius:55% 45% 60% 40% / 45% 55% 50% 50%}
+}
+.greeting-text strong {
+  font-size:15px;font-weight:700;color:var(--navy);display:block;
+}
+.greeting-text span {
+  font-size:13px;color:var(--muted);
+}
+.greeting-cta {
+  margin-left:auto;
+  font-size:12px;font-weight:700;
+  color:var(--teal-dark);
+  padding:6px 14px;border-radius:999px;
+  background:var(--teal-soft);border:1px solid rgba(91,191,191,.35);
+  flex-shrink:0;
+}
+
+/* ══════════════════════════════════════════
+   VIEW MODES
+══════════════════════════════════════════ */
+.view-tabs {
+  display:flex;gap:6px;margin-bottom:16px;
+}
+.view-tab {
+  padding:6px 14px;border-radius:999px;
+  font-size:12px;font-weight:700;
+  border:1px solid var(--line);
+  background:var(--surface);color:var(--muted);
+  cursor:pointer;transition:all .15s;
+}
+.view-tab.active {
+  background:var(--navy);color:#fff;border-color:var(--navy);
+}
+.view-tab:hover:not(.active){background:var(--navy-soft)}
+
+/* ══════════════════════════════════════════
+   TASK SECTIONS
+══════════════════════════════════════════ */
+.task-section {
+  margin-bottom:24px;
+}
+.task-section-head {
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:10px;
+}
+.task-section-dot {
+  width:8px;height:8px;border-radius:50%;
+  flex-shrink:0;
+}
+.task-section-label {
+  font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--muted);
+}
+.task-section-count {
+  font-size:11px;font-weight:700;
+  padding:2px 8px;border-radius:999px;
+  background:var(--navy-soft);color:var(--navy);
+}
+.section-toggle {
+  margin-left:auto;
+  font-size:11px;color:var(--muted);cursor:pointer;
+  padding:3px 8px;border-radius:999px;
+  border:1px solid var(--line);background:var(--surface);
+  transition:background .15s;
+}
+.section-toggle:hover{background:var(--navy-soft)}
+
+.task-list {
+  display:grid;gap:8px;
+}
+
+/* ══════════════════════════════════════════
+   TASK CARD
+══════════════════════════════════════════ */
+.task-card {
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--r-md);
+  padding:14px 16px;
+  cursor:pointer;
+  transition:all .18s;
+  display:flex;gap:14px;align-items:flex-start;
+  position:relative;
+}
+.task-card:hover{
+  box-shadow:var(--shadow-sm);
+  transform:translateY(-1px);
+  border-color:#bfcfdf;
+}
+.task-card.priority-high {
+  border-left:3px solid var(--urgent);
+  padding-left:14px;
+}
+.task-card.priority-high .task-card-indicator{background:var(--urgent)}
+.task-card.quick-win {
+  border-left:3px solid var(--teal);
+  padding-left:14px;
+}
+.task-card.quick-win .task-card-indicator{background:var(--teal)}
+.task-card-indicator {
+  width:8px;height:8px;border-radius:50%;
+  background:var(--navy-mid);
+  flex-shrink:0;margin-top:5px;
+}
+.task-card-body{flex:1;min-width:0}
+.task-card-source {
+  font-size:11px;color:var(--muted);margin-bottom:3px;
+}
+.task-card-title {
+  font-size:14px;font-weight:700;
+  line-height:1.35;color:var(--ink);
+  margin-bottom:5px;
+}
+.task-card-chips {
+  display:flex;gap:5px;flex-wrap:wrap;
+}
+.chip {
+  font-size:10px;padding:2px 8px;border-radius:999px;
+  background:var(--navy-soft);border:1px solid var(--navy-line);
+  color:var(--muted);font-weight:700;
+}
+.chip.urgent{background:var(--urgent-soft);border-color:#f5c6c6;color:var(--urgent)}
+.chip.due{background:#fff8e6;border-color:#ffe0a0;color:#8a5800}
+.chip.quick{background:var(--teal-soft);border-color:rgba(91,191,191,.4);color:var(--teal-dark)}
+.task-card-action {
+  flex-shrink:0;align-self:center;
+}
+.btn-done {
+  padding:6px 12px;border-radius:999px;
+  border:1px solid var(--line);
+  background:var(--surface);color:var(--muted);
+  font-size:11px;font-weight:700;cursor:pointer;
+  transition:all .15s;white-space:nowrap;
+}
+.btn-done:hover{background:#f0fdf6;border-color:#a8dfc0;color:#2d7a62}
+
+/* Done state */
+.task-card.is-done {
+  opacity:.42;pointer-events:none;
+}
+.task-card.is-done .task-card-title{text-decoration:line-through;color:var(--muted)}
+@keyframes doneFlash{
+  0%{background:#dcfce7;border-color:#86efac}
+  100%{background:var(--surface);border-color:var(--line)}
+}
+.task-card.completing{animation:doneFlash .5s ease forwards}
+
+/* Empty state */
+.empty-state {
+  text-align:center;padding:40px 20px;
+  color:var(--muted);font-size:14px;
+}
+.empty-state strong{display:block;font-size:16px;color:var(--navy);margin-bottom:6px}
+
+/* Loading */
+.skeleton {
+  background:linear-gradient(90deg, var(--navy-soft) 25%, #e8edf4 50%, var(--navy-soft) 75%);
+  background-size:200% 100%;
+  animation:shimmer 1.4s infinite;
+  border-radius:var(--r-md);
+  height:72px;
+  margin-bottom:8px;
+}
+@keyframes shimmer{from{background-position:200% 0}to{background-position:-200% 0}}
+
+/* Focus mode — one at a time */
+.focus-mode-wrap {
+  display:flex;flex-direction:column;align-items:center;
+  padding:20px 0;
+  gap:16px;
+}
+.focus-mode-card {
+  width:100%;max-width:540px;
+  background:var(--surface);
+  border-radius:20px;
+  border:1px solid var(--line);
+  box-shadow:var(--shadow-md);
+  padding:28px;
+  text-align:center;
+}
+.focus-mode-card .focus-source{font-size:12px;color:var(--muted);margin-bottom:8px}
+.focus-mode-card .focus-title{
+  font-family:'DM Serif Display',serif;
+  font-size:22px;font-weight:400;color:var(--ink);
+  line-height:1.3;margin-bottom:20px;
+}
+.focus-mode-card .focus-actions{display:flex;gap:10px;justify-content:center}
+.btn-focus-done {
+  flex:1;max-width:160px;
+  padding:11px 18px;border-radius:999px;
+  background:var(--teal);color:#fff;
+  font-size:14px;font-weight:700;
+  border:none;cursor:pointer;transition:all .15s;
+}
+.btn-focus-done:hover{background:var(--teal-dark);transform:translateY(-1px)}
+.btn-focus-skip {
+  padding:11px 18px;border-radius:999px;
+  background:var(--surface);border:1px solid var(--line);
+  color:var(--muted);font-size:14px;font-weight:700;
+  cursor:pointer;transition:all .15s;
+}
+.btn-focus-skip:hover{background:var(--navy-soft)}
+.focus-progress {
+  font-size:13px;color:var(--muted);
+  text-align:center;
+}
+.focus-nav {
+  display:flex;align-items:center;gap:12px;
+}
+.focus-nav-dot {
+  width:7px;height:7px;border-radius:50%;
+  background:var(--navy-line);transition:all .2s;
+}
+.focus-nav-dot.active{background:var(--teal);width:20px;border-radius:999px}
+
+/* ══════════════════════════════════════════
+   ORB MODAL
+══════════════════════════════════════════ */
+.orb-overlay {
+  position:fixed;inset:0;z-index:100;
+  background:rgba(20,32,50,.65);
+  backdrop-filter:blur(10px);
+  display:flex;align-items:center;justify-content:center;
+  padding:20px;
+  opacity:0;
+  transition:opacity .3s;
+}
+.orb-overlay.visible{opacity:1}
+.orb-overlay.hidden{display:none}
+
+.orb-modal {
+  background:var(--surface);
+  border-radius:28px;
+  width:min(520px,100%);
+  max-height:90vh;
+  overflow:hidden;
+  display:flex;flex-direction:column;
+  box-shadow:var(--shadow-xl);
+  transform:translateY(28px) scale(.97);
+  transition:transform .38s cubic-bezier(.22,1,.36,1);
+  position:relative;
+}
+.orb-overlay.visible .orb-modal{transform:translateY(0) scale(1)}
+
+/* Orb stage — dark header */
+.orb-stage {
+  background:linear-gradient(180deg,#192840 0%,#2c4260 65%,#3a536e 100%);
+  padding:32px 20px 24px;
+  display:flex;flex-direction:column;align-items:center;
+  position:relative;overflow:hidden;
+  flex-shrink:0;
+}
+.orb-waves {
+  position:absolute;bottom:0;left:0;right:0;opacity:.3;
+}
+.orb-character {
+  width:80px;height:80px;
+  border-radius:60% 40% 55% 45% / 50% 60% 40% 50%;
+  background:radial-gradient(circle at 30% 30%,#ffffff 0%,#b8e8e8 35%,var(--teal) 70%,#2a8080 100%);
+  box-shadow:0 0 28px rgba(91,191,191,.65),0 0 56px rgba(91,191,191,.3),0 0 84px rgba(91,191,191,.12),inset 0 -8px 18px rgba(0,0,0,.12);
+  animation:orbFloat 4s ease-in-out infinite,orbShape 7s ease-in-out infinite;
+  position:relative;z-index:2;
+  margin-bottom:0;
+}
+@keyframes orbFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@keyframes orbShape{
+  0%,100%{border-radius:60% 40% 55% 45%/50% 60% 40% 50%}
+  25%{border-radius:45% 55% 42% 58%/58% 42% 55% 45%}
+  50%{border-radius:55% 45% 60% 40%/42% 58% 48% 52%}
+  75%{border-radius:40% 60% 48% 52%/55% 45% 58% 42%}
+}
+
+/* Top-right controls */
+.orb-modal-topbar {
+  position:absolute;top:12px;right:12px;z-index:10;
+  display:flex;align-items:center;gap:8px;
+}
+.orb-not-today {
+  font-size:11px;color:rgba(255,255,255,.55);cursor:pointer;
+  padding:4px 10px;border-radius:999px;
+  border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);
+  transition:all .15s;
+}
+.orb-not-today:hover{color:#fff;background:rgba(255,255,255,.14)}
+.orb-close {
+  width:26px;height:26px;border-radius:50%;
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);
+  color:rgba(255,255,255,.75);font-size:15px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all .15s;
+}
+.orb-close:hover{background:rgba(255,255,255,.2);color:#fff}
+
+/* Progress dots */
+.orb-progress {
+  display:flex;gap:6px;align-items:center;
+  justify-content:center;
+  padding:14px 0 0;
+  flex-shrink:0;
+  background:var(--surface);
+}
+.orb-dot {
+  width:6px;height:6px;border-radius:50%;
+  background:var(--navy-line);transition:all .3s;
+}
+.orb-dot.active{background:var(--teal);width:18px;border-radius:999px}
+.orb-dot.done{background:var(--teal);opacity:.4}
+
+/* Scrollable content area */
+.orb-modal-body {
+  flex:1;overflow-y:auto;overflow-x:hidden;
+  scrollbar-width:none;
+}
+.orb-modal-body::-webkit-scrollbar{display:none}
+
+/* Screen transitions */
+.orb-screen {
+  padding:24px 28px 20px;
+  animation:screenIn .3s cubic-bezier(.22,1,.36,1);
+}
+@keyframes screenIn{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:translateX(0)}}
+.orb-screen.slide-back{animation:screenBack .3s cubic-bezier(.22,1,.36,1)}
+@keyframes screenBack{from{opacity:0;transform:translateX(-18px)}to{opacity:1;transform:translateX(0)}}
+
+.orb-screen-eyebrow {
+  font-size:10px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.14em;color:var(--teal-dark);
+  margin-bottom:8px;
+}
+.orb-screen-title {
+  font-family:'DM Serif Display',serif;
+  font-size:24px;font-weight:400;color:var(--ink);
+  line-height:1.25;margin-bottom:6px;
+}
+.orb-screen-sub {
+  font-size:14px;color:var(--muted);line-height:1.6;
+  margin-bottom:20px;max-width:36ch;
+}
+
+/* Single-select option cards */
+.option-cards {
+  display:grid;gap:8px;margin-bottom:20px;
+}
+.option-card {
+  display:flex;align-items:center;gap:14px;
+  padding:14px 16px;border-radius:14px;
+  border:1.5px solid var(--line);background:var(--page);
+  cursor:pointer;transition:all .18s;
+}
+.option-card:hover{border-color:var(--teal);background:var(--teal-soft);transform:translateX(3px)}
+.option-card.selected{border-color:var(--teal);background:var(--teal-soft)}
+.option-card-icon{font-size:22px;flex-shrink:0;width:32px;text-align:center}
+.option-card-body{flex:1}
+.option-card-label{font-size:14px;font-weight:700;color:var(--ink);display:block;margin-bottom:2px}
+.option-card-desc{font-size:12px;color:var(--muted)}
+.option-card-check {
+  width:20px;height:20px;border-radius:50%;
+  border:2px solid var(--navy-line);
+  flex-shrink:0;transition:all .18s;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;color:transparent;
+}
+.option-card.selected .option-card-check{background:var(--teal);border-color:var(--teal);color:#fff}
+
+/* Multi-select chips */
+.chip-grid {
+  display:flex;flex-wrap:wrap;gap:8px;
+  margin-bottom:20px;
+}
+.select-chip {
+  padding:8px 14px;border-radius:999px;
+  border:1.5px solid var(--line);background:var(--page);
+  font-size:13px;font-weight:700;color:var(--muted);
+  cursor:pointer;transition:all .18s;
+  display:flex;align-items:center;gap:6px;
+}
+.select-chip:hover{border-color:var(--teal);color:var(--teal-dark);background:var(--teal-soft)}
+.select-chip.selected{border-color:var(--teal);background:var(--teal-soft);color:var(--teal-dark)}
+.select-chip .chip-icon{font-size:14px}
+
+/* Text inputs */
+.orb-field {
+  margin-bottom:14px;
+}
+.orb-field label {
+  display:block;font-size:12px;font-weight:700;
+  color:var(--navy);margin-bottom:5px;
+  text-transform:uppercase;letter-spacing:.06em;
+}
+.orb-field input {
+  width:100%;padding:11px 14px;
+  border:1.5px solid var(--line);border-radius:10px;
+  background:var(--page);color:var(--ink);
+  font-size:14px;transition:border-color .15s;
+  outline:none;
+}
+.orb-field input:focus{border-color:var(--teal);background:#fff}
+.orb-field-hint{font-size:11px;color:var(--muted);margin-top:4px}
+
+/* Nav buttons */
+.orb-nav {
+  display:flex;gap:8px;align-items:center;
+  padding:14px 28px 20px;
+  flex-shrink:0;
+  border-top:1px solid var(--line);
+  background:var(--surface);
+}
+.btn-orb-next {
+  flex:1;padding:12px 18px;border-radius:999px;
+  background:var(--teal);border:none;color:#fff;
+  font-size:14px;font-weight:700;cursor:pointer;
+  transition:all .15s;
+}
+.btn-orb-next:hover{background:var(--teal-dark);transform:translateY(-1px)}
+.btn-orb-next:disabled{opacity:.4;pointer-events:none}
+.btn-orb-back {
+  padding:12px 16px;border-radius:999px;
+  background:transparent;border:1.5px solid var(--line);
+  color:var(--muted);font-size:14px;font-weight:700;
+  cursor:pointer;transition:all .15s;
+}
+.btn-orb-back:hover{background:var(--navy-soft);border-color:var(--navy-line)}
+.btn-orb-skip {
+  font-size:12px;color:var(--muted);background:none;border:none;
+  cursor:pointer;padding:12px 8px;transition:color .15s;white-space:nowrap;
+}
+.btn-orb-skip:hover{color:var(--ink)}
+
+/* Mood cards (daily screen) */
+.mood-cards {
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:8px;margin-bottom:16px;
+}
+.mood-card {
+  border:1.5px solid var(--line);border-radius:14px;
+  padding:14px 10px 12px;cursor:pointer;
+  transition:all .2s;background:var(--page);text-align:center;
+}
+.mood-card:hover{border-color:var(--teal);background:var(--teal-soft);transform:translateY(-2px);box-shadow:0 4px 14px rgba(91,191,191,.2)}
+.mood-card.selected{border-color:var(--teal);background:var(--teal-soft)}
+.mood-icon{font-size:24px;margin-bottom:8px;display:block}
+.mood-label{font-size:12px;font-weight:700;color:var(--navy);line-height:1.3;margin-bottom:3px;display:block}
+.mood-desc{font-size:10px;color:var(--muted);line-height:1.4;display:block}
+.mood-arrow{width:24px;height:24px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;margin:8px auto 0;transition:background .2s}
+.mood-card:hover .mood-arrow,.mood-card.selected .mood-arrow{background:var(--teal)}
+.orb-privacy{font-size:11px;color:var(--muted);text-align:center;padding-bottom:4px}
+
+/* ══════════════════════════════════════════
+   DETAIL DRAWER
+══════════════════════════════════════════ */
+.drawer-backdrop {
+  position:fixed;inset:0;background:rgba(18,28,44,.3);
+  z-index:30;opacity:0;transition:opacity .2s;pointer-events:none;
+}
+.drawer-backdrop.open{opacity:1;pointer-events:all}
+.drawer {
+  position:fixed;top:0;right:0;bottom:0;
+  width:380px;max-width:100vw;
+  background:var(--surface);
+  border-left:1px solid var(--line);
+  box-shadow:var(--shadow-xl);
+  z-index:35;
+  transform:translateX(100%);
+  transition:transform .28s cubic-bezier(.22,1,.36,1);
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+.drawer.open{transform:translateX(0)}
+.drawer-head {
+  padding:18px 18px 14px;
+  border-bottom:1px solid var(--line);
+  background:var(--navy);
+  flex-shrink:0;
+  position:relative;
+}
+.drawer-head-source {font-size:11px;color:rgba(255,255,255,.5);margin-bottom:4px}
+.drawer-head-title {
+  font-family:'DM Serif Display',serif;
+  font-size:20px;font-weight:400;color:#fff;line-height:1.3;
+  padding-right:36px;
+}
+.drawer-close-btn {
+  position:absolute;top:14px;right:14px;
+  width:28px;height:28px;border-radius:50%;
+  background:rgba(255,255,255,.12);border:none;
+  color:#fff;font-size:16px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .15s;
+}
+.drawer-close-btn:hover{background:rgba(255,255,255,.22)}
+.drawer-body {
+  flex:1;overflow-y:auto;padding:18px;display:grid;gap:14px;
+}
+.drawer-field-label {
+  font-size:10px;text-transform:uppercase;letter-spacing:.12em;font-weight:700;color:var(--muted);
+  margin-bottom:4px;
+}
+.drawer-field-value {
+  font-size:14px;color:var(--ink);line-height:1.6;
+}
+.drawer-actions {
+  padding:14px 18px 18px;border-top:1px solid var(--line);
+  display:grid;gap:8px;flex-shrink:0;
+}
+.btn-drawer-primary {
+  width:100%;padding:12px;border-radius:999px;
+  background:var(--teal);border:none;color:#fff;
+  font-size:14px;font-weight:700;cursor:pointer;transition:all .15s;
+}
+.btn-drawer-primary:hover{background:var(--teal-dark)}
+.btn-drawer-secondary {
+  width:100%;padding:11px;border-radius:999px;
+  background:var(--surface);border:1px solid var(--line);color:var(--muted);
+  font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;
+}
+.btn-drawer-secondary:hover{background:var(--navy-soft)}
+
+/* ══════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════ */
+.toast {
+  position:fixed;bottom:24px;left:50%;
+  transform:translateX(-50%) translateY(16px);
+  background:var(--navy-dark);color:#fff;
+  padding:10px 22px;border-radius:999px;
+  font-size:13px;font-weight:700;
+  opacity:0;pointer-events:none;
+  transition:opacity .25s,transform .25s;
+  white-space:nowrap;z-index:200;
+  border:1px solid rgba(255,255,255,.15);
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* Sign out btn */
+.sign-out-btn {
+  display:block;width:100%;padding:9px 12px;
+  border-radius:10px;margin-top:4px;
+  background:transparent;border:none;
+  color:rgba(255,255,255,.4);font-size:12px;font-weight:700;
+  cursor:pointer;text-align:left;transition:all .15s;
+}
+.sign-out-btn:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.7)}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+     LOGIN SCREEN
+═══════════════════════════════════════ -->
+<div id="loginScreen" style="display:none;position:fixed;inset:0;z-index:200;background:var(--navy-dark);align-items:center;justify-content:center;padding:24px;">
+  <div style="background:var(--surface);border-radius:28px;width:min(420px,100%);overflow:hidden;box-shadow:var(--shadow-xl);">
+    <div style="background:linear-gradient(180deg,#192840,#2c4260);padding:36px 28px 28px;text-align:center;">
+      <div style="width:64px;height:64px;border-radius:60% 40% 55% 45%/50% 60% 40% 50%;background:radial-gradient(circle at 30% 30%,#fff 0%,#b8e8e8 35%,#5bbfbf 70%,#2a8080 100%);box-shadow:0 0 24px rgba(91,191,191,.6);margin:0 auto 16px;animation:orbShape 7s ease-in-out infinite,orbFloat 4s ease-in-out infinite;"></div>
+      <div style="font-family:'DM Serif Display',serif;font-size:26px;color:#fff;margin-bottom:6px;">Qwell Me</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.55);">calm · invisible · yours</div>
+    </div>
+    <div style="padding:28px;">
+      <div style="font-size:13px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;">Your name</div>
+      <input id="loginNameInput" type="text" placeholder="e.g. Shani" autocomplete="given-name"
+        style="width:100%;padding:11px 14px;border:1.5px solid var(--line);border-radius:10px;background:var(--page);font-size:14px;margin-bottom:14px;outline:none;font-family:inherit;"
+        onfocus="this.style.borderColor='var(--teal)'" onblur="this.style.borderColor='var(--line)'"
+        onkeydown="if(event.key==='Enter')document.getElementById('loginEmailInput').focus()">
+      <div style="font-size:13px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;">Email address</div>
+      <input id="loginEmailInput" type="email" placeholder="you@example.com" autocomplete="email"
+        style="width:100%;padding:11px 14px;border:1.5px solid var(--line);border-radius:10px;background:var(--page);font-size:14px;margin-bottom:6px;outline:none;font-family:inherit;"
+        onfocus="this.style.borderColor='var(--teal)'" onblur="this.style.borderColor='var(--line)'"
+        onkeydown="if(event.key==='Enter')submitLogin()">
+      <div id="loginError" style="font-size:12px;color:var(--urgent);min-height:18px;margin-bottom:12px;"></div>
+      <button onclick="submitLogin()"
+        style="width:100%;padding:13px;border-radius:999px;background:var(--teal);border:none;color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .15s;"
+        onmouseover="this.style.background='var(--teal-dark)'" onmouseout="this.style.background='var(--teal)'">
+        Continue →
+      </button>
+      <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:14px;">🔒 Your data is only used to run Qwell Me.</p>
+    </div>
+  </div>
+</div>
+
+<!-- APP SHELL -->
+<div id="appShell" style="display:flex;width:100%;height:100vh;">
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <a class="logo-mark" href="#">
+      <div class="logo-orb-mini"></div>
+      <span class="logo-text">Qwell <span>Me</span></span>
+    </a>
+  </div>
+
+  <div class="sidebar-scroll">
+    <div class="sidebar-section">
+      <div class="nav-item active" data-view="today" onclick="setView('today',this)">
+        <div class="nav-icon">🏠</div>
+        <span class="nav-label">Today</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Tasks</div>
+      <div class="nav-item" data-view="focus" onclick="setView('focus',this)">
+        <div class="nav-icon">🎯</div>
+        <span class="nav-label">Focus</span>
+        <span class="nav-count urgent" id="countFocus">—</span>
+      </div>
+      <div class="nav-item" data-view="quick" onclick="setView('quick',this)">
+        <div class="nav-icon">⚡</div>
+        <span class="nav-label">Quick Wins</span>
+        <span class="nav-count" id="countQuick">—</span>
+      </div>
+      <div class="nav-item" data-view="follow" onclick="setView('follow',this)">
+        <div class="nav-icon">🔄</div>
+        <span class="nav-label">Follow Up</span>
+        <span class="nav-count" id="countFollow">—</span>
+      </div>
+      <div class="nav-item" data-view="done" onclick="setView('done',this)">
+        <div class="nav-icon">✓</div>
+        <span class="nav-label">Completed</span>
+        <span class="nav-count" id="countDone">—</span>
+      </div>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="sidebar-section">
+      <div class="nav-item" onclick="showToast('Coming soon')">
+        <div class="nav-icon">📅</div>
+        <span class="nav-label">Calendar</span>
+      </div>
+      <div class="nav-item" data-view="all" onclick="setView('all',this)">
+        <div class="nav-icon">☰</div>
+        <span class="nav-label">All Tasks</span>
+      </div>
+      <div class="nav-item" onclick="showToast('Coming soon')">
+        <div class="nav-icon">📁</div>
+        <span class="nav-label">Projects</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-upcoming">
+    <div class="upcoming-label">Up Next</div>
+    <div id="upNextList">
+      <div class="upcoming-item">
+        <span class="upcoming-time">—</span>
+        <span class="upcoming-title">Loading…</span>
+      </div>
+    </div>
+    <button class="sign-out-btn" onclick="signOut()">↩ Sign out</button>
+  </div>
+</aside>
+
+<!-- ═══════════════════════════════════════
+     MAIN
+═══════════════════════════════════════ -->
+<main class="main">
+  <div class="main-header">
+    <div class="main-header-left">
+      <h1 id="viewTitle">Today</h1>
+      <div class="main-header-sub" id="viewSub">Focus on what matters most</div>
+      <div class="header-progress-bar">
+        <div class="header-progress-fill" id="progressFill" style="width:0%"></div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" title="Refresh" onclick="refreshTasks()">↻</button>
+      <button class="icon-btn" title="How are you feeling?" onclick="showMoodModal()">✦</button>
+      <div class="avatar-btn" id="avatarBtn" title="Your account">SR</div>
+    </div>
+  </div>
+
+  <div class="main-body" id="mainBody">
+    <!-- Greeting strip -->
+    <div class="greeting-strip" id="greetingStrip" onclick="showMoodModal()">
+      <div class="greeting-orb-small"></div>
+      <div class="greeting-text">
+        <strong id="greetingLine">Good morning.</strong>
+        <span id="greetingSubline">Loading your tasks…</span>
+      </div>
+      <span class="greeting-cta" id="greetingCta">How are you?</span>
+    </div>
+
+    <!-- Task area -->
+    <div id="taskArea">
+      <div class="skeleton"></div>
+      <div class="skeleton" style="height:56px;opacity:.6"></div>
+      <div class="skeleton" style="height:56px;opacity:.4"></div>
+    </div>
+  </div>
+</main>
+
+<!-- END APP SHELL -->
+</div>
+
+<!-- ═══════════════════════════════════════
+     ORB MODAL
+═══════════════════════════════════════ -->
+<div class="orb-overlay hidden" id="orbOverlay">
+  <div class="orb-modal" id="orbModal">
+
+    <div class="orb-modal-topbar">
+      <span class="orb-not-today" id="orbNotToday" onclick="dismissModal()">Not today</span>
+      <button class="orb-close" onclick="dismissModal()">×</button>
+    </div>
+
+    <div class="orb-stage">
+      <svg class="orb-waves" viewBox="0 0 520 50" preserveAspectRatio="none">
+        <path d="M0,25 C87,8 173,42 260,25 C347,8 433,42 520,25 L520,50 L0,50 Z" fill="rgba(91,191,191,0.12)"/>
+        <path d="M0,35 C87,18 173,52 260,35 C347,18 433,52 520,35 L520,50 L0,50 Z" fill="rgba(91,191,191,0.08)"/>
+      </svg>
+      <div class="orb-character"></div>
+    </div>
+
+    <!-- Progress dots (hidden on daily mood screen) -->
+    <div class="orb-progress" id="orbProgress"></div>
+
+    <!-- Screen content -->
+    <div class="orb-modal-body" id="orbContent"></div>
+
+    <!-- Nav buttons -->
+    <div class="orb-nav" id="orbNav"></div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     DETAIL DRAWER
+═══════════════════════════════════════ -->
+<div class="drawer-backdrop" id="drawerBackdrop" onclick="closeDrawer()"></div>
+<div class="drawer" id="taskDrawer">
+  <div class="drawer-head">
+    <div class="drawer-head-source" id="drawerSource"></div>
+    <div class="drawer-head-title" id="drawerTitle"></div>
+    <button class="drawer-close-btn" onclick="closeDrawer()">×</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+  <div class="drawer-actions">
+    <button class="btn-drawer-primary" id="drawerDoneBtn">Mark as done</button>
+    <button class="btn-drawer-secondary" onclick="closeDrawer()">Close</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ═══════════════════════════════════════
+     SCRIPT
+═══════════════════════════════════════ -->
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────────────────
+const WEBHOOK = 'https://hook.eu1.make.com/wf7stpc95ag1w1x1kevxp6v6d1r62qdk';
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+let currentUser = null;
+let allTasks = [];
+let doneTasks = [];
+let currentView = 'today';
+let currentMood = null;
+let focusModeIndex = 0;
+let activeTaskId = null;
+
+// ── ONBOARDING FLOW ──────────────────────────────────────────────────────────
+// Screens: 0=intro 1=tone 2=protect 3=goal 4=keywords 5=mood(daily)
+const SETUP_SCREENS = 5; // screens 0-4 are setup, screen 5 is daily mood
+let orbStep = 0;
+let orbProfile = {};   // accumulates answers
+let isFirstVisit = false;
+let goingBack = false;
+
+const SCREENS = {
+  // ── 0: INTRO ──
+  0: {
+    eyebrow: null,
+    render(name) {
+      return `
+        <div class="orb-screen" id="orbScreen">
+          <div class="orb-screen-title" style="font-size:28px;margin-bottom:10px">
+            Hi${name ? ', ' + name : ''}.<br>I'm Qwell.
+          </div>
+          <div class="orb-screen-sub" style="font-size:15px;max-width:30ch">
+            I'm here to help you handle the noise and focus on what actually matters.
+          </div>
+          <div class="orb-screen-sub" style="font-size:14px;margin-bottom:0">
+            Take 60 seconds to tell me how to help you best — then I'll stay out of your way.
+          </div>
+        </div>`;
+    },
+    nav() {
+      return `<button class="btn-orb-next" id="btnNext">Let's go →</button>`;
+    }
+  },
+
+  // ── 1: TONE ──
+  1: {
+    eyebrow: 'How I talk to you',
+    render() {
+      const tones = [
+        { id:'gentle', icon:'🌿', label:'Gently', desc:'Warm, encouraging, never pushy' },
+        { id:'direct', icon:'⚡', label:'Directly', desc:'Clear and to the point — no fluff' },
+        { id:'brief',  icon:'·', label:'Briefly',  desc:'Just the essentials, nothing more' }
+      ];
+      return `
+        <div class="orb-screen" id="orbScreen">
+          <div class="orb-screen-eyebrow">How I talk to you</div>
+          <div class="orb-screen-title">How should I speak to you?</div>
+          <div class="orb-screen-sub">You can change this any time.</div>
+          <div class="option-cards">
+            ${tones.map(t => `
+              <div class="option-card ${orbProfile.tone === t.id ? 'selected':''}" onclick="selectOption('tone','${t.id}',this)">
+                <div class="option-card-icon">${t.icon}</div>
+                <div class="option-card-body">
+                  <span class="option-card-label">${t.label}</span>
+                  <span class="option-card-desc">${t.desc}</span>
+                </div>
+                <div class="option-card-check">${orbProfile.tone === t.id ? '✓':''}</div>
+              </div>`).join('')}
+          </div>
+        </div>`;
+    },
+    nav() {
+      return `
+        <button class="btn-orb-back" onclick="goBack()">←</button>
+        <button class="btn-orb-next" id="btnNext" ${!orbProfile.tone?'disabled':''}>Continue →</button>`;
+    }
+  },
+
+  // ── 2: PROTECT ──
+  2: {
+    eyebrow: 'What matters most',
+    render() {
+      const items = [
+        { id:'payments',      icon:'💳', label:'Payments & bills' },
+        { id:'school',        icon:'🏫', label:'School & children' },
+        { id:'family',        icon:'👨‍👩‍👧', label:'Family messages' },
+        { id:'work',          icon:'💼', label:'Work & clients' },
+        { id:'appointments',  icon:'📅', label:'Appointments & health' },
+        { id:'forms',         icon:'📋', label:'Forms & admin' }
+      ];
+      const sel = orbProfile.protect || [];
+      return `
+        <div class="orb-screen" id="orbScreen">
+          <div class="orb-screen-eyebrow">What matters most</div>
+          <div class="orb-screen-title">What should I always keep an eye on?</div>
+          <div class="orb-screen-sub">Pick as many as apply.</div>
+          <div class="chip-grid">
+            ${items.map(it => `
+              <div class="select-chip ${sel.includes(it.id)?'selected':''}"
+                   onclick="toggleChip('protect','${it.id}',this)">
+                <span class="chip-icon">${it.icon}</span>${it.label}
+              </div>`).join('')}
+          </div>
+        </div>`;
+    },
+    nav() {
+      return `
+        <button class="btn-orb-back" onclick="goBack()">←</button>
+        <button class="btn-orb-next" id="btnNext" ${!(orbProfile.protect||[]).length?'disabled':''}>Continue →</button>`;
+    }
+  },
+
+  // ── 3: CALM GOAL ──
+  3: {
+    eyebrow: 'Your goal',
+    render() {
+      const goals = [
+        { id:'stop_checking',  icon:'🛑', label:'Stop checking all day',    desc:'I want to trust the list' },
+        { id:'feel_ready',     icon:'✅', label:'Feel ready for today',       desc:'Know what actually needs me' },
+        { id:'no_deadlines',   icon:'⏰', label:'Stop missing deadlines',     desc:'No more last-minute panic' },
+        { id:'clear_backlog',  icon:'📬', label:'Clear the backlog',          desc:'Turn old threads into next steps' }
+      ];
+      return `
+        <div class="orb-screen" id="orbScreen">
+          <div class="orb-screen-eyebrow">Your goal</div>
+          <div class="orb-screen-title">What would make this feel worth it?</div>
+          <div class="orb-screen-sub">Pick the one that resonates most.</div>
+          <div class="option-cards">
+            ${goals.map(g => `
+              <div class="option-card ${orbProfile.calm_goal === g.id ?'selected':''}"
+                   onclick="selectOption('calm_goal','${g.id}',this)">
+                <div class="option-card-icon">${g.icon}</div>
+                <div class="option-card-body">
+                  <span class="option-card-label">${g.label}</span>
+                  <span class="option-card-desc">${g.desc}</span>
+                </div>
+                <div class="option-card-check">${orbProfile.calm_goal === g.id ?'✓':''}</div>
+              </div>`).join('')}
+          </div>
+        </div>`;
+    },
+    nav() {
+      return `
+        <button class="btn-orb-back" onclick="goBack()">←</button>
+        <button class="btn-orb-next" id="btnNext" ${!orbProfile.calm_goal?'disabled':''}>Continue →</button>`;
+    }
+  },
+
+  // ── 4: KEYWORDS ──
+  4: {
+    eyebrow: 'Always flag',
+    render() {
+      return `
+        <div class="orb-screen" id="orbScreen">
+          <div class="orb-screen-eyebrow">Always flag</div>
+          <div class="orb-screen-title">Anyone I should always notice?</div>
+          <div class="orb-screen-sub">Optional — you can add this later in settings.</div>
+          <div class="orb-field">
+            <label>People, schools, or topics</label>
+            <input type="text" id="inputKeywords" placeholder="e.g. Mrs Finn, dentist, direct debit"
+              value="${orbProfile.urgent_keywords||''}">
+            <div class="orb-field-hint">Separate with commas. Qwell will always surface emails matching these.</div>
+          </div>
+          <div class="orb-field">
+            <label>Family names <span style="font-weight:400;opacity:.6">(optional)</span></label>
+            <input type="text" id="inputFamily" placeholder="e.g. Rio, Matti, Noam"
+              value="${orbProfile.family_names||''}">
+            <div class="orb-field-hint">First names only — helps Qwell spot personal emails in the noise.</div>
+          </div>
+        </div>`;
+    },
+    nav() {
+      return `
+        <button class="btn-orb-back" onclick="goBack()">←</button>
+        <button class="btn-orb-next" id="btnNext">Looks good →</button>
+        <button class="btn-orb-skip" onclick="skipKeywords()">Skip</button>`;
+    }
+  },
+
+  // ── 5: DAILY MOOD ──
+  5: {
+    render(name, isFirst) {
+      const hour = new Date().getHours();
+      const time = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
+      const heading = isFirst
+        ? `One last thing, ${name||''}…`
+        : `Good ${time}${name ? ', ' + name : ''}.`;
+      const sub = isFirst
+        ? 'How would you like to start?'
+        : 'How are you feeling today?';
+      return `
+        <div class="orb-screen" id="orbScreen">
+          <div class="orb-screen-title" style="margin-bottom:4px">${heading}</div>
+          <div class="orb-screen-sub" style="margin-bottom:16px">${sub}</div>
+          <div class="mood-cards">
+            <div class="mood-card" onclick="chooseMood('easy',this)">
+              <span class="mood-icon">✨</span>
+              <span class="mood-label">Something easy</span>
+              <span class="mood-desc">Show me a quick win</span>
+              <div class="mood-arrow">→</div>
+            </div>
+            <div class="mood-card" onclick="chooseMood('all',this)">
+              <span class="mood-icon">👁</span>
+              <span class="mood-label">See everything</span>
+              <span class="mood-desc">Show me the full list</span>
+              <div class="mood-arrow">→</div>
+            </div>
+            <div class="mood-card" onclick="chooseMood('focus',this)">
+              <span class="mood-icon">🌀</span>
+              <span class="mood-label">I'm overwhelmed</span>
+              <span class="mood-desc">One thing at a time</span>
+              <div class="mood-arrow">→</div>
+            </div>
+          </div>
+          <div class="orb-privacy">🔒 Your choice is private</div>
+        </div>`;
+    },
+    nav() { return ''; }  // mood auto-advances on tap
+  }
+};
+
+// ── BOOT ──────────────────────────────────────────────────────────────────────
+function boot() {
+  const saved = localStorage.getItem('qwellme_user');
+  if (saved) {
+    try { currentUser = JSON.parse(saved); } catch(e) {}
+  }
+
+  if (!currentUser?.email) {
+    showLoginScreen();
+    return;
+  }
+
+  hideLoginScreen();
+  setupUser();
+  loadTasks();
+
+  isFirstVisit = !localStorage.getItem('qwellme_b_visited');
+  if (isFirstVisit) {
+    orbProfile = {
+      tone: currentUser.tone || '',
+      protect: currentUser.protect_from_missing || [],
+      calm_goal: currentUser.calm_goal || '',
+      urgent_keywords: currentUser.urgent_keywords || '',
+      family_names: currentUser.family_names || ''
+    };
+    localStorage.setItem('qwellme_b_visited', '1');
+    orbStep = 0;
+    setTimeout(() => openOrbModal(), 500);
+  } else {
+    orbStep = 5;
+    setTimeout(() => openOrbModal(), 700);
+  }
+}
+
+function setupUser() {
+  const name = currentUser.name || currentUser.email.split('@')[0];
+  const initials = name.split(' ').map(p=>p[0]).join('').toUpperCase().slice(0,2);
+  document.getElementById('avatarBtn').textContent = initials;
+  updateGreeting();
+}
+
+function updateGreeting() {
+  const hour = new Date().getHours();
+  const name = currentUser?.name?.split(' ')[0] || '';
+  const g = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  document.getElementById('greetingLine').textContent = `${g}${name ? ', '+name : ''}.`;
+}
+
+function signOut() {
+  localStorage.removeItem('qwellme_user');
+  localStorage.removeItem('qwellme_b_visited');
+  currentUser = null;
+  showLoginScreen();
+}
+
+function showLoginScreen() {
+  document.getElementById('appShell').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+}
+
+function hideLoginScreen() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appShell').style.display = 'flex';
+}
+
+function submitLogin() {
+  const email = document.getElementById('loginEmailInput').value.trim();
+  const name  = document.getElementById('loginNameInput').value.trim();
+  if (!email || !email.includes('@')) {
+    document.getElementById('loginError').textContent = 'Please enter a valid email address.';
+    return;
+  }
+  currentUser = { email, name };
+  localStorage.setItem('qwellme_user', JSON.stringify(currentUser));
+  hideLoginScreen();
+  setupUser();
+  loadTasks();
+  isFirstVisit = !localStorage.getItem('qwellme_b_visited');
+  orbProfile = {};
+  if (isFirstVisit) {
+    localStorage.setItem('qwellme_b_visited', '1');
+    orbStep = 0;
+    setTimeout(() => openOrbModal(), 500);
+  } else {
+    orbStep = 5;
+    setTimeout(() => openOrbModal(), 700);
+  }
+}
+
+// ── ORB MODAL ─────────────────────────────────────────────────────────────────
+function openOrbModal() {
+  const overlay = document.getElementById('orbOverlay');
+  overlay.classList.remove('hidden');
+  requestAnimationFrame(() => overlay.classList.add('visible'));
+  renderOrbStep(orbStep);
+}
+
+function renderOrbStep(step, back) {
+  goingBack = !!back;
+  orbStep = step;
+  const name = currentUser?.name?.split(' ')[0] || '';
+  const isSetup = step < 5;
+  const totalSetupSteps = 5; // screens 0-4
+
+  // Progress dots (only during setup flow)
+  const progressEl = document.getElementById('orbProgress');
+  if (isSetup) {
+    progressEl.style.display = 'flex';
+    progressEl.innerHTML = Array.from({length: totalSetupSteps}, (_,i) =>
+      `<div class="orb-dot ${i < step ? 'done' : i === step ? 'active' : ''}"></div>`
+    ).join('');
+  } else {
+    progressEl.style.display = 'none';
+  }
+
+  // "Not today" label
+  const notToday = document.getElementById('orbNotToday');
+  notToday.textContent = step === 5 ? 'Skip for now' : 'Not today';
+
+  // Content
+  const screen = SCREENS[step];
+  const content = document.getElementById('orbContent');
+  const rendered = step === 5
+    ? screen.render(name, isFirstVisit)
+    : step === 0
+      ? screen.render(name)
+      : screen.render();
+
+  content.innerHTML = rendered;
+
+  // Trigger slide animation
+  const screenEl = document.getElementById('orbScreen');
+  if (screenEl) {
+    screenEl.classList.toggle('slide-back', !!back);
+    void screenEl.offsetWidth; // force reflow
+  }
+
+  // Nav
+  const nav = document.getElementById('orbNav');
+  nav.innerHTML = screen.nav ? screen.nav() : '';
+
+  // Wire next button
+  const btnNext = document.getElementById('btnNext');
+  if (btnNext) {
+    btnNext.addEventListener('click', () => advanceStep());
+  }
+}
+
+function advanceStep() {
+  // Collect data from current screen before advancing
+  collectCurrentScreen();
+
+  if (orbStep < 5) {
+    renderOrbStep(orbStep + 1);
+  }
+}
+
+function goBack() {
+  if (orbStep > 0) renderOrbStep(orbStep - 1, true);
+}
+
+function collectCurrentScreen() {
+  if (orbStep === 4) {
+    orbProfile.urgent_keywords = (document.getElementById('inputKeywords')?.value || '').trim();
+    orbProfile.family_names    = (document.getElementById('inputFamily')?.value || '').trim();
+  }
+}
+
+function skipKeywords() {
+  orbProfile.urgent_keywords = orbProfile.urgent_keywords || '';
+  orbProfile.family_names    = orbProfile.family_names || '';
+  renderOrbStep(5);
+}
+
+function selectOption(field, value, el) {
+  orbProfile[field] = value;
+  el.closest('.option-cards').querySelectorAll('.option-card').forEach(c => {
+    c.classList.remove('selected');
+    c.querySelector('.option-card-check').textContent = '';
+  });
+  el.classList.add('selected');
+  el.querySelector('.option-card-check').textContent = '✓';
+  // Enable next button
+  const btn = document.getElementById('btnNext');
+  if (btn) btn.disabled = false;
+}
+
+function toggleChip(field, value, el) {
+  orbProfile[field] = orbProfile[field] || [];
+  if (el.classList.contains('selected')) {
+    orbProfile[field] = orbProfile[field].filter(v => v !== value);
+    el.classList.remove('selected');
+  } else {
+    orbProfile[field].push(value);
+    el.classList.add('selected');
+  }
+  const btn = document.getElementById('btnNext');
+  if (btn) btn.disabled = orbProfile[field].length === 0;
+}
+
+function chooseMood(mood, el) {
+  document.querySelectorAll('.mood-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  currentMood = mood;
+  // Save profile + mood, close modal
+  saveProfile();
+  setTimeout(() => {
+    dismissModal();
+    applyMood(mood);
+  }, 320);
+}
+
+const WEBHOOK_ONBOARDING = 'https://hook.eu1.make.com/rvqvyby3rd3e3a9hxcj0nm4yyvuodmhx';
+
+function saveProfile() {
+  // Merge answers into currentUser
+  Object.assign(currentUser, {
+    tone:                 orbProfile.tone              || currentUser.tone,
+    protect_from_missing: orbProfile.protect           || currentUser.protect_from_missing,
+    calm_goal:            orbProfile.calm_goal         || currentUser.calm_goal,
+    urgent_keywords:      orbProfile.urgent_keywords   ?? currentUser.urgent_keywords,
+    family_names:         orbProfile.family_names      ?? currentUser.family_names,
+    personality:          orbProfile.tone              || currentUser.tone
+  });
+
+  // Always persist locally
+  localStorage.setItem('qwellme_user', JSON.stringify(currentUser));
+
+  // Write to Make → Google Sheets user table (fire and forget)
+  const payload = {
+    account:              currentUser.email,
+    email:                currentUser.email,
+    name:                 currentUser.name             || '',
+    tone:                 currentUser.tone             || '',
+    personality:          currentUser.tone             || '',
+    protect_from_missing: currentUser.protect_from_missing || [],
+    calm_goal:            currentUser.calm_goal        || '',
+    urgent_keywords:      currentUser.urgent_keywords  || '',
+    family_names:         currentUser.family_names     || '',
+    // preserve any fields already on the profile
+    theme:                currentUser.theme            || 'calm',
+    age_group:            currentUser.age_group        || '',
+    update_time:          currentUser.update_time      || '',
+    language:             currentUser.language         || 'English',
+    overwhelm_sources:    currentUser.overwhelm_sources || '',
+    places_to_check:      currentUser.places_to_check  || '',
+    missed_patterns:      currentUser.missed_patterns  || '',
+    qwell_support_style:  currentUser.qwell_support_style || '',
+    active:               true,
+    status:               'preferences_saved',
+    timestamp:            new Date().toISOString()
+  };
+
+  fetch(WEBHOOK_ONBOARDING, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  }).catch(e => console.warn('Profile save failed (non-blocking):', e));
+}
+
+function dismissModal() {
+  const overlay = document.getElementById('orbOverlay');
+  overlay.classList.remove('visible');
+  setTimeout(() => overlay.classList.add('hidden'), 300);
+  if (!currentMood) {
+    currentMood = 'all';
+    applyMood('all');
+  }
+}
+
+// Called from topbar ✦ button
+function showMoodModal() {
+  orbStep = 5;
+  openOrbModal();
+}
+
+function applyMood(mood) {
+  if (mood === 'easy') {
+    document.getElementById('greetingSubline').textContent = "Here's something easy to start with.";
+    document.getElementById('greetingCta').textContent = "Easy mode";
+    renderView('quick');
+  } else if (mood === 'focus') {
+    document.getElementById('greetingSubline').textContent = "One step at a time. You've got this.";
+    document.getElementById('greetingCta').textContent = "Focus mode";
+    renderFocusMode();
+  } else {
+    const fc = allTasks.filter(t => t.lane === 'focus').length;
+    document.getElementById('greetingSubline').textContent =
+      fc > 0 ? `${fc} thing${fc!==1?'s':''} need${fc===1?'s':''} your attention.` : 'Everything is under control.';
+    document.getElementById('greetingCta').textContent = "How are you?";
+    renderView('today');
+  }
+}
+
+// ── DATA ──────────────────────────────────────────────────────────────────────
+async function loadTasks() {
+  try {
+    const res = await fetch(WEBHOOK, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ email: currentUser.email, account: currentUser.email })
+    });
+    const data = await res.json();
+    console.log('Qwell B — raw:', data);
+    const rows = data.tasks || data.Tasks || data.data || data.rows || (Array.isArray(data) ? data : []);
+    processTasks(rows);
+  } catch(e) {
+    console.error('Load failed:', e);
+    document.getElementById('greetingSubline').textContent = 'Could not load tasks. Try refreshing.';
+    document.getElementById('taskArea').innerHTML =
+      `<div class="empty-state"><strong>Connection issue</strong>Tasks could not be loaded right now.</div>`;
+  }
+}
+
+function processTasks(rows) {
+  const get = (t,n,i) => t?.[n] ?? t?.[i] ?? '';
+  const seen = new Set();
+  const today = Math.floor(Date.now()/86400000) + 25569;
+
+  allTasks = rows.filter(t => {
+    if (!t) return false;
+    const status = String(get(t,'status','5')||'').toLowerCase();
+    const title = get(t,'title','1');
+    if (!title) return false;
+    const id = get(t,'message_id','11') || title;
+    if (seen.has(id)) return false;
+    seen.add(id);
+    return status === 'open';
+  }).map((t,i) => {
+    const title    = get(t,'title','1');
+    const priority = String(get(t,'priority','6')||'').toLowerCase();
+    const action   = String(get(t,'action','7')||'TASK').toUpperCase();
+    const due      = get(t,'due','4') || '';
+    let lane = 'follow';
+    if (priority === 'high') lane = 'focus';
+    else if (action === 'FILTER' || action === 'UNSUBSCRIBE') lane = 'quick';
+    else if (due && due !== 'NONE' && parseInt(due) <= today + 3) lane = 'focus';
+    return {
+      id: get(t,'message_id','11') || `t-${i}`,
+      title, priority, action, due: due !== 'NONE' ? due : '',
+      sender: get(t,'sender_name','10') || get(t,'sender','2') || '',
+      subject: get(t,'subject','9') || '',
+      lane, raw: t
+    };
+  });
+
+  doneTasks = rows.filter(t => t && String(t['status']||t['5']||'').toLowerCase()==='done')
+    .map((t,i) => ({
+      id: t['message_id']||t['11']||`d-${i}`,
+      title: t['title']||t['1']||'Task',
+      sender: t['sender_name']||t['10']||'',
+      lane:'done'
+    }));
+
+  updateCounts();
+  updateUpNext();
+  if (currentMood) applyMood(currentMood);
+  else renderView(currentView);
+}
+
+function updateCounts() {
+  const fc = allTasks.filter(t=>t.lane==='focus').length;
+  const qc = allTasks.filter(t=>t.lane==='quick').length;
+  const flc = allTasks.filter(t=>t.lane==='follow').length;
+  const dc = doneTasks.length;
+  document.getElementById('countFocus').textContent  = fc  || 0;
+  document.getElementById('countQuick').textContent  = qc  || 0;
+  document.getElementById('countFollow').textContent = flc || 0;
+  document.getElementById('countDone').textContent   = dc  || 0;
+  const total = allTasks.length + dc;
+  const pct = total > 0 ? Math.round((dc/total)*100) : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+function updateUpNext() {
+  const urgent = allTasks.filter(t=>t.lane==='focus').slice(0,3);
+  const el = document.getElementById('upNextList');
+  if (!urgent.length) {
+    el.innerHTML = '<div class="upcoming-item"><span class="upcoming-time" style="color:var(--teal)">✓</span><span class="upcoming-title">All clear</span></div>';
+    return;
+  }
+  el.innerHTML = urgent.map(t => `
+    <div class="upcoming-item" onclick="openDrawer('${t.id}')">
+      <span class="upcoming-time" style="color:var(--urgent);font-size:10px">FOCUS</span>
+      <span class="upcoming-title">${escHtml(t.title.slice(0,38))}${t.title.length>38?'…':''}</span>
+    </div>`).join('');
+}
+
+function refreshTasks() {
+  document.getElementById('taskArea').innerHTML = `<div class="skeleton"></div><div class="skeleton" style="height:56px;opacity:.6"></div>`;
+  loadTasks();
+  showToast('Refreshing…');
+}
+
+// ── VIEWS ─────────────────────────────────────────────────────────────────────
+function setView(view, el) {
+  currentMood = null;
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderView(view);
+}
+
+function renderView(view) {
+  currentView = view;
+  const titles = {today:'Today',focus:'Focus',quick:'Quick Wins',follow:'Follow Up',done:'Completed',all:'All Tasks'};
+  const subs   = {today:'Focus on what matters most',focus:'These need your attention',quick:'Small tasks, big relief',follow:'Keep the momentum going',done:'Great work',all:'Everything in one place'};
+  document.getElementById('viewTitle').textContent = titles[view] || 'Today';
+  document.getElementById('viewSub').textContent   = subs[view]  || '';
+  const area = document.getElementById('taskArea');
+
+  if (view === 'done') { area.innerHTML = renderSection('Completed', doneTasks, 'done', true); return; }
+  if (view === 'all') {
+    area.innerHTML = [
+      renderSection('Focus', allTasks.filter(t=>t.lane==='focus'), 'focus'),
+      renderSection('Quick Wins', allTasks.filter(t=>t.lane==='quick'), 'quick'),
+      renderSection('Follow Up',  allTasks.filter(t=>t.lane==='follow'), 'follow'),
+    ].join('') || emptyState('Nothing here yet','Tasks will appear as emails arrive.');
+    return;
+  }
+  if (view === 'today') {
+    const focus  = allTasks.filter(t=>t.lane==='focus');
+    const quick  = allTasks.filter(t=>t.lane==='quick');
+    const follow = allTasks.filter(t=>t.lane==='follow');
+    area.innerHTML = [
+      renderSection('Focus', focus, 'focus'),
+      renderSection('Quick Wins', quick.slice(0,3), 'quick'),
+      follow.length ? renderSection('Follow Up', follow.slice(0,2),'follow') : '',
+    ].join('') || emptyState('You\'re all caught up','Nothing needs attention right now.');
+    return;
+  }
+  if (view === 'quick') {
+    const quick = allTasks.filter(t=>t.lane==='quick').slice(0,4);
+    const focus = allTasks.filter(t=>t.lane==='focus').slice(0,1);
+    area.innerHTML = [
+      focus.length ? renderSection('Start here', focus, 'focus') : '',
+      renderSection('Quick wins', quick, 'quick'),
+    ].join('') || emptyState('Nothing easy right now','Check Focus for what needs attention.');
+    return;
+  }
+  const map = {focus:'focus',follow:'follow'};
+  const tasks = allTasks.filter(t=>t.lane===(map[view]||view));
+  area.innerHTML = renderSection(titles[view], tasks, view) ||
+    emptyState(`No ${(titles[view]||view).toLowerCase()} tasks`,'All clear in this section.');
+}
+
+function renderSection(label, tasks, type, isDone) {
+  if (!tasks.length && !isDone) return '';
+  const dotColor = type==='focus'?'var(--urgent)':type==='quick'?'var(--teal)':type==='done'?'var(--muted)':'var(--navy-mid)';
+  const cards = tasks.length ? tasks.map(t=>cardHTML(t,isDone)).join('') :
+    `<div class="empty-state" style="padding:20px"><strong>Nothing here</strong>Tasks will appear as emails arrive.</div>`;
+  return `<div class="task-section">
+    <div class="task-section-head">
+      <div class="task-section-dot" style="background:${dotColor}"></div>
+      <span class="task-section-label">${label}</span>
+      <span class="task-section-count">${tasks.length}</span>
+    </div>
+    <div class="task-list">${cards}</div>
+  </div>`;
+}
+
+function cardHTML(t, isDone) {
+  const cls = ['task-card',
+    t.priority==='high'?'priority-high':'',
+    t.lane==='quick'?'quick-win':'',
+    isDone?'is-done':''
+  ].filter(Boolean).join(' ');
+  const chips = [];
+  if (t.priority==='high') chips.push(`<span class="chip urgent">Urgent</span>`);
+  if (t.action==='FILTER') chips.push(`<span class="chip quick">Filter</span>`);
+  if (t.action==='UNSUBSCRIBE') chips.push(`<span class="chip quick">Unsubscribe</span>`);
+  if (t.due && !isDone) chips.push(`<span class="chip due">Due</span>`);
+  return `
+    <div class="${cls}" id="card-${t.id}" onclick="openDrawer('${t.id}')">
+      <div class="task-card-indicator"></div>
+      <div class="task-card-body">
+        ${t.sender?`<div class="task-card-source">${escHtml(t.sender)}</div>`:''}
+        <div class="task-card-title">${escHtml(t.title)}</div>
+        ${chips.length?`<div class="task-card-chips">${chips.join('')}</div>`:''}
+      </div>
+      ${!isDone?`<div class="task-card-action"><button class="btn-done" onclick="event.stopPropagation();markDone('${t.id}')">Done ✓</button></div>`:''}
+    </div>`;
+}
+
+// ── FOCUS MODE ────────────────────────────────────────────────────────────────
+function renderFocusMode() {
+  currentView = 'focus';
+  focusModeIndex = 0;
+  renderFocusCard(document.getElementById('taskArea'));
+}
+function renderFocusCard(area) {
+  const tasks = allTasks.filter(t=>t.lane==='focus'||t.priority==='high');
+  if (!tasks.length) {
+    area.innerHTML = `<div class="empty-state"><strong>Nothing urgent</strong>Take a breath — you're on top of it.</div>`;
+    return;
+  }
+  const t = tasks[focusModeIndex] || tasks[0];
+  const dots = tasks.slice(0,5).map((_,i)=>`<div class="focus-nav-dot ${i===focusModeIndex?'active':''}"></div>`).join('');
+  area.innerHTML = `
+    <div class="focus-mode-wrap">
+      <div class="focus-mode-card">
+        ${t.sender?`<div class="focus-source">${escHtml(t.sender)}</div>`:''}
+        <div class="focus-title">${escHtml(t.title)}</div>
+        <div class="focus-actions">
+          <button class="btn-focus-done" onclick="markDone('${t.id}');renderFocusMode()">Done ✓</button>
+          <button class="btn-focus-skip" onclick="focusNext(${tasks.length})">Not now →</button>
+        </div>
+      </div>
+      <div class="focus-progress">${focusModeIndex+1} of ${tasks.length}</div>
+      <div class="focus-nav">${dots}</div>
+    </div>`;
+}
+function focusNext(total) {
+  focusModeIndex = (focusModeIndex+1) % total;
+  renderFocusCard(document.getElementById('taskArea'));
+}
+
+// ── DRAWER ────────────────────────────────────────────────────────────────────
+function openDrawer(id) {
+  const task = allTasks.find(t=>t.id===id) || doneTasks.find(t=>t.id===id);
+  if (!task) return;
+  activeTaskId = id;
+  document.getElementById('drawerSource').textContent = task.sender || 'Task';
+  document.getElementById('drawerTitle').textContent  = task.title;
+  let body = '';
+  if (task.subject)  body += `<div><div class="drawer-field-label">Email subject</div><div class="drawer-field-value">${escHtml(task.subject)}</div></div>`;
+  if (task.priority) body += `<div><div class="drawer-field-label">Priority</div><div class="drawer-field-value">${task.priority}</div></div>`;
+  if (task.action && task.action !== 'TASK') body += `<div><div class="drawer-field-label">Action type</div><div class="drawer-field-value">${task.action}</div></div>`;
+  document.getElementById('drawerBody').innerHTML = body || '<div class="drawer-field-value" style="color:var(--muted)">No additional details.</div>';
+  document.getElementById('drawerDoneBtn').onclick = () => { markDone(id); closeDrawer(); };
+  document.getElementById('drawerBackdrop').classList.add('open');
+  document.getElementById('taskDrawer').classList.add('open');
+}
+function closeDrawer() {
+  document.getElementById('drawerBackdrop').classList.remove('open');
+  document.getElementById('taskDrawer').classList.remove('open');
+  activeTaskId = null;
+}
+
+// ── MARK DONE ─────────────────────────────────────────────────────────────────
+function markDone(id) {
+  const card = document.getElementById('card-'+id);
+  if (card) {
+    card.classList.add('completing');
+    setTimeout(()=>{ card.classList.remove('completing'); card.classList.add('is-done'); setTimeout(()=>card.remove(),400); },500);
+  }
+  const task = allTasks.find(t=>t.id===id);
+  if (task) { doneTasks.push({...task,lane:'done'}); allTasks = allTasks.filter(t=>t.id!==id); updateCounts(); updateUpNext(); }
+  showToast('Marked as done ✓');
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function emptyState(t,s){return `<div class="empty-state"><strong>${t}</strong>${s}</div>`}
+function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
+
+// ── START ─────────────────────────────────────────────────────────────────────
+boot();
+</script>
+</body>
+</html>
