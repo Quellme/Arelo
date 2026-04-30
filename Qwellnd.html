@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Qwell ND Mode</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root{
+  --teal:#4fb6b6;--teal-2:#7fd1d1;--teal-3:#bfecec;
+  --blue:#5da3ff;--purple:#8a6bff;
+  --page:#eef3f8;--surface:#ffffff;--ink:#172433;--muted:#6a7f95;--line:#dbe3ee;
+}
+body{font-family:Inter;background:linear-gradient(180deg,#f6f9fc, #eaf1f7);margin:0;color:var(--ink)}
+.container{max-width:1100px;margin:auto;padding:24px}
+.card{background:var(--surface);border-radius:18px;padding:20px;margin-bottom:16px;border:1px solid var(--line);box-shadow:0 10px 30px rgba(23,36,51,0.06)}
+.header{font-family:'DM Serif Display';font-size:34px;margin:6px 0 6px;text-align:center}
+.grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.hidden{display:none}
+button{padding:12px 14px;border:none;border-radius:14px;cursor:pointer;font-weight:600}
+.primary{background:var(--teal);color:white}
+.secondary{background:#f4f7fb;border:1px solid var(--line);color:var(--muted)}
+.layout{display:grid;grid-template-columns:1.2fr .8fr;gap:18px}
+.meta{font-size:12px;color:var(--muted)}
+
+/* Modal */
+.modal{position:fixed;inset:0;background:rgba(10,20,30,.25);backdrop-filter: blur(10px);display:flex;align-items:center;justify-content:center;z-index:1000}
+.modal-card{position:relative;background:linear-gradient(180deg,#ffffff,#f7fbff);border-radius:22px;padding:22px 22px 18px;max-width:760px;width:92%;border:1px solid var(--line);box-shadow:0 30px 80px rgba(0,0,0,.18)}
+
+/* Qwell glow header */
+.qwell-head{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:110px;height:110px;display:flex;align-items:center;justify-content:center}
+.qwell-orb{
+  width:78px;
+  height:78px;
+  border-radius:50%;
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  /* asymmetry: left = softer, right = brighter */
+  background:
+    radial-gradient(circle at 70% 35%, rgba(255,255,255,0.85), transparent 35%),
+    radial-gradient(circle at 25% 70%, rgba(191,236,236,0.35), transparent 55%),
+    conic-gradient(from 210deg at 50% 50%,
+      rgba(79,182,182,0.35) 0deg,
+      rgba(127,209,209,0.45) 120deg,
+      rgba(93,163,255,0.35) 210deg,
+      rgba(138,107,255,0.28) 300deg,
+      rgba(79,182,182,0.35) 360deg);
+  box-shadow:
+    inset 0 0 18px rgba(79,182,182,0.15),
+    0 0 22px rgba(79,182,182,0.22);
+}
+.qwell-orb::after{
+  content:'';
+  position:absolute;
+  inset:-8px;
+  border-radius:50%;
+  /* soft halo that is stronger on one side (balance emerging) */
+  background: radial-gradient(circle at 70% 40%, rgba(79,182,182,0.18), transparent 60%);
+  animation: pulse 7s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:0.6}50%{transform:scale(1.1);opacity:1}}
+.qwell-lines{width:140px;opacity:0.9}
+
+.qwell-waves{position:absolute;top:70px;left:50%;transform:translateX(-50%);width:260px;opacity:.8}
+
+/* Choice cards */
+.choice{border-radius:18px;padding:18px;border:1px solid var(--line);background:#fff;display:flex;flex-direction:column;gap:10px;align-items:center;text-align:center;transition:.2s ease;box-shadow:0 6px 18px rgba(0,0,0,.06)}
+.choice:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(0,0,0,.1)}
+.choice.easy{background:linear-gradient(180deg,#f0fbfb,#ffffff)}
+.choice.focus{background:linear-gradient(180deg,#f3f7ff,#ffffff)}
+.choice.over{background:linear-gradient(180deg,#f6f3ff,#ffffff)}
+.icon{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.icon.easy{background:radial-gradient(circle at 50% 50%, #e6fbfb, #cfeeee)}
+.icon.focus{background:radial-gradient(circle at 50% 50%, #eaf0ff, #d7e4ff)}
+.icon.over{background:radial-gradient(circle at 50% 50%, #f2efff, #e2dbff)}
+.icon span{font-size:24px}
+.title{font-weight:700}
+.desc{font-size:13px;color:var(--muted)}
+.cta{margin-top:6px}
+
+/* Footer hint */
+.foot{display:flex;justify-content:center;gap:8px;align-items:center;margin-top:8px;color:var(--muted);font-size:12px}
+
+/* Dashboard behind */
+.app-bg{filter: grayscale(0.35) brightness(.95) blur(0px)}
+.app-bg::after{content:'';position:fixed;inset:0;background:rgba(0,0,0,0.04);pointer-events:none}
+
+/* Modal overlay tuned to keep background readable */
+.modal{position:fixed;inset:0;background:rgba(10,20,30,.18);backdrop-filter: blur(2px);display:flex;align-items:center;justify-content:center;z-index:1000}
+.app-bg::after{content:'';position:fixed;inset:0;background:rgba(0,0,0,0.08);pointer-events:none}
+
+</style>
+</head>
+<body>
+
+<div class="container app-bg">
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="font-weight:700">Qwell Me</div>
+      <div class="meta">Today</div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-top:16px">
+      <!-- Main tasks column -->
+      <div>
+        <div class="card">
+          <strong>Priority</strong>
+          <div class="meta">Things that need attention</div>
+          <div style="margin-top:10px">
+            <div>PayPal payment due</div>
+            <div class="meta">£425 • Due soon</div>
+          </div>
+          <div style="margin-top:10px">
+            <div>ParentPay balance</div>
+            <div class="meta">School payment pending</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <strong>Follow ups</strong>
+          <div class="meta">Things waiting on others</div>
+          <div style="margin-top:10px">Vex Robotics email</div>
+          <div class="meta">Waiting for reply</div>
+        </div>
+      </div>
+
+      <!-- Side column -->
+      <div>
+        <div class="card">
+          <strong>Quick wins</strong>
+          <div class="meta">Low effort</div>
+          <div style="margin-top:10px">Review utility bill</div>
+          <div style="margin-top:6px">Clear inbox clutter</div>
+        </div>
+
+        <div class="card">
+          <strong>Recently done</strong>
+          <div class="meta">Completed</div>
+          <div style="margin-top:10px">School payment sent</div>
+          <div style="margin-top:6px">Unsubscribed emails</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      <div class="meta">Today</div>
+    </div>
+    <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+      <div class="card">Send proposal<br><span class="meta">Due today</span></div>
+      <div class="card">Budget review<br><span class="meta">Due tomorrow</span></div>
+      <div class="card">Follow up with Alex<br><span class="meta">Due Friday</span></div>
+    </div>
+  </div>
+</div>
+
+<div id="modal" class="modal">
+  <div class="modal-card">
+
+    <div class="qwell-head">
+      <div class="qwell-orb"></div>
+    </div>
+    
+
+    <svg class="qwell-waves" viewBox="0 0 500 100">
+      <path d="M0 50 Q 50 10 100 50 T 200 50 T 300 50 T 400 50 T 500 50" stroke="#4fb6b6" stroke-width="4" fill="none"/>
+      <path d="M0 60 Q 50 30 100 60 T 200 60 T 300 60 T 400 60 T 500 60" stroke="#7fd1d1" stroke-width="3" fill="none"/>
+      <path d="M0 70 Q 50 50 100 70 T 200 70 T 300 70 T 400 70 T 500 70" stroke="#bfecec" stroke-width="2" fill="none"/>
+    </svg>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:28px">
+      <div></div>
+      <button type="button" class="secondary" onclick="skipToday()">Not today</button>
+    </div>
+
+    <div class="header">Hi, I’m Qwell.</div>
+    <div class="meta" style="text-align:center;margin-bottom:10px">I’ll help you focus on what matters.</div>
+
+    <div class="meta" style="text-align:center;margin:8px 0 10px">How are you feeling right now?</div>
+
+    <div class="grid">
+      <button type="button" class="choice easy" onclick="choose('easy')">
+        <div class="icon easy"></div>
+        <div class="title">I want something easy</div>
+        <div class="desc">Show me one simple thing I can do.</div>
+        <div class="cta">→</div>
+      </button>
+
+      <button type="button" class="choice focus" onclick="choose('focus')">
+        <div class="icon focus"></div>
+        <div class="title">I want to see everything</div>
+        <div class="desc">Show my full list so I can choose.</div>
+        <div class="cta">→</div>
+      </button>
+
+      <button type="button" class="choice over" onclick="choose('overwhelmed')">
+        <div class="icon over"></div>
+        <div class="title">I’m overwhelmed</div>
+        <div class="desc">Help me focus on a small part.</div>
+        <div class="cta">→</div>
+      </button>
+    </div>
+
+    <div class="foot">🔒 Your choice is private and helps tailor your experience.</div>
+
+  </div>
+</div>
+
+<script>
+
+// 👉 CONFIG (plug into your real webhook)
+const WEBHOOK = 'https://hook.eu1.make.com/wf7stpc95ag1w1x1kevxp6v6d1r62qdk';
+const USER = 'srmemfy';
+
+let tasks = [];
+let currentState = null;
+
+async function loadTasks(){
+  try{
+    const res = await fetch(WEBHOOK,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ email: USER })
+    });
+
+    const data = await res.json();
+
+    tasks = (Array.isArray(data)?data:[data]).map(t=>({
+      title: t.title || t['1'] || 'Task',
+      due: t.due || t['4'] || 'None'
+    }));
+
+  }catch(e){
+    console.log('Using fallback data');
+    tasks = [
+      {title:'PayPal payment due', due:'Today'},
+      {title:'ParentPay balance', due:'Soon'}
+    ];
+  }
+}
+
+// 👉 CORE BEHAVIOUR
+function choose(state){
+  currentState = state;
+  document.getElementById('modal').style.display='none';
+
+  // future: adapt dashboard based on state
+  console.log('State selected:', state);
+  console.log('Tasks:', tasks);
+}
+
+function skipToday(){
+  localStorage.setItem('qwell_skip', new Date().toDateString());
+  document.getElementById('modal').style.display='none';
+}
+
+// 👉 INIT
+(async function init(){
+  await loadTasks();
+
+  const today = new Date().toDateString();
+  if(localStorage.getItem('qwell_skip') === today){
+    document.getElementById('modal').style.display='none';
+  }
+})();
+
+</script>
+
+</body>
+</html>
