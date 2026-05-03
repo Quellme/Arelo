@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Qwell — Get started</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><radialGradient id='og' cx='35%' cy='35%' r='65%'><stop offset='0%' stop-color='%23ffffff'/><stop offset='35%' stop-color='%23b8e8e8'/><stop offset='70%' stop-color='%235bbfbf'/><stop offset='100%' stop-color='%232a8080'/></radialGradient></defs><ellipse cx='16' cy='16' rx='14' ry='14' fill='url(%23og)'/></svg>">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#3d5a7a;--navy-dark:#2c4260;--navy-mid:#4e6d8c;
+  --teal:#5bbfbf;--teal-soft:#e6f5f5;--teal-dark:#3a9090;
+  --teal-glow:rgba(91,191,191,.45);
+  --page:#f0f3f7;--surface:#fff;--ink:#1e2e3e;--muted:#5a7089;
+  --line:#d0dae6;--navy-soft:#eef2f7;
+  --urgent:#c0392b;
+  --shadow-md:0 8px 28px rgba(30,46,62,.13);
+  --shadow-xl:0 24px 64px rgba(20,35,55,.22);
+}
+html,body{height:100%;font-family:'Atkinson Hyperlegible',sans-serif;background:var(--page);color:var(--ink);overflow:hidden}
+
+/* ── BLURRED DASHBOARD BG ── */
+.dashboard-bg {
+  position:fixed;inset:0;
+  background:linear-gradient(135deg,#eef2f7 0%,#e6f0f8 100%);
+  z-index:0;
+  overflow:hidden;
+}
+.bg-sidebar {
+  position:absolute;left:0;top:0;bottom:0;width:240px;
+  background:var(--navy-dark);
+  display:flex;flex-direction:column;padding:20px 0;gap:4px;
+}
+.bg-nav-item {
+  height:36px;margin:0 10px;border-radius:8px;
+  background:rgba(255,255,255,.06);
+}
+.bg-nav-item.active{background:rgba(91,191,191,.15);border:1px solid rgba(91,191,191,.2)}
+.bg-main {
+  position:absolute;left:240px;right:0;top:0;bottom:0;
+  padding:24px;
+  display:flex;flex-direction:column;gap:12px;
+}
+.bg-header{height:44px;display:flex;align-items:center;gap:12px}
+.bg-header-title{width:100px;height:28px;background:var(--navy);border-radius:6px;opacity:.7}
+.bg-greeting{height:72px;border-radius:16px;background:var(--navy);opacity:.7}
+.bg-section{height:14px;width:80px;border-radius:4px;background:var(--navy-mid);opacity:.3;margin-bottom:4px}
+.bg-card{height:68px;border-radius:12px;background:var(--surface);border:1px solid var(--line);opacity:.8}
+.bg-card+.bg-card{height:60px;opacity:.6}
+/* Blur overlay */
+.dashboard-blur {
+  position:fixed;inset:0;z-index:1;
+  backdrop-filter:blur(12px) brightness(.85);
+  background:rgba(15,25,40,.4);
+}
+
+/* ── MODAL ── */
+.modal-wrap {
+  position:fixed;inset:0;z-index:10;
+  display:flex;align-items:center;justify-content:center;
+  padding:20px;
+}
+.modal {
+  background:var(--surface);
+  border-radius:24px;
+  width:min(480px,100%);
+  max-height:88vh;
+  overflow:hidden;
+  display:flex;flex-direction:column;
+  box-shadow:var(--shadow-xl);
+  animation:modalIn .4s cubic-bezier(.22,1,.36,1);
+}
+@keyframes modalIn{from{opacity:0;transform:translateY(24px) scale(.97)}to{opacity:1;transform:none}}
+
+/* Orb stage */
+.orb-stage {
+  background:linear-gradient(180deg,#192840 0%,#2c4260 65%,#3a536e 100%);
+  padding:28px 20px 22px;
+  display:flex;flex-direction:column;align-items:center;
+  position:relative;overflow:hidden;flex-shrink:0;
+}
+.orb-waves{position:absolute;bottom:0;left:0;right:0;opacity:.3}
+.orb {
+  width:64px;height:64px;
+  border-radius:60% 40% 55% 45%/50% 60% 40% 50%;
+  background:radial-gradient(circle at 30% 30%,#fff 0%,#b8e8e8 35%,var(--teal) 70%,#2a8080 100%);
+  box-shadow:0 0 24px rgba(91,191,191,.65),0 0 48px rgba(91,191,191,.3),0 0 80px rgba(91,191,191,.12),inset 0 -8px 18px rgba(0,0,0,.12);
+  animation:orbFloat 4s ease-in-out infinite,orbShape 7s ease-in-out infinite;
+  margin-bottom:0;position:relative;z-index:2;
+}
+@keyframes orbFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes orbShape{
+  0%,100%{border-radius:60% 40% 55% 45%/50% 60% 40% 50%}
+  25%{border-radius:45% 55% 42% 58%/58% 42% 55% 45%}
+  50%{border-radius:55% 45% 60% 40%/42% 58% 48% 52%}
+  75%{border-radius:40% 60% 48% 52%/55% 45% 58% 42%}
+}
+
+/* Progress dots */
+.progress-dots {
+  display:flex;gap:6px;align-items:center;justify-content:center;
+  padding:12px 0 0;flex-shrink:0;background:var(--surface);
+}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--line);transition:all .3s}
+.dot.active{background:var(--teal);width:18px;border-radius:999px}
+.dot.done{background:var(--teal);opacity:.4}
+
+/* Screen body */
+.screen-body {
+  flex:1;overflow-y:auto;padding:22px 26px 16px;
+  scrollbar-width:none;
+}
+.screen-body::-webkit-scrollbar{display:none}
+.screen-eyebrow {
+  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;
+  color:var(--teal-dark);margin-bottom:8px;
+}
+.screen-title {
+  font-family:'Nunito',sans-serif;
+  font-size:22px;font-weight:800;color:var(--ink);line-height:1.25;margin-bottom:6px;
+}
+.screen-sub {
+  font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:18px;
+}
+
+/* Nav */
+.modal-nav {
+  padding:12px 26px 20px;border-top:1px solid var(--line);
+  display:flex;gap:8px;flex-shrink:0;
+}
+.btn-next {
+  flex:1;padding:13px;border-radius:999px;
+  background:var(--teal);border:none;color:#fff;
+  font-size:14px;font-weight:700;cursor:pointer;transition:all .15s;
+  font-family:'Atkinson Hyperlegible',sans-serif;
+}
+.btn-next:hover{background:var(--teal-dark);transform:translateY(-1px)}
+.btn-next:disabled{opacity:.4;pointer-events:none}
+.btn-back {
+  padding:13px 16px;border-radius:999px;
+  background:transparent;border:1.5px solid var(--line);
+  color:var(--muted);font-size:14px;font-weight:700;
+  cursor:pointer;transition:all .15s;
+  font-family:'Atkinson Hyperlegible',sans-serif;
+}
+.btn-back:hover{background:var(--navy-soft)}
+.btn-skip {
+  font-size:12px;color:var(--muted);background:none;border:none;
+  cursor:pointer;padding:13px 8px;transition:color .15s;
+  font-family:'Atkinson Hyperlegible',sans-serif;
+}
+.btn-skip:hover{color:var(--ink)}
+
+/* Option cards */
+.option-cards{display:grid;gap:8px;margin-bottom:4px}
+.option-card {
+  display:flex;align-items:center;gap:12px;
+  padding:13px 14px;border-radius:12px;
+  border:1.5px solid var(--line);background:var(--page);
+  cursor:pointer;transition:all .18s;
+}
+.option-card:hover{border-color:var(--teal);background:var(--teal-soft);transform:translateX(2px)}
+.option-card.selected{border-color:var(--teal);background:var(--teal-soft)}
+.oc-icon{font-size:20px;width:30px;text-align:center;flex-shrink:0}
+.oc-label{font-size:13px;font-weight:700;color:var(--ink);display:block;margin-bottom:1px}
+.oc-desc{font-size:11px;color:var(--muted)}
+.oc-check {
+  width:18px;height:18px;border-radius:50%;
+  border:2px solid var(--line);flex-shrink:0;margin-left:auto;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;color:transparent;transition:all .18s;
+}
+.option-card.selected .oc-check{background:var(--teal);border-color:var(--teal);color:#fff}
+
+/* Chips */
+.chip-grid{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:4px}
+.sel-chip {
+  padding:7px 13px;border-radius:999px;
+  border:1.5px solid var(--line);background:var(--page);
+  font-size:12px;font-weight:700;color:var(--muted);
+  cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:5px;
+}
+.sel-chip:hover{border-color:var(--teal);color:var(--teal-dark);background:var(--teal-soft)}
+.sel-chip.selected{border-color:var(--teal);background:var(--teal-soft);color:var(--teal-dark)}
+
+/* Text inputs */
+.field{margin-bottom:12px}
+.field label{display:block;font-size:11px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+.field input,.field select {
+  width:100%;padding:10px 13px;border:1.5px solid var(--line);
+  border-radius:10px;background:var(--page);color:var(--ink);
+  font-size:13px;outline:none;transition:border-color .15s;
+  font-family:'Atkinson Hyperlegible',sans-serif;
+}
+.field input:focus,.field select:focus{border-color:var(--teal);background:#fff}
+.field-hint{font-size:11px;color:var(--muted);margin-top:4px}
+
+/* Family rows */
+.family-list{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.family-row {
+  display:grid;grid-template-columns:1fr 1fr 1fr auto;
+  gap:6px;align-items:center;
+  padding:10px 12px;border-radius:10px;
+  background:var(--page);border:1px solid var(--line);
+}
+.family-row input,.family-row select{
+  padding:7px 10px;border:1px solid var(--line);border-radius:7px;
+  background:var(--surface);color:var(--ink);font-size:12px;
+  outline:none;font-family:'Atkinson Hyperlegible',sans-serif;
+}
+.family-row input:focus,.family-row select:focus{border-color:var(--teal)}
+.btn-remove {
+  width:26px;height:26px;border-radius:50%;
+  background:transparent;border:1px solid var(--line);
+  color:var(--muted);font-size:14px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all .15s;
+}
+.btn-remove:hover{background:#fff0ef;border-color:#f5c0c0;color:var(--urgent)}
+.btn-add-family {
+  width:100%;padding:9px;border-radius:10px;
+  border:1.5px dashed var(--line);background:transparent;
+  color:var(--muted);font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;
+  font-family:'Atkinson Hyperlegible',sans-serif;
+}
+.btn-add-family:hover{border-color:var(--teal);color:var(--teal-dark);background:var(--teal-soft)}
+
+/* Google sign in */
+.btn-google {
+  width:100%;padding:13px 16px;border-radius:999px;
+  border:2px solid var(--line);background:var(--surface);
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  font-size:14px;font-weight:700;color:var(--ink);cursor:pointer;
+  transition:all .18s;margin-bottom:12px;
+  font-family:'Atkinson Hyperlegible',sans-serif;
+}
+.btn-google:hover{border-color:#4285f4;background:#f8f9ff;transform:translateY(-1px);box-shadow:var(--shadow-md)}
+.google-icon{width:20px;height:20px;flex-shrink:0}
+
+/* Scan options */
+.scan-option {
+  border:1.5px solid var(--line);border-radius:14px;padding:16px;
+  cursor:pointer;transition:all .2s;background:var(--page);
+  margin-bottom:8px;
+}
+.scan-option:hover{border-color:var(--teal);background:var(--teal-soft)}
+.scan-option.selected{border-color:var(--teal);background:var(--teal-soft)}
+.scan-title{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.scan-desc{font-size:12px;color:var(--muted);line-height:1.5}
+.scan-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--teal-soft);border:1px solid rgba(91,191,191,.4);color:var(--teal-dark)}
+.scan-badge.orange{background:#fff3e6;border-color:#ffc080;color:#8a4800}
+
+/* Screen animation */
+.screen-body{animation:screenIn .3s cubic-bezier(.22,1,.36,1)}
+@keyframes screenIn{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
+.slide-back{animation:screenBack .3s cubic-bezier(.22,1,.36,1)}
+@keyframes screenBack{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<!-- ── BLURRED DASHBOARD BACKGROUND ── -->
+<div class="dashboard-bg">
+  <div class="bg-sidebar">
+    <div style="padding:16px 14px 20px;display:flex;align-items:center;gap:10px">
+      <div style="width:28px;height:28px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff,#5bbfbf);box-shadow:0 0 10px rgba(91,191,191,.5)"></div>
+      <div style="width:50px;height:14px;background:rgba(255,255,255,.3);border-radius:4px"></div>
+    </div>
+    <div class="bg-nav-item active"></div>
+    <div class="bg-nav-item"></div>
+    <div class="bg-nav-item"></div>
+    <div class="bg-nav-item"></div>
+    <div class="bg-nav-item" style="opacity:.4"></div>
+  </div>
+  <div class="bg-main">
+    <div class="bg-header">
+      <div class="bg-header-title"></div>
+      <div style="margin-left:auto;display:flex;gap:8px">
+        <div style="width:32px;height:32px;border-radius:50%;background:var(--line)"></div>
+        <div style="width:32px;height:32px;border-radius:50%;background:var(--line)"></div>
+        <div style="width:32px;height:32px;border-radius:50%;background:var(--navy);opacity:.7"></div>
+      </div>
+    </div>
+    <div class="bg-greeting"></div>
+    <div class="bg-section"></div>
+    <div class="bg-card"></div>
+    <div class="bg-card"></div>
+    <div class="bg-section" style="margin-top:8px"></div>
+    <div class="bg-card" style="height:56px;opacity:.5"></div>
+    <div class="bg-card" style="height:56px;opacity:.4"></div>
+  </div>
+</div>
+<div class="dashboard-blur"></div>
+
+<!-- ── MODAL ── -->
+<div class="modal-wrap">
+  <div class="modal" id="modal">
+    <div class="orb-stage">
+      <svg class="orb-waves" viewBox="0 0 480 50" preserveAspectRatio="none">
+        <path d="M0,25 C80,8 160,42 240,25 C320,8 400,42 480,25 L480,50 L0,50 Z" fill="rgba(91,191,191,0.12)"/>
+        <path d="M0,35 C80,18 160,52 240,35 C320,18 400,52 480,35 L480,50 L0,50 Z" fill="rgba(91,191,191,0.08)"/>
+      </svg>
+      <div class="orb" id="orbEl"></div>
+    </div>
+    <div class="progress-dots" id="progressDots"></div>
+    <div class="screen-body" id="screenBody"></div>
+    <div class="modal-nav" id="modalNav"></div>
+  </div>
+</div>
+
+<script>
+// ── STATE ────────────────────────────────────────────────────────────────────
+const WEBHOOK_ONBOARDING = 'https://hook.eu1.make.com/rvqvyby3rd3e3a9hxcj0nm4yyvuodmhx';
+
+let step = 0;
+let goingBack = false;
+
+const profile = {
+  name: '',
+  email: '',
+  tone: '',
+  family: [],          // [{name, relationship, age_group}]
+  protect: [],
+  urgent_keywords: '',
+  calm_goal: '',
+  scan_choice: ''      // 'quick' | 'deep' | 'skip'
+};
+
+// ── SCREENS (0=OAuth, 1=Intro, 2=Tone, 3=Family, 4=Protect, 5=Keywords, 6=Goal, 7=Scan) ──
+const TOTAL_SETUP_STEPS = 7; // 0-6 are setup, 7 is scan choice
+
+// ── RENDER ───────────────────────────────────────────────────────────────────
+function renderStep(s, back) {
+  goingBack = !!back;
+  step = s;
+
+  // Progress dots (steps 1-6 = setup, show dots)
+  const dotsEl = document.getElementById('progressDots');
+  if (s >= 1 && s <= 6) {
+    dotsEl.style.display = 'flex';
+    dotsEl.innerHTML = Array.from({length:6},(_,i) =>
+      `<div class="dot ${i+1 < s ? 'done' : i+1 === s ? 'active' : ''}"></div>`
+    ).join('');
+  } else {
+    dotsEl.style.display = 'none';
+  }
+
+  const body = document.getElementById('screenBody');
+  body.className = 'screen-body' + (back ? ' slide-back' : '');
+  void body.offsetWidth;
+
+  const screens = [s0, s1, s2, s3, s4, s5, s6, s7];
+  body.innerHTML = screens[s]?.() || '';
+
+  document.getElementById('modalNav').innerHTML = nav(s);
+  wireNav(s);
+}
+
+// ── SCREEN 0: OAuth ──────────────────────────────────────────────────────────
+function s0() {
+  return `
+    <div class="screen-title" style="font-size:26px;margin-bottom:8px">Hi. I'm Qwell.</div>
+    <div class="screen-sub">I help you handle the noise so you can focus on what actually matters. Let's get you set up in about 2 minutes.</div>
+    <button class="btn-google" id="btnGoogle">
+      <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+      </svg>
+      Continue with Google
+    </button>
+    <div style="text-align:center;font-size:11px;color:var(--muted);line-height:1.6">
+      🔒 Qwell only reads your emails to help you. We never sell or share your data.
+    </div>`;
+}
+
+// ── SCREEN 1: Intro ──────────────────────────────────────────────────────────
+function s1() {
+  const name = profile.name ? `, ${profile.name}` : '';
+  return `
+    <div class="screen-eyebrow">Welcome</div>
+    <div class="screen-title">Nice to meet you${name}.</div>
+    <div class="screen-sub">I'm going to ask you a few quick questions so I know how to help you best. There are no wrong answers — and you can change anything later.</div>
+    <div style="background:var(--teal-soft);border-left:3px solid var(--teal);border-radius:0 10px 10px 0;padding:12px 14px;font-size:13px;color:var(--ink);line-height:1.6">
+      The dashboard behind me is yours. Once we're done, it'll come to life.
+    </div>`;
+}
+
+// ── SCREEN 2: Tone ───────────────────────────────────────────────────────────
+function s2() {
+  const tones = [
+    {id:'gentle', icon:'🌿', label:'Gently', desc:'Warm and encouraging — never pushy'},
+    {id:'direct', icon:'⚡', label:'Directly', desc:'Clear and to the point, no fuss'},
+    {id:'brief',  icon:'·',  label:'Briefly',  desc:'Just the essentials, nothing more'}
+  ];
+  return `
+    <div class="screen-eyebrow">Your style</div>
+    <div class="screen-title">How should I talk to you?</div>
+    <div class="screen-sub">You can change this any time.</div>
+    <div class="option-cards">
+      ${tones.map(t => `
+        <div class="option-card ${profile.tone===t.id?'selected':''}" onclick="pick('tone','${t.id}',this)">
+          <div class="oc-icon">${t.icon}</div>
+          <div style="flex:1"><span class="oc-label">${t.label}</span><span class="oc-desc">${t.desc}</span></div>
+          <div class="oc-check">${profile.tone===t.id?'✓':''}</div>
+        </div>`).join('')}
+    </div>`;
+}
+
+// ── SCREEN 3: Family ─────────────────────────────────────────────────────────
+function s3() {
+  return `
+    <div class="screen-eyebrow">Important people</div>
+    <div class="screen-title">Who matters most in your life?</div>
+    <div class="screen-sub">This helps me understand your world — a colleague, a child, a partner, a parent. I use this for context only, not stored.</div>
+    <div class="family-list" id="familyList">
+      ${profile.family.length ? profile.family.map((f,i) => familyRow(f,i)).join('') : familyRow({name:'',relationship:'child',age:null},0)}
+    </div>
+    <button class="btn-add-family" onclick="addFamilyRow()">+ Add another person</button>
+    <div style="font-size:11px;color:var(--muted);margin-top:10px">🔒 Names and ages are used only to personalise your experience — never stored or shared.</div>`;
+}
+
+function familyRow(person, idx) {
+  const isChild = person.relationship === 'child';
+  return `<div class="family-row" id="familyRow-${idx}" style="grid-template-columns:1fr 1fr ${isChild?'auto ':''} auto">
+    <input type="text" placeholder="First name e.g. Rio" value="${escHtml(person.name||'')}" 
+      oninput="updateFamily(${idx},'name',this.value);updateFamilyRow(${idx})">
+    <select onchange="updateFamily(${idx},'relationship',this.value);updateFamilyRow(${idx})">
+      ${[['child','Child'],['partner','Partner'],['parent','Parent'],['colleague','Colleague'],['sibling','Sibling'],['other','Other']].map(
+        ([v,l]) => `<option value="${v}" ${person.relationship===v?'selected':''}>${l}</option>`
+      ).join('')}
+    </select>
+    ${isChild ? `<input type="number" placeholder="Age" min="0" max="25" value="${escHtml(String(person.age||''))}"
+      style="width:70px" oninput="updateFamily(${idx},'age',this.value)"
+      title="Age helps me understand school level and context">` : ''}
+    <button class="btn-remove" onclick="removeFamilyRow(${idx})" title="Remove">×</button>
+  </div>`;
+}
+
+function updateFamilyRow(idx) {
+  const row = document.getElementById('familyRow-' + idx);
+  if (!row) return;
+  // Re-render just this row to show/hide age field
+  row.outerHTML = familyRow(profile.family[idx] || {name:'',relationship:'child',age_group:'school_age'}, idx);
+}
+
+function addFamilyRow() {
+  profile.family.push({name:'',relationship:'child',age_group:'school_age'});
+  document.getElementById('familyList').innerHTML = profile.family.map((f,i) => familyRow(f,i)).join('');
+}
+
+function removeFamilyRow(idx) {
+  profile.family.splice(idx, 1);
+  document.getElementById('familyList').innerHTML = profile.family.length
+    ? profile.family.map((f,i) => familyRow(f,i)).join('')
+    : familyRow({name:'',relationship:'child',age_group:'school_age'},0);
+}
+
+function updateFamily(idx, field, value) {
+  if (!profile.family[idx]) profile.family[idx] = {name:'',relationship:'child',age_group:'school_age'};
+  profile.family[idx][field] = field === 'age' ? parseInt(value)||'' : value;
+}
+
+// ── SCREEN 4: Protect ────────────────────────────────────────────────────────
+function s4() {
+  const items = [
+    {id:'payments',     icon:'💳', label:'Payments & bills'},
+    {id:'school',       icon:'🏫', label:'School & children'},
+    {id:'health',       icon:'🏥', label:'Health & medical'},
+    {id:'work',         icon:'💼', label:'Work & clients'},
+    {id:'appointments', icon:'📅', label:'Appointments'},
+    {id:'forms',        icon:'📋', label:'Forms & admin'},
+    {id:'legal',        icon:'⚖',  label:'Legal & contracts'},
+    {id:'travel',       icon:'✈',  label:'Travel & bookings'}
+  ];
+  return `
+    <div class="screen-eyebrow">What matters</div>
+    <div class="screen-title">What should I always watch?</div>
+    <div class="screen-sub">I'll make sure emails in these areas are never filtered out.</div>
+    <div class="chip-grid">
+      ${items.map(it => `
+        <div class="sel-chip ${profile.protect.includes(it.id)?'selected':''}" 
+          onclick="toggleChip('protect','${it.id}',this)">
+          <span>${it.icon}</span>${it.label}
+        </div>`).join('')}
+    </div>`;
+}
+
+// ── SCREEN 5: Keywords ───────────────────────────────────────────────────────
+function s5() {
+  // Pre-fill family names as suggestion
+  const familyNames = profile.family.filter(f=>f.name).map(f=>f.name).join(', ');
+  return `
+    <div class="screen-eyebrow">Always flag</div>
+    <div class="screen-title">Any words I should always notice?</div>
+    <div class="screen-sub">If any of these appear in an email, I'll always surface it — no matter how quiet it seems.</div>
+    <div class="field">
+      <label>Keywords or names <span style="font-weight:400;opacity:.6;text-transform:none;letter-spacing:0">(optional)</span></label>
+      <input type="text" id="inputKeywords" 
+        placeholder="e.g. urgent, invoice, Mrs Finn, dentist"
+        value="${escHtml(profile.urgent_keywords || (familyNames ? familyNames : ''))}">
+      <div class="field-hint">Separate with commas. ${familyNames ? `I've pre-filled names from the previous screen — feel free to edit.` : 'Examples: school names, doctors, keywords that matter to you.'}</div>
+    </div>`;
+}
+
+// ── SCREEN 6: Goal ───────────────────────────────────────────────────────────
+function s6() {
+  const goals = [
+    {id:'stop_checking', icon:'🛑', label:'Stop checking all day',    desc:'Trust that Qwell has it covered'},
+    {id:'feel_ready',    icon:'✅', label:'Feel ready for today',      desc:'Know what actually needs me'},
+    {id:'no_deadlines',  icon:'⏰', label:'Stop missing deadlines',    desc:'No more last-minute panic'},
+    {id:'clear_backlog', icon:'📬', label:'Clear the backlog',         desc:'Turn old threads into actions'}
+  ];
+  return `
+    <div class="screen-eyebrow">Your goal</div>
+    <div class="screen-title">What would make this feel worth it?</div>
+    <div class="screen-sub">Pick the one that resonates most.</div>
+    <div class="option-cards">
+      ${goals.map(g => `
+        <div class="option-card ${profile.calm_goal===g.id?'selected':''}" onclick="pick('calm_goal','${g.id}',this)">
+          <div class="oc-icon">${g.icon}</div>
+          <div style="flex:1"><span class="oc-label">${g.label}</span><span class="oc-desc">${g.desc}</span></div>
+          <div class="oc-check">${profile.calm_goal===g.id?'✓':''}</div>
+        </div>`).join('')}
+    </div>`;
+}
+
+// ── SCREEN 7: Scan choice ────────────────────────────────────────────────────
+function s7() {
+  return `
+    <div class="screen-eyebrow">One last thing</div>
+    <div class="screen-title">Should I take a look at your inbox?</div>
+    <div class="screen-sub">You're in control of what I see.</div>
+
+    <div class="scan-option ${profile.scan_choice==='quick'?'selected':''}" onclick="pickScan('quick',this)">
+      <div class="scan-title">
+        ⚡ Quick Scan
+        <span class="scan-badge orange">Recommended</span>
+      </div>
+      <div class="scan-desc">I'll read your <strong>unread emails right now</strong> and surface what needs your attention. You control what I see — just mark emails unread before scanning.</div>
+    </div>
+
+    <div class="scan-option ${profile.scan_choice==='deep'?'selected':''}" onclick="pickScan('deep',this)">
+      <div class="scan-title">
+        🔍 Deep Scan
+        <span class="scan-badge">Context only</span>
+      </div>
+      <div class="scan-desc">I'll look at <strong>90 days of your inbox history</strong> to understand your patterns. I won't create tasks — just build context so I can serve you better from day one. Runs quietly in the background.</div>
+    </div>
+
+    <div class="scan-option ${profile.scan_choice==='skip'?'selected':''}" onclick="pickScan('skip',this)">
+      <div class="scan-title">⏭ Skip for now</div>
+      <div class="scan-desc">Start fresh — Qwell will only watch new emails as they arrive. You can run a scan any time from the dashboard.</div>
+    </div>
+
+    <div style="font-size:11px;color:var(--muted);margin-top:10px;text-align:center;line-height:1.6">
+      🔒 Qwell reads emails to surface tasks only. We never store email content.
+    </div>`;
+}
+
+// ── NAV ───────────────────────────────────────────────────────────────────────
+function nav(s) {
+  if (s === 0) return ''; // OAuth screen — no nav
+  if (s === 1) return `<button class="btn-next" id="btnNext">Let's go →</button>`;
+  if (s === 7) return `
+    <button class="btn-back" onclick="renderStep(6, true)">←</button>
+    <button class="btn-next" id="btnNext" ${!profile.scan_choice?'disabled':''}>Finish →</button>`;
+  const optional = [3, 5]; // family and keywords are skippable
+  return `
+    <button class="btn-back" onclick="renderStep(${s-1}, true)">←</button>
+    <button class="btn-next" id="btnNext" id="btnNext"
+      ${needsSelection(s)?'disabled':''}>Continue →</button>
+    ${optional.includes(s) ? `<button class="btn-skip" onclick="renderStep(${s+1})">Skip</button>` : ''}`;
+}
+
+function needsSelection(s) {
+  if (s === 2) return !profile.tone;
+  if (s === 4) return profile.protect.length === 0;
+  if (s === 6) return !profile.calm_goal;
+  return false;
+}
+
+function wireNav(s) {
+  const btn = document.getElementById('btnNext');
+  if (!btn) return;
+  btn.addEventListener('click', () => advance(s));
+}
+
+// ── ADVANCE ───────────────────────────────────────────────────────────────────
+function advance(s) {
+  collectScreen(s);
+  if (s === 7) return finish();
+  renderStep(s + 1);
+}
+
+function collectScreen(s) {
+  if (s === 5) {
+    profile.urgent_keywords = document.getElementById('inputKeywords')?.value?.trim() || '';
+  }
+  if (s === 3) {
+    // Collect family rows
+    profile.family = profile.family.filter(f => f.name);
+  }
+}
+
+// ── INTERACTIONS ──────────────────────────────────────────────────────────────
+function pick(field, value, el) {
+  profile[field] = value;
+  el.closest('.option-cards').querySelectorAll('.option-card').forEach(c => {
+    c.classList.remove('selected');
+    c.querySelector('.oc-check').textContent = '';
+  });
+  el.classList.add('selected');
+  el.querySelector('.oc-check').textContent = '✓';
+  const btn = document.getElementById('btnNext');
+  if (btn) btn.disabled = false;
+}
+
+function toggleChip(field, value, el) {
+  profile[field] = profile[field] || [];
+  if (el.classList.contains('selected')) {
+    profile[field] = profile[field].filter(v => v !== value);
+    el.classList.remove('selected');
+  } else {
+    profile[field].push(value);
+    el.classList.add('selected');
+  }
+  const btn = document.getElementById('btnNext');
+  if (btn) btn.disabled = profile[field].length === 0;
+}
+
+function pickScan(choice, el) {
+  profile.scan_choice = choice;
+  document.querySelectorAll('.scan-option').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  const btn = document.getElementById('btnNext');
+  if (btn) btn.disabled = false;
+}
+
+// ── OAUTH (simulated — replace with real Google OAuth) ────────────────────────
+function wireOAuth() {
+  document.getElementById('btnGoogle')?.addEventListener('click', () => {
+    // In production: trigger Google OAuth flow
+    // For now: show name/email fields inline
+    const body = document.getElementById('screenBody');
+    body.innerHTML = `
+      <div class="screen-title" style="font-size:22px;margin-bottom:8px">Sign in</div>
+      <div class="screen-sub">Enter your details to continue.</div>
+      <div class="field">
+        <label>Your name</label>
+        <input type="text" id="inputName" placeholder="e.g. Shani" autocomplete="given-name"
+          value="${escHtml(profile.name)}"
+          onkeydown="if(event.key==='Enter')document.getElementById('inputEmail').focus()">
+      </div>
+      <div class="field">
+        <label>Email address</label>
+        <input type="email" id="inputEmail" placeholder="you@gmail.com" autocomplete="email"
+          value="${escHtml(profile.email)}"
+          onkeydown="if(event.key==='Enter')submitAuth()">
+        <div class="field-hint">This is the inbox Qwell will help you manage.</div>
+      </div>
+      <div id="authError" style="font-size:12px;color:var(--urgent);min-height:16px;margin-bottom:8px"></div>
+      <button class="btn-next" onclick="submitAuth()">Continue →</button>
+      <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:12px">🔒 Your data is only used to run Qwell. We never sell or share it.</p>
+    `;
+    document.getElementById('modalNav').innerHTML = '';
+  });
+}
+
+function submitAuth() {
+  const name  = document.getElementById('inputName')?.value?.trim();
+  const email = document.getElementById('inputEmail')?.value?.trim();
+  const errEl = document.getElementById('authError');
+  if (!name)  { if(errEl) errEl.textContent = 'Please enter your name.'; return; }
+  if (!email || !email.includes('@')) { if(errEl) errEl.textContent = 'Please enter a valid email.'; return; }
+  profile.name  = name;
+  profile.email = email;
+  renderStep(1);
+}
+
+// ── FINISH ────────────────────────────────────────────────────────────────────
+async function finish() {
+  // Save to localStorage
+  const user = {
+    email:               profile.email,
+    name:                profile.name,
+    tone:                profile.tone,
+    family:              profile.family,
+    protect_from_missing: profile.protect.join(','),
+    urgent_keywords:     profile.urgent_keywords,
+    calm_goal:           profile.calm_goal,
+    scan_choice:         profile.scan_choice,
+    family_names:        profile.family.filter(f=>f.name).map(f=>f.relationship==='child'&&f.age?`${f.name}(${f.age}yo)`:f.name).join(', ')
+  };
+  localStorage.setItem('qwellme_user', JSON.stringify(user));
+  localStorage.setItem(`qwellme_${profile.email}_visited`, '1');
+
+  // Save to Make (non-blocking)
+  fetch(WEBHOOK_ONBOARDING, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({...user, update_preferences_only: true, status:'onboarded'})
+  }).catch(e => console.warn('Profile save failed:', e));
+
+  // Show completion screen
+  document.getElementById('screenBody').innerHTML = `
+    <div style="text-align:center;padding:10px 0">
+      <div style="width:56px;height:56px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff 0%,#b8e8e8 35%,var(--teal) 100%);box-shadow:0 0 20px rgba(91,191,191,.5);margin:0 auto 16px;animation:orbFloat 4s ease-in-out infinite,orbShape 7s ease-in-out infinite"></div>
+      <div class="screen-title" style="font-size:22px;margin-bottom:8px">You're all set, ${profile.name.split(' ')[0]}.</div>
+      <div class="screen-sub">Qwell is ready. Your dashboard is waiting.</div>
+      ${profile.scan_choice === 'quick' ? `<div style="background:var(--teal-soft);border-radius:10px;padding:10px 14px;font-size:12px;color:var(--teal-dark);margin-bottom:16px">⚡ Quick Scan will run from your dashboard — you'll see results in moments.</div>` : ''}
+      ${profile.scan_choice === 'deep' ? `<div style="background:var(--navy-soft);border-radius:10px;padding:10px 14px;font-size:12px;color:var(--navy);margin-bottom:16px">🔍 Deep Scan will run quietly in the background. I'll let you know when it's done.</div>` : ''}
+    </div>`;
+  document.getElementById('modalNav').innerHTML = `<button class="btn-next" onclick="goToDashboard()">Open my dashboard →</button>`;
+  document.getElementById('progressDots').style.display = 'none';
+}
+
+function goToDashboard() {
+  window.location.href = 'dashboard.html';
+}
+
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── START ─────────────────────────────────────────────────────────────────────
+renderStep(0);
+document.addEventListener('DOMContentLoaded', () => {});
+// Wire OAuth after first render
+setTimeout(wireOAuth, 50);
+</script>
+</body>
+</html>
