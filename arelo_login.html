@@ -346,23 +346,52 @@ html, body {
   font-weight: 700;
   color: rgba(255,255,255,0.8);
 }
-  /* Reduce visual flicker / GPU strain */
-.bg::after,
-.orb,
-.redirect-orb,
-.card,
-.top-logo,
-.status-msg {
+/* HARD SAFE MODE: stop flicker completely */
+*,
+*::before,
+*::after {
   animation: none !important;
-}
-
-.card {
+  transition: none !important;
+  transform: none !important;
+  filter: none !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
 
-.redirect-overlay {
-  animation: none !important;
+html,
+body {
+  background: #1e2e3e !important;
+}
+
+.bg {
+  display: none !important;
+}
+
+.bg::after {
+  display: none !important;
+  content: none !important;
+}
+
+.card {
+  background: #24384c !important;
+  box-shadow: none !important;
+}
+
+.orb,
+.top-logo-orb,
+.redirect-orb {
+  box-shadow: none !important;
+}
+
+.oauth-btn:hover,
+.oauth-btn.google:hover,
+.oauth-btn.azure:hover {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.spinner {
+  display: none !important;
 }
 </style>
 </head>
