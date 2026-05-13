@@ -470,15 +470,14 @@ body {
 const SUPABASE_URL = 'https://cfnuvhvncoumakrogrdb.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_AJwEwPfNe_bst7J3scwmzg_iv3TiUbA';
 
-const CONFIG = {
-  dashboardUrl: './dashboard.html'
-};
+const DASHBOARD_URL = './dashboard.html';
 
 const supabaseClient = supabase.createClient(
   SUPABASE_URL,
   SUPABASE_PUBLISHABLE_KEY,
   {
     auth: {
+      flowType: 'pkce',
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: true
@@ -498,7 +497,11 @@ async function signInWith(provider) {
   const { error } = await supabaseClient.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: window.location.origin + '/arelo_login.html'
+      redirectTo: window.location.origin + '/arelo_login.html',
+      queryParams: {
+        access_type: 'offline',
+        prompt: 'consent'
+      }
     }
   });
 
@@ -510,15 +513,8 @@ async function signInWith(provider) {
 }
 
 async function handleSupabaseSession() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
-
-  const code = urlParams.get('code');
-  const authError =
-    urlParams.get('error_description') ||
-    urlParams.get('error') ||
-    hashParams.get('error_description') ||
-    hashParams.get('error');
+  const params = new URLSearchParams(window.location.search);
+  const authError = params.get('error_description') || params.get('error');
 
   if (authError) {
     console.error('Supabase callback error:', authError);
@@ -527,6 +523,8 @@ async function handleSupabaseSession() {
     disableButtons(false);
     return;
   }
+
+  const code = params.get('code');
 
   if (code) {
     showRedirectOverlay('Completing your sign-in…');
@@ -553,13 +551,15 @@ async function handleSupabaseSession() {
     return;
   }
 
-  const session = data && data.session;
-
-  if (!session) {
+  if (!data || !data.session) {
     disableButtons(false);
     return;
   }
 
+  completeLogin(data.session);
+}
+
+function completeLogin(session) {
   const user = session.user || {};
   const email = user.email || '';
   const name =
@@ -580,21 +580,20 @@ async function handleSupabaseSession() {
     theme: 'calm'
   };
 
-  // New Arelo keys
   localStorage.setItem('arelo_email', email);
   localStorage.setItem('arelo_name', name);
   localStorage.setItem('arelo_provider', 'google');
   localStorage.setItem('arelo_access_token', session.access_token || '');
   localStorage.setItem('arelo_refresh_token', session.refresh_token || '');
 
-  // Old dashboard compatibility key
+  // Important: dashboard.html still expects this older key.
   localStorage.setItem('qwellme_user', JSON.stringify(userObject));
 
   showRedirectOverlay(`Welcome${name ? ', ' + name.split(' ')[0] : ''}! Opening your dashboard…`);
 
   setTimeout(() => {
-    window.location.href = CONFIG.dashboardUrl;
-  }, 800);
+    window.location.replace(DASHBOARD_URL);
+  }, 700);
 }
 
 function showStatus(type, message, withSpinner = false) {
@@ -602,42 +601,41 @@ function showStatus(type, message, withSpinner = false) {
   const textEl = document.getElementById('statusText');
   const spinnerEl = document.getElementById('statusSpinner');
 
+  if (!el || !textEl || !spinnerEl) return;
+
   el.className = `status-msg visible ${type}`;
   textEl.textContent = message;
   spinnerEl.style.display = withSpinner ? 'block' : 'none';
 }
 
 function hideStatus() {
-  document.getElementById('statusMsg').className = 'status-msg';
+  const el = document.getElementById('statusMsg');
+  if (el) el.className = 'status-msg';
 }
 
 function disableButtons(disabled) {
-  document.getElementById('btnGoogle').disabled = disabled;
-  document.getElementById('btnAzure').disabled = disabled;
+  const googleBtn = document.getElementById('btnGoogle');
+  const azureBtn = document.getElementById('btnAzure');
+
+  if (googleBtn) googleBtn.disabled = disabled;
+  if (azureBtn) azureBtn.disabled = disabled;
 }
 
 function showRedirectOverlay(msg = 'Opening your dashboard…') {
-  document.getElementById('redirectText').textContent = msg;
-  document.getElementById('redirectOverlay').classList.add('visible');
+  const text = document.getElementById('redirectText');
+  const overlay = document.getElementById('redirectOverlay');
+
+  if (text) text.textContent = msg;
+  if (overlay) overlay.classList.add('visible');
 }
 
 function hideRedirectOverlay() {
-  document.getElementById('redirectOverlay').classList.remove('visible');
+  const overlay = document.getElementById('redirectOverlay');
+  if (overlay) overlay.classList.remove('visible');
 }
 
 (async function init() {
   await handleSupabaseSession();
-})();
-  const hasCallbackCode = window.location.search.includes('code=');
-  const hasAuthError = window.location.search.includes('error=');
-
-  if (hasCallbackCode || hasAuthError) {
-    await handleSupabaseSession();
-    return;
-  }
-
-  hideRedirectOverlay();
-  disableButtons(false);
 })();
 </script>
 </body>
