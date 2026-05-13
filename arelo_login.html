@@ -421,10 +421,11 @@ html, body {
 // ─────────────────────────────────────────────────────────────────────────────
 // CONFIGURATION — fill these in with your OAuth client IDs / redirect URIs
 // ─────────────────────────────────────────────────────────────────────────────
+window.ARELO_TOKEN_EXCHANGE_URL = 'https://hook.eu1.make.com/szuwf2br9vmhcl5xkv8kx2j30qixhlkc';
 const CONFIG = {
   // Google OAuth 2.0
   google: {
-    clientId:    window.GOOGLE_CLIENT_ID    || 'YOUR_GOOGLE_CLIENT_ID',
+ clientId: window.GOOGLE_CLIENT_ID || '474105460149-tmi74lcvs5uh2f5or1ogrsmvknfbpvh7.apps.googleusercontent.com',
     redirectUri: window.GOOGLE_REDIRECT_URI || window.location.origin + '/auth/callback/google',
     scope:      'openid email profile https://www.googleapis.com/auth/gmail.readonly',
     authUrl:     'https://accounts.google.com/o/oauth2/v2/auth',
