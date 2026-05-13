@@ -608,17 +608,16 @@ function hideRedirectOverlay() {
 }
 
 (async function init() {
-  const { data } = await supabaseClient.auth.getSession();
+  const hasCallbackCode = window.location.search.includes('code=');
+  const hasAuthError = window.location.search.includes('error=');
 
-  if (data && data.session && window.location.search === '' && window.location.hash === '') {
-    showRedirectOverlay('You are already signed in — opening your dashboard…');
-    setTimeout(() => {
-      window.location.href = CONFIG.dashboardUrl;
-    }, 600);
+  if (hasCallbackCode || hasAuthError) {
+    await handleSupabaseSession();
     return;
   }
 
-  await handleSupabaseSession();
+  hideRedirectOverlay();
+  disableButtons(false);
 })();
 </script>
 </body>
