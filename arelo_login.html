@@ -346,6 +346,24 @@ html, body {
   font-weight: 700;
   color: rgba(255,255,255,0.8);
 }
+  /* Reduce visual flicker / GPU strain */
+.bg::after,
+.orb,
+.redirect-orb,
+.card,
+.top-logo,
+.status-msg {
+  animation: none !important;
+}
+
+.card {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.redirect-overlay {
+  animation: none !important;
+}
 </style>
 </head>
 <body>
