@@ -456,6 +456,33 @@ async function signInWith(provider) {
 }
 
 async function handleSupabaseSession() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const code = urlParams.get('code');
+  const authError = urlParams.get('error') || urlParams.get('error_description');
+
+  if (authError) {
+    console.error('Supabase callback error:', authError);
+    showStatus('error', 'Google sign-in was cancelled or failed. Please try again.');
+    disableButtons(false);
+    return;
+  }
+
+  if (code) {
+    showRedirectOverlay('Completing your sign-in…');
+
+    const { error: exchangeError } = await supabaseClient.auth.exchangeCodeForSession(code);
+
+    history.replaceState({}, document.title, window.location.pathname);
+
+    if (exchangeError) {
+      console.error('Supabase code exchange error:', exchangeError);
+      hideRedirectOverlay();
+      showStatus('error', 'Could not complete sign-in. Please try again.');
+      disableButtons(false);
+      return;
+    }
+  }
+
   const { data, error } = await supabaseClient.auth.getSession();
 
   if (error) {
@@ -467,7 +494,10 @@ async function handleSupabaseSession() {
 
   const session = data && data.session;
 
-  if (!session) return;
+  if (!session) {
+    disableButtons(false);
+    return;
+  }
 
   const user = session.user || {};
   const email = user.email || '';
