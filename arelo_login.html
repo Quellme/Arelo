@@ -417,187 +417,90 @@ html, body {
   <div class="redirect-text" id="redirectText">Opening your dashboard…</div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
-// ─────────────────────────────────────────────────────────────────────────────
-// CONFIGURATION — fill these in with your OAuth client IDs / redirect URIs
-// ─────────────────────────────────────────────────────────────────────────────
+const SUPABASE_URL = 'https://cfnuvhvncoumakrogrdb.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_AJwEwPfNe_bst7J3scwmzg_iv3TiUbA';
+
 const CONFIG = {
-  // Google OAuth 2.0
-  google: {
-    clientId:    window.GOOGLE_CLIENT_ID    || '474105460149-tmi74lcvs5uh2f5or1ogrsmvknfbpvh7.apps.googleusercontent.com',
-    redirectUri: window.GOOGLE_REDIRECT_URI || window.location.origin + '/auth/callback/google',
-    scope:       'openid email profile',
-    authUrl:     'https://accounts.google.com/o/oauth2/v2/auth',
-  },
-  // Microsoft / Azure AD
-  azure: {
-    clientId:    window.AZURE_CLIENT_ID    || 'YOUR_AZURE_CLIENT_ID',
-    tenantId:    window.AZURE_TENANT_ID    || 'common',   // 'common' = any MS account
-    redirectUri: window.AZURE_REDIRECT_URI || window.location.origin + '/auth/callback/azure',
-    scope:       'openid email profile offline_access',
-    get authUrl() {
-      return `https://login.microsoftonline.com/${this.tenantId}/oauth2/v2.0/authorize`;
-    },
-  },
-  // Where the dashboard lives (used for post-login redirect)
-  dashboardUrl: window.ARELO_DASHBOARD_URL || './dashboard_28_arelo.html',
+  dashboardUrl: './dashboard.html'
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// PKCE helpers (no client secret needed in the browser)
-// ─────────────────────────────────────────────────────────────────────────────
-function generateRandomString(len = 64) {
-  const arr = new Uint8Array(len);
-  crypto.getRandomValues(arr);
-  return Array.from(arr, b => b.toString(36)).join('').slice(0, len);
-}
+const supabaseClient = supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
 
-async function generateCodeChallenge(verifier) {
-  const enc = new TextEncoder();
-  const hash = await crypto.subtle.digest('SHA-256', enc.encode(verifier));
-  return btoa(String.fromCharCode(...new Uint8Array(hash)))
-    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// SIGN-IN — builds the OAuth URL and redirects
-// ─────────────────────────────────────────────────────────────────────────────
 async function signInWith(provider) {
-  const cfg = CONFIG[provider];
-  if (!cfg) return;
-
-  // Validate config
-  if (cfg.clientId.startsWith('YOUR_')) {
-    showStatus('error', `${provider === 'google' ? 'Google' : 'Microsoft'} OAuth client ID is not yet configured. Add it to CONFIG in this file.`);
+  if (provider !== 'google') {
+    showStatus('error', 'Microsoft login is not configured yet. Please use Google for now.');
     return;
   }
 
   disableButtons(true);
-  showStatus('loading', `Redirecting to ${provider === 'google' ? 'Google' : 'Microsoft'}…`, true);
+  showStatus('loading', 'Redirecting to Google…', true);
 
-  try {
-    // PKCE
-    const codeVerifier   = generateRandomString(64);
-    const codeChallenge  = await generateCodeChallenge(codeVerifier);
-    const state          = generateRandomString(32);
-
-    // Persist PKCE state so the callback page can verify
-    sessionStorage.setItem('arelo_oauth_state',    state);
-    sessionStorage.setItem('arelo_oauth_verifier', codeVerifier);
-    sessionStorage.setItem('arelo_oauth_provider', provider);
-
-    const params = new URLSearchParams({
-      client_id:             cfg.clientId,
-      redirect_uri:          cfg.redirectUri,
-      response_type:         'code',
-      scope:                 cfg.scope,
-      state,
-      code_challenge:        codeChallenge,
-      code_challenge_method: 'S256',
-      ...(provider === 'google' && { access_type: 'offline', prompt: 'consent' }),
-      ...(provider === 'azure'  && { response_mode: 'query' }),
-    });
-
-    window.location.href = `${cfg.authUrl}?${params}`;
-  } catch (err) {
-    console.error('OAuth redirect error:', err);
-    showStatus('error', 'Something went wrong. Please try again.');
-    disableButtons(false);
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// CALLBACK HANDLING — runs if this page is loaded with ?code= in the URL.
-// In production you'd have a dedicated /auth/callback route; this is a
-// fallback for single-page / direct-file deployments.
-// ─────────────────────────────────────────────────────────────────────────────
-async function handleOAuthCallback() {
-  const params   = new URLSearchParams(window.location.search);
-  const code     = params.get('code');
-  const state    = params.get('state');
-  const error    = params.get('error');
-  const provider = sessionStorage.getItem('arelo_oauth_provider');
-
-  if (!code && !error) return; // not a callback — normal page load
-
-  // Clear URL params without reloading
-  history.replaceState({}, '', window.location.pathname);
+  const { error } = await supabaseClient.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: window.location.origin + '/arelo_login.html'
+    }
+  });
 
   if (error) {
-    showStatus('error', `Sign-in was cancelled or failed (${error}). Please try again.`);
-    return;
-  }
-
-  if (state !== sessionStorage.getItem('arelo_oauth_state')) {
-    showStatus('error', 'Security check failed. Please try signing in again.');
-    return;
-  }
-
-  showRedirectOverlay('Verifying your account…');
-
-  try {
-    // ── Exchange code for tokens ────────────────────────────────────────────
-    // In production: POST to your backend endpoint, not directly to Google/MS
-    // (client_secret must never be exposed in the browser).
-    // Here we call your Make.com webhook which handles the exchange.
-    const verifier = sessionStorage.getItem('arelo_oauth_verifier');
-    const cfg      = CONFIG[provider] || {};
-
-    // POST to your backend / Make webhook for token exchange
-    const tokenRes = await fetch(window.ARELO_TOKEN_EXCHANGE_URL || '/auth/token', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        code,
-        code_verifier: verifier,
-        provider,
-        redirect_uri: cfg.redirectUri,
-        client_id: cfg.clientId,
-      }),
-    });
-
-    if (!tokenRes.ok) throw new Error(`Token exchange failed: ${tokenRes.status}`);
-    const tokenData = await tokenRes.json();
-
-    // ── Extract user info ───────────────────────────────────────────────────
-    const { email, name, access_token, refresh_token } = tokenData;
-
-    if (!email) throw new Error('No email returned from token exchange');
-
-    // ── Persist to localStorage (same keys the dashboard reads) ────────────
-    localStorage.setItem('arelo_email',         email);
-    localStorage.setItem('arelo_name',          name  || '');
-    localStorage.setItem('arelo_provider',      provider);
-    localStorage.setItem('arelo_access_token',  access_token  || '');
-    localStorage.setItem('arelo_refresh_token', refresh_token || '');
-
-    // Clear PKCE
-    sessionStorage.removeItem('arelo_oauth_state');
-    sessionStorage.removeItem('arelo_oauth_verifier');
-    sessionStorage.removeItem('arelo_oauth_provider');
-
-    // ── Redirect to dashboard ───────────────────────────────────────────────
-    showRedirectOverlay(`Welcome${name ? ', ' + name.split(' ')[0] : ''}! Opening your dashboard…`);
-    setTimeout(() => {
-      window.location.href = CONFIG.dashboardUrl;
-    }, 800);
-
-  } catch (err) {
-    console.error('OAuth callback error:', err);
-    hideRedirectOverlay();
-    showStatus('error', 'Could not complete sign-in. Please try again.');
+    console.error('Supabase sign-in error:', error);
+    showStatus('error', 'Could not start Google sign-in. Please try again.');
     disableButtons(false);
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// UI HELPERS
-// ─────────────────────────────────────────────────────────────────────────────
+async function handleSupabaseSession() {
+  const { data, error } = await supabaseClient.auth.getSession();
+
+  if (error) {
+    console.error('Supabase session error:', error);
+    showStatus('error', 'Could not complete sign-in. Please try again.');
+    disableButtons(false);
+    return;
+  }
+
+  const session = data && data.session;
+
+  if (!session) return;
+
+  const user = session.user || {};
+  const email = user.email || '';
+  const name =
+    user.user_metadata?.full_name ||
+    user.user_metadata?.name ||
+    '';
+
+  if (!email) {
+    showStatus('error', 'Could not read your email from Google. Please try again.');
+    disableButtons(false);
+    return;
+  }
+
+  localStorage.setItem('arelo_email', email);
+  localStorage.setItem('arelo_name', name);
+  localStorage.setItem('arelo_provider', 'google');
+  localStorage.setItem('arelo_access_token', session.access_token || '');
+  localStorage.setItem('arelo_refresh_token', session.refresh_token || '');
+
+  showRedirectOverlay(`Welcome${name ? ', ' + name.split(' ')[0] : ''}! Opening your dashboard…`);
+
+  setTimeout(() => {
+    window.location.href = CONFIG.dashboardUrl;
+  }, 800);
+}
+
 function showStatus(type, message, withSpinner = false) {
-  const el       = document.getElementById('statusMsg');
-  const textEl   = document.getElementById('statusText');
+  const el = document.getElementById('statusMsg');
+  const textEl = document.getElementById('statusText');
   const spinnerEl = document.getElementById('statusSpinner');
-  el.className   = `status-msg visible ${type}`;
+
+  el.className = `status-msg visible ${type}`;
   textEl.textContent = message;
   spinnerEl.style.display = withSpinner ? 'block' : 'none';
 }
@@ -608,7 +511,7 @@ function hideStatus() {
 
 function disableButtons(disabled) {
   document.getElementById('btnGoogle').disabled = disabled;
-  document.getElementById('btnAzure').disabled  = disabled;
+  document.getElementById('btnAzure').disabled = disabled;
 }
 
 function showRedirectOverlay(msg = 'Opening your dashboard…') {
@@ -620,20 +523,18 @@ function hideRedirectOverlay() {
   document.getElementById('redirectOverlay').classList.remove('visible');
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// INIT — check if already signed in, or handle callback
-// ─────────────────────────────────────────────────────────────────────────────
-(function init() {
-  // If already authenticated, go straight to the dashboard
-  const existingEmail = localStorage.getItem('arelo_email');
-  if (existingEmail && window.location.search === '') {
-    showRedirectOverlay('You\'re already signed in — opening your dashboard…');
-    setTimeout(() => { window.location.href = CONFIG.dashboardUrl; }, 600);
+(async function init() {
+  const { data } = await supabaseClient.auth.getSession();
+
+  if (data && data.session && window.location.search === '' && window.location.hash === '') {
+    showRedirectOverlay('You are already signed in — opening your dashboard…');
+    setTimeout(() => {
+      window.location.href = CONFIG.dashboardUrl;
+    }, 600);
     return;
   }
 
-  // Handle callback from OAuth provider
-  handleOAuthCallback();
+  await handleSupabaseSession();
 })();
 </script>
 </body>
