@@ -511,11 +511,18 @@ async function signInWith(provider) {
 
 async function handleSupabaseSession() {
   const urlParams = new URLSearchParams(window.location.search);
+  const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+
   const code = urlParams.get('code');
-  const authError = urlParams.get('error') || urlParams.get('error_description');
+  const authError =
+    urlParams.get('error_description') ||
+    urlParams.get('error') ||
+    hashParams.get('error_description') ||
+    hashParams.get('error');
 
   if (authError) {
     console.error('Supabase callback error:', authError);
+    history.replaceState({}, document.title, window.location.pathname);
     showStatus('error', 'Google sign-in was cancelled or failed. Please try again.');
     disableButtons(false);
     return;
@@ -558,7 +565,7 @@ async function handleSupabaseSession() {
   const name =
     user.user_metadata?.full_name ||
     user.user_metadata?.name ||
-    '';
+    email;
 
   if (!email) {
     showStatus('error', 'Could not read your email from Google. Please try again.');
@@ -566,11 +573,22 @@ async function handleSupabaseSession() {
     return;
   }
 
+  const userObject = {
+    email: email,
+    name: name,
+    provider: 'google',
+    theme: 'calm'
+  };
+
+  // New Arelo keys
   localStorage.setItem('arelo_email', email);
   localStorage.setItem('arelo_name', name);
   localStorage.setItem('arelo_provider', 'google');
   localStorage.setItem('arelo_access_token', session.access_token || '');
   localStorage.setItem('arelo_refresh_token', session.refresh_token || '');
+
+  // Old dashboard compatibility key
+  localStorage.setItem('qwellme_user', JSON.stringify(userObject));
 
   showRedirectOverlay(`Welcome${name ? ', ' + name.split(' ')[0] : ''}! Opening your dashboard…`);
 
@@ -608,6 +626,8 @@ function hideRedirectOverlay() {
 }
 
 (async function init() {
+  await handleSupabaseSession();
+})();
   const hasCallbackCode = window.location.search.includes('code=');
   const hasAuthError = window.location.search.includes('error=');
 
