@@ -424,17 +424,17 @@ html, body {
 window.ARELO_TOKEN_EXCHANGE_URL = 'https://hook.eu1.make.com/szuwf2br9vmhcl5xkv8kx2j30qixhlkc';
 const CONFIG = {
   // Google OAuth 2.0
-  google: {
- clientId: window.GOOGLE_CLIENT_ID || '474105460149-tmi74lcvs5uh2f5or1ogrsmvknfbpvh7.apps.googleusercontent.com',
-    window.location.href.split('?')[0]: window.GOOGLE_REDIRECT_URI || window.location.origin + '/auth/callback/google',
+ google: {
+  clientId: window.GOOGLE_CLIENT_ID || '474105460149-tmi74lcvs5uh2f5or1ogrsmvknfbpvh7.apps.googleusercontent.com',
+  redirectUri: window.GOOGLE_REDIRECT_URI || window.location.origin + '/auth/callback/google',
     scope:      'openid email profile https://www.googleapis.com/auth/gmail.readonly',
     authUrl:     'https://accounts.google.com/o/oauth2/v2/auth',
   },
   // Microsoft / Azure AD
-  azure: {
+azure: {
     clientId:    window.AZURE_CLIENT_ID    || 'YOUR_AZURE_CLIENT_ID',
-    tenantId:    window.AZURE_TENANT_ID    || 'common',   // 'common' = any MS account
-    window.location.href.split('?')[0]: window.AZURE_REDIRECT_URI || window.location.origin + '/auth/callback/azure',
+    tenantId:    window.AZURE_TENANT_ID    || 'common',
+    redirectUri: window.AZURE_REDIRECT_URI || window.location.origin + '/auth/callback/azure',
     scope:       'openid email profile offline_access',
     get authUrl() {
       return `https://login.microsoftonline.com/${this.tenantId}/oauth2/v2.0/authorize`;
