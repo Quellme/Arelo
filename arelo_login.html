@@ -422,7 +422,7 @@ html, body {
 // CONFIGURATION — fill these in with your OAuth client IDs / redirect URIs
 // ─────────────────────────────────────────────────────────────────────────────
 window.ARELO_TOKEN_EXCHANGE_URL = 'https://hook.eu1.make.com/szuwf2br9vmhcl5xkv8kx2j30qixhlkc';
-const isReconnect = window.location.search.includes('reconnect');
+const isReconnect = sessionStorage.getItem('arelo_reconnect') === 'true';
 const CONFIG = {
   // Google OAuth 2.0
  google: {
@@ -577,6 +577,8 @@ async function handleOAuthCallback() {
     sessionStorage.removeItem('arelo_oauth_state');
     sessionStorage.removeItem('arelo_oauth_verifier');
     sessionStorage.removeItem('arelo_oauth_provider');
+    sessionStorage.removeItem('arelo_reconnect');
+   
 
     // ── Redirect to dashboard ───────────────────────────────────────────────
     // Check if new or existing user
