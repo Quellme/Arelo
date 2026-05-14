@@ -578,10 +578,26 @@ async function handleOAuthCallback() {
     sessionStorage.removeItem('arelo_oauth_provider');
 
     // ── Redirect to dashboard ───────────────────────────────────────────────
-    showRedirectOverlay(`Welcome${name ? ', ' + name.split(' ')[0] : ''}! Opening your dashboard…`);
-    setTimeout(() => {
-      window.location.href = CONFIG.dashboardUrl;
-    }, 800);
+    // Check if new or existing user
+    const checkUser = await fetch(`https://cfnuvhvncoumakrogrdb.supabase.co/rest/v1/users?email=eq.${email}&select=email`, {
+      headers: {
+        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmbnV2aHZuY291bWFrcm9ncmRiIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODAxNzU2MSwiZXhwIjoyMDkzNTkzNTYxfQ.rZjJHR0rvQdw_tdQOGrtT8uaGxzYyZt-VxOLCK4sT-Q',
+        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmbnV2aHZuY291bWFrcm9ncmRiIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODAxNzU2MSwiZXhwIjoyMDkzNTkzNTYxfQ.rZjJHR0rvQdw_tdQOGrtT8uaGxzYyZt-VxOLCK4sT-Q'
+      }
+    });
+    const userData = await checkUser.json();
+
+    if (userData.length === 0) {
+      showRedirectOverlay(`Welcome${name ? ', ' + name.split(' ')[0] : ''}! Setting up your account…`);
+      setTimeout(() => {
+        window.location.href = './arelo_onboarding.html';
+      }, 800);
+    } else {
+      showRedirectOverlay(`Welcome back${name ? ', ' + name.split(' ')[0] : ''}! Opening your dashboard…`);
+      setTimeout(() => {
+        window.location.href = CONFIG.dashboardUrl;
+      }, 800);
+    }
 
   } catch (err) {
     console.error('OAuth callback error:', err);
