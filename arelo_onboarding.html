@@ -554,7 +554,7 @@ async function finaliseOnboarding() {
     await fetch('https://hook.eu1.make.com/v1tzj7w92zfivbg5f9dy5nzfcl7uugel', {
          method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...profile, account, status: 'onboarding_complete' })
+      body: JSON.stringify({ ...profile, account, status: 'onboarding_complete'  , access_token: localStorage.getItem('arelo_access_token') })
     });
   } catch(e) { /* silent fail — will save on next login */ }
   // Trigger onboarding inbox scan  ← ADD HERE
@@ -564,7 +564,9 @@ async function finaliseOnboarding() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         account,
-        email: localStorage.getItem('arelo_email')
+        email: localStorage.getItem('arelo_email'),
+        access_token: localStorage.getItem('arelo_access_token')
+    })
       })
     });
   } catch(e) { /* silent fail */ }
