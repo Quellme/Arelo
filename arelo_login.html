@@ -586,8 +586,7 @@ async function handleOAuthCallback() {
       }
     });
     const userData = await checkUser.json();
-
-    if (userData.length === 0) {
+    if (userData.length === 0 && !isReconnect) {
       showRedirectOverlay(`Welcome${name ? ', ' + name.split(' ')[0] : ''}! Setting up your account…`);
       setTimeout(() => {
         window.location.href = './arelo_onboarding.html';
