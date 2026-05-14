@@ -554,7 +554,7 @@ async function finaliseOnboarding() {
     await fetch('https://hook.eu1.make.com/v1tzj7w92zfivbg5f9dy5nzfcl7uugel', {
          method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...profile, account, status: 'onboarding_complete'  , access_token: localStorage.getItem('arelo_access_token') })
+      body: JSON.stringify({ ...profile, account, email: localStorage.getItem('arelo_email'), name: localStorage.getItem('arelo_name'), status: 'onboarding_complete', access_token: localStorage.getItem('arelo_access_token') })
     });
   } catch(e) { /* silent fail — will save on next login */ }
   // Trigger onboarding inbox scan  ← ADD HERE
@@ -626,7 +626,8 @@ function setInputEnabled(enabled) {
 
 function getUserAccount() {
   // In production, get from auth session/localStorage
-  return localStorage.getItem('arelo_account') || 'new_user';
+    return localStorage.getItem('arelo_account') || localStorage.getItem('arelo_email') || 'new_user';
+
 }
 
 function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
