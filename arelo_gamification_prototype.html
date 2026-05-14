@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arelo – Play & Rewards (dashboard_29 integration prototype)</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Atkinson+Hyperlegible:wght@400;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ── ARELO TOKENS (matches dashboard_29) ──────────────── */
+:root {
+  --navy:#3d5a7a; --navy-dark:#2c4260; --navy-mid:#4e6d8c;
+  --navy-soft:#eef2f7; --navy-line:#d0dae6;
+  --teal:#5bbfbf; --teal-soft:#e6f5f5; --teal-dark:#3a9090;
+  --teal-glow:rgba(91,191,191,0.45);
+  --page:#f0f3f7; --surface:#fff; --ink:#1e2e3e; --muted:#5a7089; --line:#d0dae6;
+  --urgent:#c0392b; --urgent-soft:#fdf0ef;
+  --reward:#f5a623; --reward-soft:#fff8e8; --reward-line:#ffe0a0;
+  --shadow-sm:0 2px 8px rgba(30,46,62,.08);
+  --shadow-md:0 8px 28px rgba(30,46,62,.13);
+  --shadow-xl:0 24px 64px rgba(20,35,55,.22);
+  --r-lg:20px; --r-md:14px; --r-sm:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Atkinson Hyperlegible',sans-serif;background:var(--page);color:var(--ink);min-height:100vh}
+
+/* ── DEMO NAV ─────────────────────────────────────────── */
+.demo-nav {
+  display:flex; gap:8px; padding:12px 16px; background:var(--navy-dark);
+  position:sticky; top:0; z-index:100;
+}
+.demo-tab {
+  padding:6px 14px; border-radius:999px; border:1px solid rgba(255,255,255,.2);
+  background:transparent; color:rgba(255,255,255,.6);
+  font-family:'Nunito',sans-serif; font-size:12px; font-weight:700;
+  cursor:pointer; transition:all .15s;
+}
+.demo-tab.active { background:var(--teal); border-color:var(--teal); color:#fff; }
+.demo-section { display:none; }
+.demo-section.active { display:block; }
+
+/* ── ORB MODAL (onboarding — matches dashboard_29 exactly) ─── */
+.orb-overlay {
+  position:fixed; inset:0;
+  background:rgba(30,46,62,.82);
+  backdrop-filter:blur(14px);
+  z-index:300; display:flex; align-items:center; justify-content:center;
+  padding:20px;
+}
+.orb-modal {
+  width:min(460px,96vw); max-height:90vh; overflow-y:auto;
+  background:var(--surface); border-radius:28px;
+  box-shadow:var(--shadow-xl);
+  display:flex; flex-direction:column;
+}
+.orb-modal-top {
+  padding:28px 28px 0;
+  display:flex; flex-direction:column; gap:4px;
+}
+.orb-step-dots {
+  display:flex; gap:5px; margin-bottom:16px;
+}
+.step-dot { width:6px; height:6px; border-radius:50%; background:var(--line); }
+.step-dot.done { background:var(--teal); }
+.step-dot.current { background:var(--navy); width:18px; border-radius:3px; }
+.orb-eyebrow {
+  font-family:'Nunito',sans-serif; font-size:11px; font-weight:800;
+  color:var(--teal-dark); letter-spacing:.08em; text-transform:uppercase; margin-bottom:4px;
+}
+.orb-screen-title { font-family:'Nunito',sans-serif; font-size:22px; font-weight:900; color:var(--ink); line-height:1.2; margin-bottom:6px; }
+.orb-screen-sub { font-size:14px; color:var(--muted); line-height:1.5; }
+.orb-modal-body { padding:20px 28px; flex:1; overflow-y:auto; }
+.orb-modal-nav {
+  padding:16px 28px 24px;
+  display:flex; gap:10px; align-items:center;
+  border-top:1px solid var(--line);
+}
+.btn-orb-next {
+  flex:1; padding:13px; border-radius:12px; border:none;
+  background:var(--navy); color:#fff;
+  font-family:'Nunito',sans-serif; font-size:15px; font-weight:800;
+  cursor:pointer; transition:all .2s;
+}
+.btn-orb-next:hover:not(:disabled) { background:var(--navy-dark); }
+.btn-orb-next:disabled { opacity:.35; cursor:default; }
+.btn-orb-back {
+  padding:13px 18px; border-radius:12px; border:1px solid var(--line);
+  background:var(--surface); color:var(--navy);
+  font-family:'Nunito',sans-serif; font-size:15px; font-weight:700;
+  cursor:pointer; transition:all .2s;
+}
+.btn-orb-back:hover { background:var(--navy-soft); }
+.btn-orb-skip {
+  font-size:13px; color:var(--muted); background:none; border:none;
+  cursor:pointer; padding:4px 8px; font-family:'Nunito',sans-serif;
+}
+
+/* ── REWARD CHIP GRID ─────────────────────────────────── */
+.reward-chip-grid {
+  display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;
+}
+.reward-chip {
+  display:flex; align-items:center; gap:6px;
+  padding:9px 14px; border-radius:999px;
+  border:1.5px solid var(--line); background:var(--surface);
+  font-size:13px; font-weight:700; color:var(--navy);
+  cursor:pointer; transition:all .2s;
+  font-family:'Atkinson Hyperlegible',sans-serif;
+  user-select:none;
+}
+.reward-chip:hover { border-color:var(--teal); background:var(--teal-soft); }
+.reward-chip.selected {
+  border-color:var(--teal); background:var(--teal-soft); color:var(--teal-dark);
+}
+.reward-chip.selected::after { content:'✓'; margin-left:4px; font-weight:900; }
+.reward-chip-emoji { font-size:15px; }
+
+.add-reward-row {
+  display:flex; gap:8px; align-items:center; margin-top:4px;
+}
+.add-reward-input {
+  flex:1; padding:9px 14px; border-radius:10px; border:1.5px solid var(--line);
+  font-size:13px; color:var(--ink); outline:none;
+  font-family:'Atkinson Hyperlegible',sans-serif;
+}
+.add-reward-input:focus { border-color:var(--teal); }
+.btn-add-reward {
+  padding:9px 16px; border-radius:10px; border:none;
+  background:var(--teal); color:#fff;
+  font-family:'Nunito',sans-serif; font-size:13px; font-weight:800;
+  cursor:pointer; transition:all .2s;
+}
+.btn-add-reward:hover { background:var(--teal-dark); }
+
+.custom-reward-pill {
+  display:inline-flex; align-items:center; gap:5px;
+  padding:5px 10px 5px 12px; border-radius:999px;
+  background:var(--navy-soft); border:1px solid var(--navy-line);
+  font-size:12px; font-weight:700; color:var(--navy);
+  margin:3px;
+}
+.custom-reward-pill button {
+  background:none; border:none; cursor:pointer;
+  color:var(--muted); font-size:12px; padding:0 2px;
+  line-height:1; border-radius:50%;
+}
+.custom-reward-pill button:hover { color:var(--urgent); }
+
+.reward-count-badge {
+  font-family:'Nunito',sans-serif; font-size:12px; font-weight:700;
+  color:var(--teal-dark); background:var(--teal-soft);
+  padding:3px 10px; border-radius:999px; border:1px solid rgba(91,191,191,.3);
+  display:inline-block; margin-bottom:12px;
+}
+
+/* ── PLAY VIEW ────────────────────────────────────────── */
+.play-view {
+  max-width:680px; margin:0 auto; padding:28px 20px;
+  display:flex; flex-direction:column; gap:24px;
+}
+.play-section-title {
+  font-family:'Nunito',sans-serif; font-size:12px; font-weight:800;
+  color:var(--muted); letter-spacing:.08em; text-transform:uppercase;
+  margin-bottom:10px;
+}
+
+/* Weekly game card */
+.weekly-game-card {
+  background:var(--surface); border:1px solid var(--line);
+  border-radius:var(--r-lg); overflow:hidden;
+  box-shadow:var(--shadow-sm);
+}
+.game-card-header {
+  background:linear-gradient(135deg, var(--navy-dark) 0%, var(--navy) 60%, var(--teal-dark) 100%);
+  padding:20px 22px; display:flex; align-items:flex-start; justify-content:space-between;
+  gap:12px; position:relative; overflow:hidden;
+}
+.game-card-header::before {
+  content:''; position:absolute; inset:0;
+  background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.03) 0,rgba(255,255,255,.03) 1px,transparent 0,transparent 50%);
+  background-size:20px 20px;
+}
+.game-card-emoji { font-size:36px; position:relative; z-index:1; flex-shrink:0; }
+.game-card-title { font-family:'DM Serif Display',serif; font-size:20px; color:#fff; line-height:1.2; position:relative; z-index:1; }
+.game-card-desc  { font-size:13px; color:rgba(255,255,255,.7); line-height:1.5; margin-top:4px; position:relative; z-index:1; }
+.game-card-week-tag {
+  font-family:'Nunito',sans-serif; font-size:10px; font-weight:800;
+  background:rgba(255,255,255,.15); color:rgba(255,255,255,.8);
+  padding:3px 9px; border-radius:999px; border:1px solid rgba(255,255,255,.2);
+  position:relative; z-index:1; white-space:nowrap; align-self:flex-start;
+}
+.game-card-body { padding:18px 22px; }
+
+/* Day tracker dots */
+.day-tracker { display:flex; gap:6px; align-items:center; margin-bottom:14px; }
+.day-dot-wrap { display:flex; flex-direction:column; align-items:center; gap:4px; }
+.day-dot {
+  width:34px; height:34px; border-radius:50%;
+  border:2px solid var(--line); background:var(--navy-soft);
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; font-weight:800; color:var(--muted);
+  font-family:'Nunito',sans-serif; transition:all .25s;
+  cursor:pointer;
+}
+.day-dot.done { background:var(--teal); border-color:var(--teal); color:#fff; }
+.day-dot.today { border-color:var(--navy); background:var(--navy-soft); color:var(--navy); font-weight:900; }
+.day-dot.today.done { background:var(--teal); border-color:var(--teal-dark); color:#fff; }
+.day-dot-label { font-size:10px; font-weight:700; color:var(--muted); font-family:'Nunito',sans-serif; }
+.game-streak { font-family:'Nunito',sans-serif; font-size:13px; font-weight:800; color:var(--teal-dark); display:flex; align-items:center; gap:5px; }
+
+.game-actions { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+.btn-game-done {
+  padding:10px 20px; border-radius:999px; border:none;
+  background:var(--navy); color:#fff;
+  font-family:'Nunito',sans-serif; font-size:13px; font-weight:800;
+  cursor:pointer; transition:all .2s;
+}
+.btn-game-done:hover { background:var(--navy-dark); transform:translateY(-1px); box-shadow:var(--shadow-sm); }
+.btn-game-done:disabled { opacity:.4; cursor:default; transform:none; }
+.btn-change-game {
+  padding:10px 16px; border-radius:999px;
+  border:1px solid var(--line); background:var(--surface);
+  color:var(--muted); font-family:'Nunito',sans-serif; font-size:13px; font-weight:700;
+  cursor:pointer; transition:all .15s;
+}
+.btn-change-game:hover { border-color:var(--navy-line); color:var(--navy); }
+
+/* Game picker */
+.game-picker-grid { display:flex; flex-direction:column; gap:8px; }
+.game-option {
+  display:flex; align-items:center; gap:12px;
+  padding:14px 16px; border-radius:var(--r-md);
+  border:1.5px solid var(--line); background:var(--surface);
+  cursor:pointer; transition:all .2s;
+}
+.game-option:hover { border-color:var(--teal); background:var(--teal-soft); }
+.game-option.selected { border-color:var(--teal); background:var(--teal-soft); }
+.game-option-emoji { font-size:24px; flex-shrink:0; }
+.game-option-body { flex:1; }
+.game-option-title { font-family:'Nunito',sans-serif; font-size:14px; font-weight:800; color:var(--ink); }
+.game-option-desc  { font-size:12px; color:var(--muted); line-height:1.4; margin-top:2px; }
+.game-option-check { font-size:16px; color:var(--teal-dark); font-weight:900; }
+
+/* Deck section */
+.deck-section {
+  background:var(--surface); border:1px solid var(--line);
+  border-radius:var(--r-lg); padding:20px 22px;
+  box-shadow:var(--shadow-sm);
+  display:flex; gap:20px; align-items:center;
+}
+.deck-visual {
+  position:relative; width:90px; height:60px; flex-shrink:0; cursor:pointer;
+}
+.deck-ghost {
+  position:absolute; border-radius:10px;
+  background:var(--navy); width:80px; height:52px;
+}
+.deck-ghost:nth-child(1){ bottom:-6px; left:5px; transform:rotate(5deg); opacity:.15; }
+.deck-ghost:nth-child(2){ bottom:-3px; left:3px; transform:rotate(2deg); opacity:.1; }
+.deck-main {
+  position:absolute; bottom:0; left:0;
+  width:86px; height:56px; border-radius:10px;
+  background:linear-gradient(135deg,var(--navy-dark),var(--navy) 55%,var(--teal-dark));
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 6px 20px rgba(20,35,55,.25); overflow:hidden;
+}
+.deck-main-orb {
+  width:28px; height:28px; border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,#fff,var(--teal));
+  box-shadow:0 0 12px rgba(91,191,191,.5);
+  animation:deckOrbMini 2.5s ease-in-out infinite alternate;
+}
+@keyframes deckOrbMini {
+  from{box-shadow:0 0 8px rgba(91,191,191,.4)}
+  to  {box-shadow:0 0 20px rgba(91,191,191,.7)}
+}
+.deck-info { flex:1; }
+.deck-info-title { font-family:'Nunito',sans-serif; font-size:15px; font-weight:800; color:var(--ink); }
+.deck-info-sub   { font-size:12px; color:var(--muted); line-height:1.5; margin-top:2px; }
+.deck-info-pills { display:flex; gap:5px; flex-wrap:wrap; margin-top:8px; }
+.deck-pill {
+  font-size:10px; font-weight:700; font-family:'Nunito',sans-serif;
+  padding:2px 8px; border-radius:999px;
+}
+.deck-pill.reward { background:var(--reward-soft); border:1px solid var(--reward-line); color:#8a5800; }
+.deck-pill.task   { background:var(--teal-soft);   border:1px solid rgba(91,191,191,.4); color:var(--teal-dark); }
+.btn-draw-deck {
+  padding:10px 18px; border-radius:999px; border:2px solid var(--teal);
+  background:var(--surface); color:var(--teal-dark);
+  font-family:'Nunito',sans-serif; font-size:13px; font-weight:800;
+  cursor:pointer; transition:all .2s; white-space:nowrap;
+  flex-shrink:0;
+}
+.btn-draw-deck:hover { background:var(--teal-soft); transform:translateY(-1px); }
+
+/* Reward list mini */
+.reward-list-section {
+  background:var(--surface); border:1px solid var(--line);
+  border-radius:var(--r-lg); padding:20px 22px;
+  box-shadow:var(--shadow-sm);
+}
+.reward-list-grid { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+.reward-list-chip {
+  display:flex; align-items:center; gap:5px;
+  padding:6px 12px; border-radius:999px;
+  background:var(--navy-soft); border:1px solid var(--navy-line);
+  font-size:12px; font-weight:700; color:var(--navy);
+}
+.btn-edit-rewards {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:8px 14px; border-radius:999px; border:1px solid var(--line);
+  background:var(--surface); color:var(--muted);
+  font-family:'Nunito',sans-serif; font-size:12px; font-weight:700;
+  cursor:pointer; transition:all .15s; margin-top:10px;
+}
+.btn-edit-rewards:hover { border-color:var(--navy-line); color:var(--navy); }
+
+/* ── DECK OVERLAY ─────────────────────────────────────── */
+.deck-overlay {
+  position:fixed; inset:0;
+  background:rgba(20,35,55,.72); backdrop-filter:blur(12px);
+  z-index:500; display:flex; align-items:center; justify-content:center;
+  opacity:0; pointer-events:none; transition:opacity .25s;
+}
+.deck-overlay.open { opacity:1; pointer-events:all; }
+.deck-modal { width:min(360px,92vw); display:flex; flex-direction:column; align-items:center; gap:18px; position:relative; }
+.deck-eyebrow { font-family:'Nunito',sans-serif; font-size:11px; font-weight:800; color:rgba(255,255,255,.5); letter-spacing:.1em; text-transform:uppercase; }
+
+.card-scene { width:300px; height:190px; perspective:900px; cursor:pointer; position:relative; }
+.card-scene.flipped .card-inner { transform:rotateY(180deg); }
+.card-inner { width:100%; height:100%; position:relative; transform-style:preserve-3d; transition:transform .6s cubic-bezier(.22,1,.36,1); }
+.c-face {
+  position:absolute; inset:0; border-radius:22px; backface-visibility:hidden;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:9px;
+  box-shadow:0 20px 60px rgba(10,20,35,.5);
+}
+.c-back {
+  background:linear-gradient(135deg,var(--navy-dark) 0%,var(--navy) 55%,var(--teal-dark) 100%);
+  border:1.5px solid rgba(255,255,255,.1); overflow:hidden;
+}
+.c-back-grid {
+  position:absolute; inset:0; border-radius:22px;
+  background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.04) 0,rgba(255,255,255,.04) 1px,transparent 0,transparent 50%);
+  background-size:22px 22px;
+}
+.c-back-orb {
+  width:58px; height:58px; border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,#fff,var(--teal));
+  box-shadow:0 0 30px rgba(91,191,191,.55);
+  animation:deckOrb 2.5s ease-in-out infinite alternate; position:relative; z-index:1;
+}
+@keyframes deckOrb {
+  from{box-shadow:0 0 12px rgba(91,191,191,.4)}
+  to  {box-shadow:0 0 40px rgba(91,191,191,.75),0 0 70px rgba(91,191,191,.2)}
+}
+.c-back-lbl { font-family:'Nunito',sans-serif; font-size:11px; font-weight:700; color:rgba(255,255,255,.5); letter-spacing:.07em; text-transform:uppercase; position:relative; z-index:1; }
+.c-front { transform:rotateY(180deg); background:var(--surface); border:1.5px solid var(--line); padding:20px 18px; text-align:center; }
+.c-front.is-reward { background:linear-gradient(150deg,var(--reward-soft) 0%,#fff 55%); border-color:var(--reward-line); }
+.c-front.is-task   { background:linear-gradient(150deg,var(--teal-soft) 0%,#fff 55%); border-color:rgba(91,191,191,.35); }
+.c-pill { font-family:'Nunito',sans-serif; font-size:10px; font-weight:900; letter-spacing:.1em; text-transform:uppercase; padding:3px 10px; border-radius:999px; }
+.is-reward .c-pill { background:var(--reward); color:#fff; }
+.is-task   .c-pill { background:var(--teal); color:#fff; }
+.c-emoji { font-size:34px; line-height:1; }
+.c-title { font-family:'DM Serif Display',serif; font-size:18px; color:var(--ink); line-height:1.3; }
+.c-hint  { font-size:12px; color:var(--muted); line-height:1.5; }
+.c-time  { font-family:'Nunito',sans-serif; font-size:11px; font-weight:700; padding:3px 10px; border-radius:999px; background:var(--navy-soft); color:var(--navy); }
+.c-source { font-size:10px; color:var(--muted); font-family:'Nunito',sans-serif; font-weight:700; opacity:.7; letter-spacing:.04em; text-transform:uppercase; }
+
+.deck-tap-hint { font-family:'Nunito',sans-serif; font-size:12px; font-weight:600; color:rgba(255,255,255,.38); animation:hp 2s ease-in-out infinite; }
+@keyframes hp { 0%,100%{opacity:.38}50%{opacity:.8} }
+.deck-overlay.revealed .deck-tap-hint { display:none; }
+.deck-acts { display:flex; gap:10px; opacity:0; transform:translateY(8px); transition:all .3s .15s; }
+.deck-overlay.revealed .deck-acts { opacity:1; transform:translateY(0); }
+.btn-dagain { padding:10px 18px; border-radius:999px; border:2px solid rgba(255,255,255,.22); background:rgba(255,255,255,.08); color:#fff; font-family:'Nunito',sans-serif; font-size:13px; font-weight:800; cursor:pointer; }
+.btn-dagain:hover { background:rgba(255,255,255,.18); }
+.btn-ddone  { padding:10px 18px; border-radius:999px; border:none; background:rgba(255,255,255,.9); color:var(--navy); font-family:'Nunito',sans-serif; font-size:13px; font-weight:800; cursor:pointer; }
+.btn-ddone:hover { background:#fff; }
+
+/* sparkles */
+.sp-layer { position:absolute; inset:0; pointer-events:none; overflow:visible; }
+.sp-d { position:absolute; border-radius:50%; opacity:0; }
+.sp-d.p { animation:spp .7s cubic-bezier(.22,1,.36,1) forwards; }
+@keyframes spp { 0%{transform:translate(0,0) scale(0);opacity:1} 60%{opacity:.9} 100%{transform:translate(var(--dx),var(--dy)) scale(0);opacity:0} }
+.sp-s { position:absolute; font-size:15px; opacity:0; }
+.sp-s.p { animation:sps .9s cubic-bezier(.22,1,.36,1) forwards; }
+@keyframes sps { 0%{transform:translate(0,0) scale(0) rotate(0deg);opacity:0} 20%{opacity:1} 100%{transform:translate(var(--dx),var(--dy)) scale(1.1) rotate(var(--rot));opacity:0} }
+
+/* confetti burst on day completion */
+@keyframes confettiFall {
+  0%  { transform:translateY(-20px) rotate(0deg); opacity:1; }
+  100%{ transform:translateY(80px) rotate(720deg); opacity:0; }
+}
+.confetti-bit { position:fixed; pointer-events:none; width:8px; height:8px; border-radius:2px; animation:confettiFall .8s ease-in forwards; }
+
+/* game picker modal */
+.game-picker-modal {
+  position:fixed; inset:0; background:rgba(30,46,62,.6); backdrop-filter:blur(8px);
+  z-index:400; display:flex; align-items:center; justify-content:center; padding:20px;
+  opacity:0; pointer-events:none; transition:opacity .2s;
+}
+.game-picker-modal.open { opacity:1; pointer-events:all; }
+.game-picker-box {
+  width:min(480px,96vw); background:var(--surface); border-radius:24px;
+  padding:28px; box-shadow:var(--shadow-xl); display:flex; flex-direction:column; gap:16px;
+  max-height:90vh; overflow-y:auto;
+}
+.game-picker-title { font-family:'Nunito',sans-serif; font-size:20px; font-weight:900; color:var(--ink); }
+.game-picker-sub   { font-size:13px; color:var(--muted); line-height:1.5; }
+
+.custom-game-row { display:flex; gap:8px; }
+.custom-game-input {
+  flex:1; padding:10px 14px; border-radius:10px; border:1.5px solid var(--line);
+  font-size:13px; outline:none; font-family:'Atkinson Hyperlegible',sans-serif;
+}
+.custom-game-input:focus { border-color:var(--teal); }
+
+/* toast */
+.arelo-toast {
+  position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
+  background:var(--navy-dark); color:#fff; padding:10px 20px; border-radius:999px;
+  font-family:'Nunito',sans-serif; font-size:13px; font-weight:700;
+  z-index:999; opacity:0; transition:all .3s; pointer-events:none; white-space:nowrap;
+}
+.arelo-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- Demo navigation -->
+<div class="demo-nav">
+  <button class="demo-tab active" onclick="showTab('onboarding',this)">1 · Onboarding screen</button>
+  <button class="demo-tab" onclick="showTab('play',this)">2 · Play view</button>
+  <span style="color:rgba(255,255,255,.3);font-size:11px;font-family:Nunito,sans-serif;align-self:center;padding-left:8px">Prototype of dashboard_29 additions</span>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SECTION 1: ONBOARDING — REWARDS SCREEN
+     This is a new screen inserted as Screen 4 in SCREENS{}
+     (before keywords, which becomes Screen 5)
+══════════════════════════════════════════════════════ -->
+<div class="demo-section active" id="tab-onboarding" style="padding:40px 20px;min-height:calc(100vh - 48px);display:flex;align-items:center;justify-content:center">
+  <div class="orb-overlay" style="position:relative;inset:auto;background:none;backdrop-filter:none;padding:0">
+    <div class="orb-modal" style="box-shadow:var(--shadow-xl)">
+      <div class="orb-modal-top">
+        <!-- Step dots: 5 setup screens, now 5 -->
+        <div class="orb-step-dots">
+          <div class="step-dot done"></div>
+          <div class="step-dot done"></div>
+          <div class="step-dot done"></div>
+          <div class="step-dot done"></div>
+          <div class="step-dot current"></div>
+        </div>
+        <div class="orb-eyebrow">Your rewards</div>
+        <div class="orb-screen-title">What helps you recharge?</div>
+        <div class="orb-screen-sub">Pick anything that feels like a break for you. Arelo will use these as your personal reward deck.</div>
+      </div>
+
+      <div class="orb-modal-body">
+        <!-- Count -->
+        <div class="reward-count-badge" id="rewardCountBadge">0 selected</div>
+
+        <!-- Suggested chips -->
+        <div class="reward-chip-grid" id="rewardChipGrid">
+          <!-- populated by JS -->
+        </div>
+
+        <!-- Add your own -->
+        <div style="font-size:12px;font-weight:700;color:var(--muted);font-family:Nunito,sans-serif;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Add your own</div>
+        <div class="add-reward-row">
+          <input class="add-reward-input" id="customRewardInput" placeholder="e.g. watch one episode, call a friend…" onkeydown="if(event.key==='Enter')addCustomReward()">
+          <button class="btn-add-reward" onclick="addCustomReward()">+ Add</button>
+        </div>
+        <div id="customRewardList" style="margin-top:10px"></div>
+      </div>
+
+      <div class="orb-modal-nav">
+        <button class="btn-orb-back" onclick="">←</button>
+        <button class="btn-orb-next" id="btnOnboardNext" disabled>Continue →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SECTION 2: PLAY VIEW (new sidebar nav → view)
+══════════════════════════════════════════════════════ -->
+<div class="demo-section" id="tab-play">
+  <div class="play-view">
+
+    <!-- Weekly game -->
+    <div>
+      <div class="play-section-title">This week's game</div>
+      <div class="weekly-game-card" id="weeklyGameCard">
+        <div class="game-card-header">
+          <div>
+            <div class="game-card-title" id="activeGameTitle">No game chosen yet</div>
+            <div class="game-card-desc"  id="activeGameDesc">Pick a challenge below to start.</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+            <div class="game-card-week-tag" id="activeGameEmoji">🎲</div>
+            <div class="game-card-week-tag">Week of May 12</div>
+          </div>
+        </div>
+
+        <div class="game-card-body">
+          <!-- Day dots -->
+          <div class="day-tracker" id="dayTracker"></div>
+
+          <!-- Streak -->
+          <div class="game-streak" id="gameStreak" style="margin-bottom:14px">
+            <!-- populated by JS -->
+          </div>
+
+          <div class="game-actions">
+            <button class="btn-game-done" id="btnTodayDone" onclick="markTodayDone()">✓ Done today</button>
+            <button class="btn-change-game" onclick="openGamePicker()">Change game</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dopamine deck -->
+    <div>
+      <div class="play-section-title">Dopamine deck</div>
+      <div class="deck-section">
+        <div class="deck-visual" onclick="openDeck()">
+          <div class="deck-ghost"></div>
+          <div class="deck-ghost"></div>
+          <div class="deck-main"><div class="deck-main-orb"></div></div>
+        </div>
+        <div class="deck-info">
+          <div class="deck-info-title">Draw a card</div>
+          <div class="deck-info-sub">Need a break? Let Arelo pick. 70% reward, 30% one small task.</div>
+          <div class="deck-info-pills" id="deckInfoPills">
+            <!-- populated by JS -->
+          </div>
+        </div>
+        <button class="btn-draw-deck" onclick="openDeck()">🃏 Draw</button>
+      </div>
+    </div>
+
+    <!-- Reward list -->
+    <div>
+      <div class="play-section-title">Your reward deck</div>
+      <div class="reward-list-section">
+        <div style="font-size:14px;font-weight:700;color:var(--ink)">Your chosen activities</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:2px">These appear as reward cards in your deck.</div>
+        <div class="reward-list-grid" id="rewardListGrid">
+          <!-- populated by JS -->
+        </div>
+        <button class="btn-edit-rewards" onclick="showTab('onboarding',document.querySelector(\'.demo-tab\'))">✏️ Edit my rewards</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     DECK OVERLAY
+══════════════════════════════════════════════════════ -->
+<div class="deck-overlay" id="deckOverlay" onclick="if(event.target===this)closeDeck()">
+  <div class="deck-modal">
+    <div class="deck-eyebrow" id="deckEyebrow">Your card</div>
+    <div class="card-scene" id="cardScene" onclick="flipCard()">
+      <div class="card-inner" id="cardInner">
+        <div class="c-face c-back">
+          <div class="c-back-grid"></div>
+          <div class="c-back-orb"></div>
+          <div class="c-back-lbl">Tap to reveal</div>
+        </div>
+        <div class="c-face c-front" id="cardFront">
+          <div class="c-pill"   id="cPill"></div>
+          <div class="c-emoji" id="cEmoji"></div>
+          <div class="c-title" id="cTitle"></div>
+          <div class="c-hint"  id="cHint"></div>
+          <div class="c-time"  id="cTime"></div>
+          <div class="c-source" id="cSource" style="display:none"></div>
+        </div>
+      </div>
+      <div class="sp-layer" id="spLayer"></div>
+    </div>
+    <div class="deck-tap-hint">Tap the card to reveal</div>
+    <div class="deck-acts">
+      <button class="btn-dagain" onclick="drawAgain()">✦ Draw again</button>
+      <button class="btn-ddone"  onclick="closeDeck()">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     GAME PICKER MODAL
+══════════════════════════════════════════════════════ -->
+<div class="game-picker-modal" id="gamePickerModal" onclick="if(event.target===this)closeGamePicker()">
+  <div class="game-picker-box">
+    <div class="game-picker-title">Pick your game this week</div>
+    <div class="game-picker-sub">A small challenge that makes the week feel like progress. You can change it any week.</div>
+
+    <div class="game-picker-grid" id="gamePickerGrid"><!-- populated by JS --></div>
+
+    <div style="font-size:12px;font-weight:700;color:var(--muted);font-family:Nunito,sans-serif;text-transform:uppercase;letter-spacing:.06em;margin-top:4px">Or write your own</div>
+    <div class="custom-game-row">
+      <input class="custom-game-input" id="customGameInput" placeholder="e.g. Walk the kids to school 3 times…">
+      <button class="btn-add-reward" style="white-space:nowrap" onclick="addCustomGame()">+ Add</button>
+    </div>
+
+    <button class="btn-orb-next" id="btnPickGame" disabled onclick="confirmGame()">Start this game →</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="arelo-toast" id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════════════
+// Mirrors orbProfile.rewards / currentUser.rewards in dashboard_29
+let selectedRewards  = new Set();
+let customRewards    = [];
+let activeGame       = null;  // { title, desc, emoji, daysThisWeek:[] }
+let pickerSelectedGame = null;
+
+// Simulated quick-win tasks from allTasks + myTasks
+const SIM_TASKS = [
+  { emoji:'📬', title:'Reply to school newsletter',  hint:'From your inbox.',          duration:'5 mins',  source:'inbox'   },
+  { emoji:'🗓️', title:'Book dentist appointment',    hint:'From your inbox.',          duration:'5 mins',  source:'inbox'   },
+  { emoji:'📝', title:'Fill in the school trip form', hint:'One of yours.',            duration:'8 mins',  source:'mytasks' },
+  { emoji:'💳', title:'Chase invoice #102',           hint:'One of yours.',            duration:'10 mins', source:'mytasks' },
+  { emoji:'💧', title:'Water the plants',             hint:'They have been patient.',  duration:'5 mins',  source:'random'  },
+  { emoji:'🗑️', title:'Empty one bin',                hint:'Quick and satisfying.',   duration:'3 mins',  source:'random'  },
+  { emoji:'🧹', title:'Tidy one surface only',        hint:'One. Not the whole room.', duration:'10 mins', source:'random'  },
+];
+
+// Suggested reward activities for onboarding
+const SUGGESTED_REWARDS = [
+  { emoji:'🎵', label:'Listen to music'   },
+  { emoji:'🚶', label:'Go for a walk'     },
+  { emoji:'📖', label:'Read a book'       },
+  { emoji:'🍵', label:'Make a hot drink'  },
+  { emoji:'🛋️', label:'Lie down and rest' },
+  { emoji:'📱', label:'Scroll freely'     },
+  { emoji:'🎮', label:'Play a game'       },
+  { emoji:'🎨', label:'Draw or doodle'    },
+  { emoji:'🧘', label:'Do yoga or stretch'},
+  { emoji:'🌿', label:'Sit outside'       },
+  { emoji:'🎬', label:'Watch a show'      },
+  { emoji:'💬', label:'Call a friend'     },
+  { emoji:'🛁', label:'Have a bath'       },
+  { emoji:'🧁', label:'Have a snack'      },
+  { emoji:'🎸', label:'Play an instrument'},
+  { emoji:'🌙', label:'Do nothing'        },
+];
+
+// Pre-defined games
+const PRESET_GAMES = [
+  { emoji:'⚡', title:'Email Sprint',      desc:'Clear 3 quick-win emails every morning before anything else.', id:'email-sprint'  },
+  { emoji:'🧘', title:'One Calm Moment',   desc:'Do one reward from your deck before opening your inbox.', id:'calm-moment'    },
+  { emoji:'📬', title:'Reply Tuesday',     desc:'One reply to a pending message every day — just one.', id:'reply-daily'    },
+  { emoji:'🚶', title:'Move Between Tasks',desc:'Stand up and move for 5 mins between each completed task.', id:'move-breaks'   },
+  { emoji:'🌙', title:'No Emails After 7', desc:'No email after 7pm. The inbox can wait until morning.', id:'cutoff'         },
+  { emoji:'🎯', title:'One Big Thing',     desc:'Pick one important task each morning and do it first — before anything else.', id:'big-thing' },
+];
+
+const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const TODAY_IDX = 3; // Thursday
+
+// ════════════════════════════════════════════════════════
+//  TAB NAVIGATION
+// ════════════════════════════════════════════════════════
+function showTab(id, btn) {
+  document.querySelectorAll('.demo-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.demo-tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (id === 'play') renderPlayView();
+}
+
+// ════════════════════════════════════════════════════════
+//  ONBOARDING — BUILD CHIP GRID
+// ════════════════════════════════════════════════════════
+function renderChipGrid() {
+  const grid = document.getElementById('rewardChipGrid');
+  grid.innerHTML = SUGGESTED_REWARDS.map(r => `
+    <div class="reward-chip ${selectedRewards.has(r.label)?'selected':''}"
+         onclick="toggleReward('${r.label}','${r.emoji}',this)">
+      <span class="reward-chip-emoji">${r.emoji}</span>${r.label}
+    </div>`).join('');
+  updateRewardCount();
+}
+
+function toggleReward(label, emoji, el) {
+  if (selectedRewards.has(label)) { selectedRewards.delete(label); el.classList.remove('selected'); }
+  else { selectedRewards.add(label); el.classList.add('selected'); }
+  updateRewardCount();
+}
+
+function addCustomReward() {
+  const input = document.getElementById('customRewardInput');
+  const val   = input.value.trim();
+  if (!val) return;
+  customRewards.push(val);
+  input.value = '';
+  renderCustomList();
+  updateRewardCount();
+}
+
+function removeCustomReward(i) {
+  customRewards.splice(i, 1);
+  renderCustomList();
+  updateRewardCount();
+}
+
+function renderCustomList() {
+  document.getElementById('customRewardList').innerHTML = customRewards.map((r,i) =>
+    `<span class="custom-reward-pill">✦ ${r} <button onclick="removeCustomReward(${i})">✕</button></span>`
+  ).join('');
+}
+
+function updateRewardCount() {
+  const total = selectedRewards.size + customRewards.length;
+  document.getElementById('rewardCountBadge').textContent = total + ' selected';
+  document.getElementById('btnOnboardNext').disabled = total === 0;
+}
+
+// ════════════════════════════════════════════════════════
+//  PLAY VIEW RENDER
+// ════════════════════════════════════════════════════════
+function renderPlayView() {
+  renderDayTracker();
+  renderGameCard();
+  renderDeckInfo();
+  renderRewardList();
+}
+
+function renderDayTracker() {
+  const tracker = document.getElementById('dayTracker');
+  if (!tracker) return;
+  tracker.innerHTML = DAYS.map((d,i) => {
+    const done    = activeGame?.daysThisWeek?.includes(i);
+    const isToday = i === TODAY_IDX;
+    return `<div class="day-dot-wrap">
+      <div class="day-dot ${done?'done':''} ${isToday?'today':''}"
+           onclick="toggleDay(${i})">${done ? '✓' : d.slice(0,1)}</div>
+      <div class="day-dot-label">${d}</div>
+    </div>`;
+  }).join('');
+
+  // Streak
+  const streak = activeGame?.daysThisWeek?.length || 0;
+  const streakEl = document.getElementById('gameStreak');
+  if (streakEl) {
+    streakEl.innerHTML = streak > 0
+      ? `🔥 ${streak} day${streak!==1?'s':''} done this week`
+      : `<span style="color:var(--muted);font-weight:600">No days logged yet — start today</span>`;
+  }
+
+  // Today done button
+  const todayBtn = document.getElementById('btnTodayDone');
+  if (todayBtn) {
+    const todayDone = activeGame?.daysThisWeek?.includes(TODAY_IDX);
+    todayBtn.disabled   = !activeGame || todayDone;
+    todayBtn.textContent = todayDone ? '✓ Done today' : '✓ Mark today done';
+  }
+}
+
+function renderGameCard() {
+  const titleEl = document.getElementById('activeGameTitle');
+  const descEl  = document.getElementById('activeGameDesc');
+  const emojiEl = document.getElementById('activeGameEmoji');
+  if (!titleEl) return;
+  if (activeGame) {
+    titleEl.textContent = activeGame.title;
+    descEl.textContent  = activeGame.desc;
+    emojiEl.textContent = activeGame.emoji;
+  } else {
+    titleEl.textContent = 'No game chosen yet';
+    descEl.textContent  = 'Pick a weekly challenge to start.';
+    emojiEl.textContent = '🎲';
+    // Auto-open picker if no game
+    setTimeout(openGamePicker, 400);
+  }
+}
+
+function renderDeckInfo() {
+  const pills = document.getElementById('deckInfoPills');
+  if (!pills) return;
+  const rewardCount = selectedRewards.size + customRewards.length;
+  const taskCount   = SIM_TASKS.length;
+  pills.innerHTML = `
+    <span class="deck-pill reward">🎉 ${rewardCount || '?'} reward${rewardCount!==1?'s':''}</span>
+    <span class="deck-pill task">✅ ${taskCount} quick tasks</span>`;
+}
+
+function renderRewardList() {
+  const grid = document.getElementById('rewardListGrid');
+  if (!grid) return;
+  const all = [
+    ...[...selectedRewards].map(r => { const s = SUGGESTED_REWARDS.find(x=>x.label===r); return {emoji:s?.emoji||'✦', label:r}; }),
+    ...customRewards.map(r => ({emoji:'✦', label:r}))
+  ];
+  if (!all.length) {
+    grid.innerHTML = '<div style="font-size:13px;color:var(--muted);padding:8px 0">No rewards chosen yet. <a href="#" onclick="showTab(\'onboarding\',document.querySelector(\'.demo-tab\'));return false" style="color:var(--teal-dark)">Set them up →</a></div>';
+    return;
+  }
+  grid.innerHTML = all.map(r => `
+    <span class="reward-list-chip">
+      <span>${r.emoji}</span>${r.label}
+    </span>`).join('');
+}
+
+// ════════════════════════════════════════════════════════
+//  DAY TRACKING
+// ════════════════════════════════════════════════════════
+function toggleDay(i) {
+  if (!activeGame) return;
+  const idx = activeGame.daysThisWeek.indexOf(i);
+  if (idx >= 0) activeGame.daysThisWeek.splice(idx, 1);
+  else activeGame.daysThisWeek.push(i);
+  renderDayTracker();
+}
+
+function markTodayDone() {
+  if (!activeGame) return;
+  if (!activeGame.daysThisWeek.includes(TODAY_IDX)) {
+    activeGame.daysThisWeek.push(TODAY_IDX);
+    burstConfetti();
+    showToast('Day logged! 🔥 Keep it going.');
+  }
+  renderDayTracker();
+}
+
+function burstConfetti() {
+  const colors = ['#f5a623','#5bbfbf','#ff6b6b','#3a9090','#ffcd3c'];
+  for (let i=0; i<18; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-bit';
+    el.style.cssText = `
+      left:${30+Math.random()*40}%;top:${20+Math.random()*30}%;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      animation-delay:${Math.random()*.3}s;
+      animation-duration:${.6+Math.random()*.4}s;
+    `;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1200);
+  }
+}
+
+// ════════════════════════════════════════════════════════
+//  GAME PICKER
+// ════════════════════════════════════════════════════════
+let customGameOptions = [];
+pickerSelectedGame = null;
+
+function openGamePicker() {
+  renderGamePickerGrid();
+  document.getElementById('gamePickerModal').classList.add('open');
+}
+function closeGamePicker() {
+  document.getElementById('gamePickerModal').classList.remove('open');
+}
+
+function renderGamePickerGrid() {
+  const allGames = [
+    ...PRESET_GAMES,
+    ...customGameOptions.map((g,i) => ({...g, id:`custom-${i}`}))
+  ];
+  document.getElementById('gamePickerGrid').innerHTML = allGames.map(g => `
+    <div class="game-option ${pickerSelectedGame?.id===g.id?'selected':''}"
+         onclick="selectGame('${g.id}',this)">
+      <div class="game-option-emoji">${g.emoji}</div>
+      <div class="game-option-body">
+        <div class="game-option-title">${g.title}</div>
+        <div class="game-option-desc">${g.desc}</div>
+      </div>
+      <div class="game-option-check">${pickerSelectedGame?.id===g.id?'✓':''}</div>
+    </div>`).join('');
+}
+
+function selectGame(id, el) {
+  const all = [...PRESET_GAMES, ...customGameOptions.map((g,i)=>({...g,id:`custom-${i}`}))];
+  pickerSelectedGame = all.find(g => g.id === id);
+  renderGamePickerGrid();
+  document.getElementById('btnPickGame').disabled = !pickerSelectedGame;
+}
+
+function addCustomGame() {
+  const input = document.getElementById('customGameInput');
+  const val   = input.value.trim();
+  if (!val) return;
+  customGameOptions.push({ emoji:'🎯', title:val, desc:'Your personal challenge.', id:`custom-${customGameOptions.length}` });
+  input.value = '';
+  renderGamePickerGrid();
+}
+
+function confirmGame() {
+  if (!pickerSelectedGame) return;
+  activeGame = { ...pickerSelectedGame, daysThisWeek: [] };
+  closeGamePicker();
+  renderPlayView();
+  showToast(`Game set: ${activeGame.title} 🎲`);
+}
+
+// ════════════════════════════════════════════════════════
+//  DECK
+// ════════════════════════════════════════════════════════
+let currentCard = null;
+let revealed    = false;
+
+function buildRewardPool() {
+  const custom = customRewards.map(r => ({
+    emoji:'✦', title:r, hint:'Your personal pick.', duration:'enjoy it'
+  }));
+  const chosen = [...selectedRewards].map(label => {
+    const s = SUGGESTED_REWARDS.find(x=>x.label===label);
+    return { emoji:s?.emoji||'✦', title:label, hint:'You chose this one.', duration:'your call' };
+  });
+  const pool = [...chosen, ...custom];
+  // Fallback if nothing chosen
+  return pool.length ? pool : [
+    { emoji:'🎵', title:'Listen to something you love', hint:'No guilt. Just enjoy it.', duration:'15 mins' },
+    { emoji:'🚶', title:'Go for a walk',                hint:'No destination needed.',   duration:'15 mins' },
+    { emoji:'📱', title:'Scroll freely',                hint:'You\'ve earned it.',        duration:'10 mins' },
+  ];
+}
+
+function drawCard() {
+  const isReward = Math.random() < 0.70;
+  if (isReward) {
+    const pool = buildRewardPool();
+    const pick = pool[Math.floor(Math.random() * pool.length)];
+    return {...pick, isReward:true};
+  } else {
+    const pick = SIM_TASKS[Math.floor(Math.random() * SIM_TASKS.length)];
+    return {...pick, isReward:false};
+  }
+}
+
+function openDeck() {
+  currentCard = drawCard();
+  revealed    = false;
+  resetCardFlip();
+  populateFront(currentCard);
+  document.getElementById('spLayer').innerHTML = '';
+  document.getElementById('deckOverlay').classList.remove('revealed');
+  document.getElementById('deckOverlay').classList.add('open');
+  const name = 'You'; // replace with currentUser.name.split(' ')[0] in dashboard_29
+  document.getElementById('deckEyebrow').textContent = 'A card for you';
+}
+function closeDeck() {
+  document.getElementById('deckOverlay').classList.remove('open','revealed');
+}
+function flipCard() {
+  if (revealed) return;
+  revealed = true;
+  document.getElementById('cardScene').classList.add('flipped');
+  document.getElementById('deckOverlay').classList.add('revealed');
+  setTimeout(()=>spawnSparkles(currentCard.isReward), 310);
+}
+function drawAgain() {
+  currentCard = drawCard();
+  revealed    = false;
+  resetCardFlip();
+  populateFront(currentCard);
+  document.getElementById('spLayer').innerHTML = '';
+  document.getElementById('deckOverlay').classList.remove('revealed');
+}
+function resetCardFlip() {
+  const scene = document.getElementById('cardScene');
+  const inner = document.getElementById('cardInner');
+  scene.classList.remove('flipped');
+  inner.style.transition = 'none';
+  void inner.offsetWidth;
+  inner.style.transition = '';
+}
+function populateFront(card) {
+  const front = document.getElementById('cardFront');
+  front.className = 'c-face c-front ' + (card.isReward ? 'is-reward' : 'is-task');
+  txt('cPill',  card.isReward ? '🎉 Your reward' : '✅ Small task');
+  txt('cEmoji', card.emoji   || '✦');
+  txt('cTitle', card.title   || '');
+  txt('cHint',  card.hint    || '');
+  txt('cTime',  card.duration|| '');
+  const src = document.getElementById('cSource');
+  if (!card.isReward && card.source && card.source !== 'random') {
+    src.textContent = card.source === 'inbox' ? '📬 From your inbox' : '📋 From your tasks';
+    src.style.display = '';
+  } else { src.style.display = 'none'; }
+}
+function txt(id, t) { const el=document.getElementById(id); if(el) el.textContent=t; }
+
+function spawnSparkles(isReward) {
+  const layer = document.getElementById('spLayer');
+  layer.innerHTML = '';
+  const dc = isReward ? ['#f5a623','#ffcd3c','#ff6b6b','#ff9ff3'] : ['#5bbfbf','#3a9090','#b2f0f0'];
+  const se = isReward ? ['✨','⭐','🌟','💛','🎉'] : ['✦','✧','💚','🌊'];
+  for(let i=0;i<20;i++){
+    const el=document.createElement('div'); el.className='sp-d';
+    const a=(i/20)*Math.PI*2, d=70+Math.random()*80, s=5+Math.random()*6;
+    el.style.cssText=`left:50%;top:50%;width:${s}px;height:${s}px;background:${dc[i%dc.length]};--dx:${Math.cos(a)*d}px;--dy:${Math.sin(a)*d}px;`;
+    layer.appendChild(el); void el.offsetWidth; el.classList.add('p');
+    el.style.animationDelay=(Math.random()*.1)+'s';
+  }
+  for(let i=0;i<8;i++){
+    const el=document.createElement('div'); el.className='sp-s';
+    const a=(i/8)*Math.PI*2+Math.random()*.5, d=60+Math.random()*100;
+    el.textContent=se[i%se.length];
+    el.style.cssText=`left:50%;top:50%;--dx:${Math.cos(a)*d}px;--dy:${Math.sin(a)*d}px;--rot:${Math.random()*360}deg;`;
+    layer.appendChild(el); void el.offsetWidth; el.classList.add('p');
+    el.style.animationDelay=(.05+Math.random()*.15)+'s';
+  }
+}
+
+// ════════════════════════════════════════════════════════
+//  TOAST
+// ════════════════════════════════════════════════════════
+let toastTimer;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key==='Escape') { closeDeck(); closeGamePicker(); }
+});
+
+// ════════════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════════════
+renderChipGrid();
+</script>
+</body>
+</html>

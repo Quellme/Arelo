@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arelo — Calm in your inbox</title>
+<meta name="description" content="Arelo turns email overwhelm into a calm, focused day. AI-powered task extraction and support for people who feel buried in their inbox.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><radialGradient id='og' cx='35%' cy='35%' r='65%'><stop offset='0%' stop-color='%23ffffff'/><stop offset='35%' stop-color='%23b8e8e8'/><stop offset='70%' stop-color='%235bbfbf'/><stop offset='100%' stop-color='%232a8080'/></radialGradient></defs><ellipse cx='16' cy='16' rx='14' ry='14' fill='url(%23og)'/></svg>">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Nunito:wght@400;600;700;800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:       #3d5a7a;
+  --navy-dark:  #1e2e3e;
+  --navy-mid:   #2c4260;
+  --teal:       #5bbfbf;
+  --teal-dark:  #3a9090;
+  --teal-glow:  rgba(91,191,191,0.35);
+  --teal-soft:  rgba(91,191,191,0.12);
+  --surface:    rgba(255,255,255,0.05);
+  --surface-up: rgba(255,255,255,0.09);
+  --ink:        #ffffff;
+  --muted:      rgba(255,255,255,0.55);
+  --line:       rgba(255,255,255,0.09);
+  --shadow-xl:  0 24px 64px rgba(10,20,35,0.5);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Atkinson Hyperlegible', sans-serif;
+  background: var(--navy-dark);
+  color: var(--ink);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── BG ── */
+.bg {
+  position: fixed; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 70% 60% at 10% 90%, rgba(91,191,191,0.12) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 45% at 90% 5%, rgba(61,90,122,0.55) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 35% at 55% 50%, rgba(44,66,96,0.3) 0%, transparent 70%),
+    linear-gradient(160deg, #0c1825 0%, #1e2e3e 50%, #0f1c2b 100%);
+}
+.bg::after {
+  content:''; position:absolute; inset:0;
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(255,255,255,0.016) 60px),
+    repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(255,255,255,0.016) 60px);
+  animation: meshDrift 25s linear infinite;
+}
+@keyframes meshDrift { from{transform:translateY(0)} to{transform:translateY(60px)} }
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 20px 40px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid transparent;
+  transition: background .3s, border-color .3s, backdrop-filter .3s;
+}
+nav.scrolled {
+  background: rgba(15,25,40,0.85);
+  border-color: var(--line);
+  backdrop-filter: blur(20px);
+}
+.nav-logo { display:flex; align-items:center; gap:12px; text-decoration:none; }
+.nav-orb {
+  width:36px; height:36px;
+  background: radial-gradient(circle at 35% 35%, #fff 0%, #b8e8e8 30%, #5bbfbf 65%, #2a8080 100%);
+  border-radius: 50%;
+  box-shadow: 0 0 20px rgba(91,191,191,0.4);
+  flex-shrink: 0;
+}
+.nav-wordmark { font-family:'Nunito',sans-serif; font-weight:800; font-size:20px; color:#fff; letter-spacing:-.3px; }
+.nav-links { display:flex; align-items:center; gap:8px; }
+.nav-link {
+  color: var(--muted); text-decoration:none; font-size:15px; padding:8px 16px;
+  border-radius:40px; transition:color .2s, background .2s;
+}
+.nav-link:hover { color:#fff; background:var(--surface); }
+.nav-btn {
+  background: var(--teal); color: var(--navy-dark); border:none; cursor:pointer;
+  font-family:'Nunito',sans-serif; font-weight:700; font-size:15px;
+  padding:9px 22px; border-radius:40px;
+  box-shadow: 0 0 24px var(--teal-glow);
+  transition: transform .15s, box-shadow .15s, background .15s;
+  text-decoration:none;
+}
+.nav-btn:hover { transform:translateY(-1px); box-shadow:0 0 32px rgba(91,191,191,0.55); background:#6ecece; }
+
+/* ── HERO ── */
+.hero {
+  position:relative; z-index:1;
+  min-height:100vh;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center;
+  padding: 120px 24px 80px;
+  gap:0;
+}
+
+.hero-eyebrow {
+  display:inline-flex; align-items:center; gap:8px;
+  background: rgba(91,191,191,0.12);
+  border:1px solid rgba(91,191,191,0.25);
+  border-radius:40px;
+  padding:6px 16px 6px 10px;
+  font-size:13px; color:var(--teal); font-weight:700; letter-spacing:.04em;
+  margin-bottom:28px;
+  animation: fadeUp .7s ease both;
+}
+.hero-eyebrow-dot { width:6px; height:6px; background:var(--teal); border-radius:50%; animation:pulse 2s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.4)} }
+
+.hero-title {
+  font-family:'DM Serif Display', serif;
+  font-size: clamp(42px,7vw,88px);
+  line-height:1.07;
+  letter-spacing:-.03em;
+  margin-bottom:24px;
+  animation: fadeUp .8s .1s ease both;
+}
+.hero-title em { font-style:italic; color:var(--teal); }
+
+.hero-sub {
+  font-size: clamp(17px,2.2vw,21px);
+  color:var(--muted);
+  max-width:540px;
+  line-height:1.65;
+  margin-bottom:44px;
+  animation: fadeUp .8s .2s ease both;
+}
+
+.hero-ctas {
+  display:flex; flex-wrap:wrap; gap:14px; justify-content:center;
+  animation: fadeUp .8s .3s ease both;
+}
+.cta-primary {
+  background:var(--teal); color:var(--navy-dark); border:none; cursor:pointer;
+  font-family:'Nunito',sans-serif; font-weight:800; font-size:17px;
+  padding:15px 34px; border-radius:50px;
+  box-shadow:0 0 40px rgba(91,191,191,0.4);
+  transition:transform .15s, box-shadow .15s;
+  text-decoration:none; display:inline-block;
+}
+.cta-primary:hover { transform:translateY(-2px); box-shadow:0 0 56px rgba(91,191,191,0.6); }
+.cta-ghost {
+  background:transparent; border:1px solid var(--line); color:rgba(255,255,255,0.75);
+  cursor:pointer; font-family:'Nunito',sans-serif; font-weight:700; font-size:17px;
+  padding:15px 34px; border-radius:50px;
+  transition:border-color .2s, color .2s, background .2s;
+  text-decoration:none; display:inline-block;
+}
+.cta-ghost:hover { border-color:rgba(91,191,191,0.5); color:#fff; background:var(--surface); }
+
+.hero-signin {
+  margin-top:22px;
+  font-size:14px; color:var(--muted);
+  animation: fadeUp .8s .4s ease both;
+}
+.hero-signin a { color:var(--teal); text-decoration:none; font-weight:600; }
+.hero-signin a:hover { text-decoration:underline; }
+
+/* scroll indicator */
+.scroll-hint {
+  position:absolute; bottom:32px; left:50%; transform:translateX(-50%);
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+  color:var(--muted); font-size:12px; letter-spacing:.08em;
+  animation:fadeUp 1s .6s both;
+}
+.scroll-hint svg { opacity:.4; animation:bounce 2s ease-in-out infinite; }
+@keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(6px)} }
+
+/* ── SOCIAL PROOF STRIP ── */
+.strip {
+  position:relative; z-index:1;
+  padding:20px 24px;
+  display:flex; align-items:center; justify-content:center; gap:40px;
+  border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+  background:rgba(255,255,255,0.02);
+  flex-wrap:wrap;
+}
+.strip-stat { text-align:center; }
+.strip-num { font-family:'Nunito',sans-serif; font-weight:800; font-size:26px; color:var(--teal); display:block; }
+.strip-label { font-size:12px; color:var(--muted); letter-spacing:.04em; }
+.strip-div { width:1px; height:36px; background:var(--line); }
+
+/* ── HOW IT WORKS ── */
+.section {
+  position:relative; z-index:1;
+  padding:100px 24px;
+  max-width:1100px; margin:0 auto;
+}
+.section-label {
+  font-size:12px; font-weight:700; letter-spacing:.1em; color:var(--teal);
+  text-transform:uppercase; text-align:center; margin-bottom:16px;
+}
+.section-title {
+  font-family:'DM Serif Display',serif;
+  font-size:clamp(30px,4.5vw,52px);
+  text-align:center; line-height:1.15;
+  margin-bottom:16px;
+}
+.section-sub {
+  text-align:center; color:var(--muted); font-size:17px; line-height:1.6;
+  max-width:520px; margin:0 auto 64px;
+}
+
+.steps {
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:24px;
+}
+.step-card {
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:32px 28px;
+  position:relative;
+  transition:border-color .2s, background .2s, transform .2s;
+}
+.step-card:hover {
+  border-color:rgba(91,191,191,0.3);
+  background:var(--surface-up);
+  transform:translateY(-3px);
+}
+.step-num {
+  font-family:'Nunito',sans-serif; font-weight:800; font-size:40px;
+  color:rgba(91,191,191,0.2); line-height:1; margin-bottom:16px;
+}
+.step-icon { font-size:28px; margin-bottom:16px; display:block; }
+.step-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:18px; margin-bottom:10px; }
+.step-desc { color:var(--muted); font-size:15px; line-height:1.6; }
+
+/* ── FEATURES ── */
+.features { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:20px; }
+.feat-card {
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:28px 24px;
+  transition:border-color .2s, transform .2s;
+}
+.feat-card:hover { border-color:rgba(91,191,191,0.25); transform:translateY(-2px); }
+.feat-icon {
+  width:44px; height:44px; border-radius:12px;
+  background:rgba(91,191,191,0.12);
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px; margin-bottom:16px;
+}
+.feat-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:17px; margin-bottom:8px; }
+.feat-desc { color:var(--muted); font-size:14px; line-height:1.6; }
+
+/* ── TESTIMONIALS ── */
+.quotes { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:20px; }
+.quote-card {
+  background:var(--surface); border:1px solid var(--line);
+  border-radius:20px; padding:28px 24px;
+}
+.quote-text { font-size:16px; line-height:1.7; color:rgba(255,255,255,0.85); margin-bottom:20px; }
+.quote-text::before { content:'\201C'; color:var(--teal); font-size:28px; line-height:0; vertical-align:-10px; margin-right:4px; }
+.quote-author { display:flex; align-items:center; gap:10px; }
+.quote-avatar {
+  width:38px; height:38px; border-radius:50%;
+  background:linear-gradient(135deg, var(--navy), var(--teal-dark));
+  display:flex; align-items:center; justify-content:center;
+  font-size:16px; font-weight:700; font-family:'Nunito',sans-serif;
+  flex-shrink:0;
+}
+.quote-name { font-weight:700; font-size:14px; font-family:'Nunito',sans-serif; }
+.quote-role { font-size:13px; color:var(--muted); }
+
+/* ── CTA SECTION ── */
+.cta-section {
+  position:relative; z-index:1;
+  padding:100px 24px;
+  display:flex; flex-direction:column; align-items:center; text-align:center;
+  gap:0;
+}
+.cta-glow {
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  width:600px; height:300px;
+  background:radial-gradient(ellipse, rgba(91,191,191,0.12) 0%, transparent 70%);
+  pointer-events:none;
+}
+.cta-section .hero-title { margin-bottom:16px; }
+.cta-section .hero-sub { margin-bottom:36px; }
+.cta-section .hero-ctas { margin-bottom:16px; }
+
+/* ── FOOTER ── */
+footer {
+  position:relative; z-index:1;
+  padding:28px 40px;
+  border-top:1px solid var(--line);
+  display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;
+}
+.footer-brand { display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--muted); font-size:14px; }
+.footer-brand .nav-orb { width:24px; height:24px; box-shadow:none; }
+.footer-links { display:flex; gap:24px; }
+.footer-links a { color:var(--muted); text-decoration:none; font-size:13px; transition:color .2s; }
+.footer-links a:hover { color:#fff; }
+
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(20px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* responsive */
+@media(max-width:640px) {
+  nav { padding:16px 20px; }
+  .nav-links .nav-link { display:none; }
+  .strip { gap:24px; }
+  .strip-div { display:none; }
+  footer { flex-direction:column; align-items:flex-start; }
+}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a class="nav-logo" href="#">
+    <div class="nav-orb"></div>
+    <span class="nav-wordmark">Arelo</span>
+  </a>
+  <div class="nav-links">
+    <a class="nav-link" href="#how">How it works</a>
+    <a class="nav-link" href="#features">Features</a>
+    <a class="nav-link" href="arelo_login.html">Sign in</a>
+    <a class="nav-btn" href="#demo">See the demo</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">
+    <span class="hero-eyebrow-dot"></span>
+    Calm your inbox. Clear your head.
+  </div>
+  <h1 class="hero-title">Everything you need to do,<br><em>in one calm place.</em></h1>
+  <p class="hero-sub">Arelo pulls tasks from your inbox and everything else on your plate — then gives you one clear, prioritised list and a gentle AI companion who helps you actually get through it.</p>
+  <div class="hero-ctas">
+    <a class="cta-primary" href="arelo_onboarding.html">Start for free</a>
+    <a class="cta-ghost" href="#demo" id="demoBtn">Watch the demo</a>
+  </div>
+  <p class="hero-signin">Already have an account? <a href="arelo_login.html">Sign in</a></p>
+  <div class="scroll-hint">
+    <span>SCROLL</span>
+    <svg width="16" height="20" viewBox="0 0 16 20" fill="none"><path d="M8 1v14M2 9l6 6 6-6" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </div>
+</section>
+
+<!-- STRIP -->
+<div class="strip">
+  <div class="strip-stat">
+    <span class="strip-num">2 min</span>
+    <span class="strip-label">avg. setup time</span>
+  </div>
+  <div class="strip-div"></div>
+  <div class="strip-stat">
+    <span class="strip-num">All in one</span>
+    <span class="strip-label">email, tasks &amp; life admin</span>
+  </div>
+  <div class="strip-div"></div>
+  <div class="strip-stat">
+    <span class="strip-num">0</span>
+    <span class="strip-label">manual sorting needed</span>
+  </div>
+  <div class="strip-div"></div>
+  <div class="strip-stat">
+    <span class="strip-num">Built for</span>
+    <span class="strip-label">ADHD &amp; overwhelmed minds</span>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div class="section" id="how">
+  <div class="section-label">How it works</div>
+  <h2 class="section-title">One place for<br>everything you need to do</h2>
+  <p class="section-sub">Arelo finds the tasks hiding in your inbox, takes anything else you throw at it, and gives you one calm list.</p>
+  <div class="steps">
+    <div class="step-card">
+      <div class="step-num">01</div>
+      <span class="step-icon">🔗</span>
+      <div class="step-title">Connect your inbox</div>
+      <p class="step-desc">Securely link your Gmail or Outlook. Arelo reads your recent emails to understand your patterns — who matters, what's urgent, when you're quiet — and pulls out every action hiding in your threads.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">02</div>
+      <span class="step-icon">🧠</span>
+      <div class="step-title">Add anything else</div>
+      <p class="step-desc">Not everything lives in email. Use Arelo's "Unload" feature to dump tasks from your head — work projects, home admin, school forms, things you're waiting on — and Arelo will sort and prioritise them too.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">03</div>
+      <span class="step-icon">✅</span>
+      <div class="step-title">Act, don't search</div>
+      <p class="step-desc">Your dashboard shows exactly what needs doing across every area of your life — Work, Home, People, Admin — prioritised, explained, and calm. One thing at a time.</p>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<div class="section" id="features" style="padding-top:0">
+  <div class="section-label">Features</div>
+  <h2 class="section-title">Everything you need,<br>nothing you don't</h2>
+  <p class="section-sub">Built for people who feel overwhelmed — not people who love productivity systems.</p>
+  <div class="features">
+    <div class="feat-card">
+      <div class="feat-icon">📬</div>
+      <div class="feat-title">Smart task extraction</div>
+      <p class="feat-desc">Arelo reads every email and pulls out the actual thing you need to do — not just the subject line. Tasks land in your list automatically.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🗂️</div>
+      <div class="feat-title">Every area of your life</div>
+      <p class="feat-desc">Work, Home, People, Waiting, Admin — Arelo organises your tasks by area so you see what's relevant right now, not everything at once.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">💭</div>
+      <div class="feat-title">Unload to Arelo</div>
+      <p class="feat-desc">Got things spinning in your head? Just type or speak them. Arelo captures, categorises, and files them so you don't have to hold it all yourself.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🎯</div>
+      <div class="feat-title">Urgency calibrated to you</div>
+      <p class="feat-desc">Your sensitivity to deadlines is different from everyone else's. Arelo adapts how it surfaces things — and never floods you with noise.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">💬</div>
+      <div class="feat-title">AI companion</div>
+      <p class="feat-desc">A calm, supportive chat assistant who knows your whole task list — email-sourced and manual — and helps you decide where to start without judgment.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🌙</div>
+      <div class="feat-title">Quiet hours</div>
+      <p class="feat-desc">Set times you don't want to be disturbed. Arelo holds things back until you're ready — no pings in evenings, weekends, or whenever you need a break.</p>
+    </div>
+  </div>
+</div>
+
+<!-- TESTIMONIALS -->
+<div class="section" style="padding-top:0">
+  <div class="section-label">Early users</div>
+  <h2 class="section-title">People who've been there</h2>
+  <p class="section-sub">For people who feel buried — by email, by life admin, by everything they haven't done yet.</p>
+  <div class="quotes">
+    <div class="quote-card">
+      <p class="quote-text">I had 4,000 unread emails and a mental list of about 200 other things. Arelo just… took it. I could see everything in one place without being overwhelmed by all of it at once.</p>
+      <div class="quote-author">
+        <div class="quote-avatar">S</div>
+        <div>
+          <div class="quote-name">Sarah M.</div>
+          <div class="quote-role">Freelance designer, ADHD</div>
+        </div>
+      </div>
+    </div>
+    <div class="quote-card">
+      <p class="quote-text">I kept missing important emails and forgetting things I'd promised people. Arelo catches it all — emails, things I add myself, even stuff I'm waiting on — and just tells me what I need to do.</p>
+      <div class="quote-author">
+        <div class="quote-avatar">J</div>
+        <div>
+          <div class="quote-name">James T.</div>
+          <div class="quote-role">Small business owner</div>
+        </div>
+      </div>
+    </div>
+    <div class="quote-card">
+      <p class="quote-text">The "unload" feature is the thing I didn't know I needed. I just dump everything swirling in my head and Arelo sorts it. Then the companion helps me decide what to actually do first.</p>
+      <div class="quote-author">
+        <div class="quote-avatar">R</div>
+        <div>
+          <div class="quote-name">Rachel K.</div>
+          <div class="quote-role">NHS nurse &amp; carer</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DEMO section anchor -->
+<div id="demo" style="position:relative;z-index:1;padding:40px 24px;display:flex;justify-content:center">
+  <div style="background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:48px 40px;max-width:680px;width:100%;text-align:center">
+    <div style="font-size:40px;margin-bottom:16px">🎬</div>
+    <h3 style="font-family:'Nunito',sans-serif;font-weight:800;font-size:22px;margin-bottom:12px">See Arelo in action</h3>
+    <p style="color:var(--muted);font-size:15px;line-height:1.6;margin-bottom:28px">Watch a 3-minute walkthrough of the full Arelo experience — from inbox connection to calm task list.</p>
+    <div style="background:rgba(0,0,0,0.3);border-radius:16px;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;margin-bottom:28px;border:1px solid var(--line);">
+      <div style="width:64px;height:64px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 0 32px var(--teal-glow);">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
+      </div>
+    </div>
+    <a class="cta-primary" href="arelo_onboarding.html" style="font-size:16px;padding:13px 30px;">Start free — takes 2 minutes</a>
+  </div>
+</div>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-glow"></div>
+  <h2 class="hero-title" style="position:relative;">One place for<br><em>everything.</em></h2>
+  <p class="hero-sub" style="position:relative;">Email tasks, life admin, work projects, things you're waiting on — Arelo holds it all so you don't have to. Finally calm.</p>
+  <div class="hero-ctas" style="position:relative;">
+    <a class="cta-primary" href="arelo_onboarding.html">Get started free</a>
+    <a class="cta-ghost" href="arelo_login.html">Sign in to your account</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a class="footer-brand" href="#">
+    <div class="nav-orb"></div>
+    <span>© 2025 Arelo · Built for overwhelmed minds</span>
+  </a>
+  <div class="footer-links">
+    <a href="#">Privacy</a>
+    <a href="#">Terms</a>
+    <a href="#">Contact</a>
+  </div>
+</footer>
+
+<script>
+// Nav scroll effect
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 40);
+}, { passive: true });
+</script>
+</body>
+</html>
