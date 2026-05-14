@@ -664,6 +664,27 @@ chatInput.addEventListener('keydown', e => {
 });
 
 // Start
+  const SUPABASE_URL = 'https://cfnuvhvncoumakrogrdb.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_AJwEwPfNe_bst7J3scwmzg_iv3TiUbA';
+
+const supabaseClient = supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
+
+async function signInWithGoogle() {
+  const { error } = await supabaseClient.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: 'https://myarelo.ai/arelo_dashboard.html'
+    }
+  });
+
+  if (error) {
+    console.error(error);
+    alert('Google sign in failed');
+  }
+}
 window.addEventListener('load', () => { startOnboarding(); });
 </script>
 </body>
