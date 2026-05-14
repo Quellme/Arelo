@@ -443,8 +443,9 @@ async function processUserReply(text) {
   waitingForUser = false;
   setInputEnabled(false);
  // Handle inbox connection at step 5
-  if (currentStep === 5 && text === 'Connect Gmail') {
+if (currentStep === 5 && text === 'Connect Gmail') {
     sessionStorage.setItem('arelo_reconnect', 'true');
+    await finaliseOnboarding();
     window.location.href = './arelo_login.html';
     return;
   }
@@ -564,6 +565,18 @@ async function finaliseOnboarding() {
       body: JSON.stringify({ ...profile, account, email: localStorage.getItem('arelo_email'), name: localStorage.getItem('arelo_name'), status: 'onboarding_complete', access_token: localStorage.getItem('arelo_access_token') })
     });
   } catch(e) { /* silent fail — will save on next login */ }
+    // Mark onboarding complete in Supabase
+  try {
+    await fetch(`https://cfnuvhvncoumakrogrdb.supabase.co/rest/v1/users?email=eq.${localStorage.getItem('arelo_email')}`, {
+      method: 'PATCH',
+      headers: {
+        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmbnV2aHZuY291bWFrcm9ncmRiIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODAxNzU2MSwiZXhwIjoyMDkzNTkzNTYxfQ.rZjJHR0rvQdw_tdQOGrtT8uaGxzYyZt-VxOLCK4sT-Q',
+        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmbnV2aHZuY291bWFrcm9ncmRiIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODAxNzU2MSwiZXhwIjoyMDkzNTkzNTYxfQ.rZjJHR0rvQdw_tdQOGrtT8uaGxzYyZt-VxOLCK4sT-Q',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ onboarding_complete: 'true' })
+    });
+  } catch(e) { /* silent fail */ }
   // Trigger onboarding inbox scan  ← ADD HERE
   try {
     await fetch('https://hook.eu1.make.com/nbctb3hsxdcl51yizbn83yjz62n21kif', {
