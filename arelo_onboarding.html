@@ -495,9 +495,9 @@ try {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        system: systemPrompt,
-        messages: conversationHistory,
-      })
+    system: systemPrompt + '\n\nConversation so far:\n' + conversationHistory.map(m => m.role + ': ' + m.content).join('\n'),
+    message: 'continue',
+  })
     });
     const data = await resp.json();
     const reply = data.content?.find(b => b.type === 'text')?.text || "What's your name?";
@@ -590,9 +590,9 @@ async function startOnboarding() {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      system: openingSystem,
-      messages: [{ role: 'user', content: 'start' }]
-    })
+    system: openingSystem,
+    message: 'start',
+  })
   });
     const data = await resp.json();
     const welcome = data.content?.find(b => b.type === 'text')?.text || getFallback(0);
