@@ -1,4 +1,4 @@
- n   c<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -426,7 +426,7 @@ const CONFIG = {
   // Google OAuth 2.0
   google: {
  clientId: window.GOOGLE_CLIENT_ID || '474105460149-tmi74lcvs5uh2f5or1ogrsmvknfbpvh7.apps.googleusercontent.com',
-    redirectUri: window.GOOGLE_REDIRECT_URI || window.location.origin + '/auth/callback/google',
+    window.location.href.split('?')[0]: window.GOOGLE_REDIRECT_URI || window.location.origin + '/auth/callback/google',
     scope:      'openid email profile https://www.googleapis.com/auth/gmail.readonly',
     authUrl:     'https://accounts.google.com/o/oauth2/v2/auth',
   },
@@ -434,7 +434,7 @@ const CONFIG = {
   azure: {
     clientId:    window.AZURE_CLIENT_ID    || 'YOUR_AZURE_CLIENT_ID',
     tenantId:    window.AZURE_TENANT_ID    || 'common',   // 'common' = any MS account
-    redirectUri: window.AZURE_REDIRECT_URI || window.location.origin + '/auth/callback/azure',
+    window.location.href.split('?')[0]: window.AZURE_REDIRECT_URI || window.location.origin + '/auth/callback/azure',
     scope:       'openid email profile offline_access',
     get authUrl() {
       return `https://login.microsoftonline.com/${this.tenantId}/oauth2/v2.0/authorize`;
@@ -450,7 +450,7 @@ const CONFIG = {
 function generateRandomString(len = 64) {
   const arr = new Uint8Array(len);
   crypto.getRandomValues(arr);
-  return Array.from(arr, b => b.toString(36)).join('').slice(0, len);
+  return btoa(String.fromCharCode(...arr)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
 }
 
 async function generateCodeChallenge(verifier) {
