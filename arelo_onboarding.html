@@ -444,12 +444,11 @@ function sendUserMessage() {
 async function processUserReply(text) {
   waitingForUser = false;
   setInputEnabled(false);
- // Handle inbox connection at step 5
-if (currentStep === 5 && text === 'Connect Gmail') {
-    sessionStorage.setItem('arelo_reconnect', 'true');
-    await finaliseOnboarding();
-    window.location.href = './arelo_login.html';
-    return;
+ if (currentStep === 5 && text === 'Connect Gmail') {
+  await finaliseOnboarding();
+  signInWithGoogle();
+  return;
+}
   }
   if (currentStep === 5 && text === 'Connect Outlook') {
     window.location.href = './arelo_login.html?reconnect=outlook';
