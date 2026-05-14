@@ -444,7 +444,8 @@ async function processUserReply(text) {
   setInputEnabled(false);
  // Handle inbox connection at step 5
   if (currentStep === 5 && text === 'Connect Gmail') {
-    window.location.href = './arelo_login.html?reconnect=gmail';
+    sessionStorage.setItem('arelo_reconnect', 'true');
+    window.location.href = './arelo_login.html';
     return;
   }
   if (currentStep === 5 && text === 'Connect Outlook') {
