@@ -565,10 +565,10 @@ async function finaliseOnboarding() {
         account,
         email: localStorage.getItem('arelo_email'),
         access_token: localStorage.getItem('arelo_access_token')
-    })
       })
     });
   } catch(e) { /* silent fail */ }
+
   await delay(1800);
   hideTyping();
 
