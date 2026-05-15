@@ -3114,41 +3114,22 @@ function applyMood(mood) {
 // ── DATA ──────────────────────────────────────────────────────────────────────
 async function loadTasks() {
   try {
-    const res = await fetch(WEBHOOK_ON_DEMAND_SCAN, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ email: currentUser.email, account: currentUser.email })
-    });
-    // Handle both JSON and text responses
-    const text = await res.text();
-    console.log('Arelo B — raw text:', text.slice(0, 500));
-
-    let data;
-    try { data = JSON.parse(text); } catch(e) {
-      console.error('JSON parse failed:', e);
-      throw new Error('Response was not valid JSON');
-    }
-    console.log('Arelo B — parsed:', data);
-    console.log('Arelo B — keys:', Object.keys(data));
-
-    // Structure is [{tasks: [{...},{...}]}, ...] — flatMap to get all tasks
-    let rows = [];
-    if (Array.isArray(data)) {
-      if (data[0]?.tasks) {
-        rows = data.flatMap(item => Array.isArray(item.tasks) ? item.tasks : [item.tasks]).filter(Boolean);
-      } else {
-        rows = data;
+    const email = currentUser.email;
+    const res = await fetch(
+      `https://cfnuvhvncoumakrogrdb.supabase.co/rest/v1/tasks?account=eq.${encodeURIComponent(email)}&order=created.desc`,
+      {
+        method: 'GET',
+        headers: {
+          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmbnV2aHZuY291bWFrcm9ncmRiIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODAxNzU2MSwiZXhwIjoyMDkzNTkzNTYxfQ.rZjJHR0rvQdw_tdQOGrtT8uaGxzYyZt-VxOLCK4sT-Q',
+          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmbnV2aHZuY291bWFrcm9ncmRiIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODAxNzU2MSwiZXhwIjoyMDkzNTkzNTYxfQ.rZjJHR0rvQdw_tdQOGrtT8uaGxzYyZt-VxOLCK4sT-Q',
+          'Content-Type': 'application/json'
+        }
       }
-    } else if (Array.isArray(data.tasks)) {
-      rows = data.tasks;
-    } else {
-      const firstKey = Object.keys(data)[0];
-      if (firstKey && Array.isArray(data[firstKey])) rows = data[firstKey];
-    }
-    // Filter out null rows
-    rows = rows.filter(r => r && r.title);
-    console.log('Arelo B — rows found:', rows.length, rows[0]);
-    processTasks(rows);
+    );
+    const rows = await res.json();
+    const filtered = rows.filter(r => r && r.title);
+    console.log('Arelo — tasks loaded:', filtered.length);
+    processTasks(filtered);
   } catch(e) {
     console.error('Load failed:', e);
     document.getElementById('greetingSubline').textContent = 'Could not load tasks. Try refreshing.';
@@ -3156,7 +3137,7 @@ async function loadTasks() {
       `<div class="empty-state"><strong>Connection issue</strong>Tasks could not be loaded right now.</div>`;
   }
 }
-
+  
 function processTasks(rows) {
   const today = Math.floor(Date.now()/86400000) + 25569;
 
