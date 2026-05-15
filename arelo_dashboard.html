@@ -2177,7 +2177,7 @@ button,input,select{font:inherit}
 ═══════════════════════════════════════ -->
 <script>
 // ── CONFIG ──────────────────────────────────────────────────────────────────
-const WEBHOOK            = 'https://hook.eu1.make.com/wf7stpc95ag1w1x1kevxp6v6d1r62qdk';
+const WEBHOOK_GET_TASKS    = 'https://hook.eu1.make.com/wf7stpc95ag1w1x1kevxp6v6d1r62qdk';
 const WEBHOOK_GET_PREFS    = 'https://hook.eu1.make.com/lrhiyli12iyvil4r27b9ogqn77rurhyn';
 const WEBHOOK_SAVE_PREFS   = 'https://hook.eu1.make.com/d6jcuqmfnqxgxspk1rdrurgwyu2kggq5';
 const WEBHOOK_GET_SYSTEM   = 'https://hook.eu1.make.com/1ibswah8o2tgdj3eyg7yoequfd94fsjf';
@@ -3427,7 +3427,7 @@ function renderChronological(tasks, done) {
       t._isDone ? 'is-done' : ''
     ].filter(Boolean).join(' ');
 
-    const createdStr = t.created ? `<span style="font-size:11px;color:var(--muted);opacity:.7">${escHtml(t.created)}</span>` : '';
+    const createdStr = t.created ? `<span style="font-size:11px;color:var(--muted);opacity:.7">${fmtDate(t.created)}</span>` : '';
 
     return `
       <div class="${cls}" id="card-${t.id}" onclick="openDrawer('${t.id}')">
@@ -3578,7 +3578,7 @@ function renderView(view) {
 
     function trustCard(t, kind) {
       const sender  = t.sender ? escHtml(t.sender.split('<')[0].trim()) : '';
-      const created = t.created ? escHtml(t.created) : '';
+      const created = t.created ? fmtDate(t.created) : '';
       const pillMap = { waiting:'Waiting', done:'Done', FILTER:'Filtered', UNSUBSCRIBE:'Unsubscribed', DONE:'Handled' };
       const pill    = pillMap[kind] || pillMap[t.action] || 'Sorted';
       const pillStyle = kind === 'done'
@@ -3755,7 +3755,7 @@ function cardHTML(t, isDone) {
   }
 
   // Format created date nicely
-  const createdStr = t.created ? `<span style="font-size:11px;color:var(--muted);opacity:.7">${escHtml(t.created)}</span>` : '';
+  const createdStr = t.created ? `<span style="font-size:11px;color:var(--muted);opacity:.7">${fmtDate(t.created)}</span>` : '';
   // Due date top-right — show if present, fall back to received date
   const dueLabelStr = (t.due && !isDone) ? formatDue(t.due) : (t.qwellDue && !isDone) ? `✦ ${formatDue(t.qwellDue)}` : '';
   const dueDateIsOverdue = dueLabelStr === 'Overdue' || dueLabelStr === 'Due today';
@@ -4236,7 +4236,7 @@ function openDrawer(id) {
 
     <!-- Compact meta row -->
     <div class="drawer-meta-row">
-      ${task.created ? `<div class="drawer-meta-item"><div class="drawer-field-label">Received</div><div style="font-size:12px;color:var(--ink)">${escHtml(task.created)}</div></div>` : ''}
+      ${task.created ? `<div class="drawer-meta-item"><div class="drawer-field-label">Received</div><div style="font-size:12px;color:var(--ink)">${fmtDate(task.created)}</div></div>` : ''}
       ${task.priority ? `<div class="drawer-meta-item"><div class="drawer-field-label">Priority <span style="color:var(--teal);cursor:pointer" onclick="togglePriorityEdit('${task.id}')">(edit)</span></div><div id="priorityDisplay-${task.id}" style="display:flex;align-items:center;gap:5px"><span style="width:7px;height:7px;border-radius:50%;background:${priorityColor};display:inline-block"></span><span style="font-size:12px;font-weight:700;color:${priorityColor};text-transform:capitalize">${task.priority}</span></div><div id="priorityEdit-${task.id}" style="display:none;margin-top:4px"><div style="display:flex;gap:4px">${['high','medium','low'].map(p=>`<button onclick="changePriority('${task.id}','${p}')" style="flex:1;padding:5px 4px;border-radius:6px;border:1px solid ${p===task.priority?'var(--teal)':'var(--line)'};background:${p===task.priority?'var(--teal-soft)':'var(--surface)'};font-size:10px;font-weight:700;color:${p==='high'?'#e07b00':p==='medium'?'#8a5800':'var(--muted)'};cursor:pointer;text-transform:capitalize">${p}</button>`).join('')}</div></div></div>` : ''}
       ${task.senderEmail ? `<div class="drawer-meta-item" style="min-width:140px"><div class="drawer-field-label">From</div><div style="font-size:11px;color:var(--muted);word-break:break-all">${escHtml(task.senderEmail)}</div></div>` : ''}
       ${task.account ? `<div class="drawer-meta-item" style="min-width:120px"><div class="drawer-field-label">Inbox</div><div style="font-size:11px;color:var(--muted);word-break:break-all">${escHtml(task.account)}</div></div>` : ''}
@@ -4851,7 +4851,7 @@ function openDecisionDrawer(id) {
     ${task.created ? `
     <div>
       <div class="drawer-field-label">Received</div>
-      <div class="drawer-field-value">${escHtml(task.created)}</div>
+      <div class="drawer-field-value">${fmtDate(task.created)}</div>
     </div>` : ''}
 
     <!-- Gmail actions -->
@@ -5079,7 +5079,18 @@ function markDone(id) {
 function emptyState(t,s){return `<div class="empty-state"><strong>${t}</strong>${s}</div>`}
 function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
-
+function fmtDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (isNaN(d)) return iso;
+  const now = new Date();
+  const isToday = d.toDateString() === now.toDateString();
+  const yesterday = new Date(now); yesterday.setDate(now.getDate()-1);
+  const isYesterday = d.toDateString() === yesterday.toDateString();
+  if (isToday) return d.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
+  if (isYesterday) return 'Yesterday ' + d.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
+  return d.toLocaleDateString('en-GB', {day:'numeric', month:'short'}) + ' ' + d.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
+}
 // ── QWELL CONTEXT BUILDER ─────────────────────────────────────────────────────
 // Single source of truth for everything we know about the user.
 // Called by the agent chat, briefing, and companion card — keeps them consistent.
