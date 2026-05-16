@@ -302,12 +302,13 @@ async function signInWithGoogle() {
   localStorage.setItem('arelo_onboarding_profile', JSON.stringify(profile));
   sessionStorage.setItem('arelo_connecting_gmail', 'true');
 
-  const { error } = await client.auth.signInWithOAuth({
-    provider: 'google',
-    options: {
-      redirectTo: 'https://myarelo.ai/arelo_dashboard.html'
-    }
-  });
+  const { error } = await supabaseClient.auth.signInWithOAuth({
+  provider: 'google',
+  options: {
+    redirectTo: 'https://myarelo.ai/arelo_onboarding.html',
+    scopes: 'https://www.googleapis.com/auth/gmail.readonly'
+  }
+});
 
   if (error) {
     console.error('Google sign in failed:', error);
