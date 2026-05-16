@@ -694,7 +694,29 @@ chatInput.addEventListener('keydown', e => {
 });
 
 // Start
-window.addEventListener('load', () => { startOnboarding(); });
+async function restoreGoogleSession() {
+  const { data } = await supabaseClient.auth.getSession();
+
+  if (data.session) {
+    const user = data.session.user;
+
+    localStorage.setItem('arelo_email', user.email || '');
+
+    localStorage.setItem(
+      'arelo_name',
+      user.user_metadata?.full_name || user.email || ''
+    );
+
+    if (data.session.provider_token) {
+      localStorage.setItem('arelo_access_token', data.session.provider_token);
+    }
+  }
+}
+
+window.addEventListener('load', async () => {
+  await restoreGoogleSession();
+  startOnboarding();
+});
 </script>
 </body>
 </html>
