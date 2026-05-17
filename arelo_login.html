@@ -573,6 +573,7 @@ async function handleOAuthCallback() {
     localStorage.setItem('arelo_provider',      provider);
     localStorage.setItem('arelo_access_token',  access_token  || '');
     localStorage.setItem('arelo_refresh_token', refresh_token || '');
+    localStorage.setItem('arelo_account',       tokenData.account || email);
 
     // Clear PKCE
     sessionStorage.removeItem('arelo_oauth_state');
