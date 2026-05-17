@@ -584,16 +584,10 @@ async function handleOAuthCallback() {
 
     // ── Redirect to dashboard ───────────────────────────────────────────────
     // Check if new or existing user
-        if (onboarding_complete === 'true' || isReconnect) {
-      showRedirectOverlay(`Welcome back${name ? ', ' + name.split(' ')[0] : ''}! Opening your dashboard…`);
-      setTimeout(() => {
-        window.location.href = CONFIG.dashboardUrl;
-      }, 800);
-    } else {
-      showRedirectOverlay(`Welcome${name ? ', ' + name.split(' ')[0] : ''}! Setting up your account…`);
-      setTimeout(() => {
-        window.location.href = './arelo_onboarding.html';
-      }, 800);
+   showRedirectOverlay(`Welcome${name ? ', ' + name.split(' ')[0] : ''}! Opening your dashboard…`);
+   setTimeout(() => {
+  window.location.href = CONFIG.dashboardUrl;
+  }, 800);
     }
 
   } catch (err) {
