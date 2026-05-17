@@ -590,7 +590,7 @@ async function handleOAuthCallback() {
   }, 800);
     }
 
-  } catch (err) {
+  catch (err) {
     console.error('OAuth callback error:', err);
     hideRedirectOverlay();
     showStatus('error', 'Could not complete sign-in. Please try again.');
