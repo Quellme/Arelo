@@ -632,24 +632,14 @@ function hideRedirectOverlay() {
 // INIT — check if already signed in, or handle callback
 // ─────────────────────────────────────────────────────────────────────────────
 (async function init() {
-  // If already authenticated, go straight to the dashboard
-const existingEmail = localStorage.getItem('arelo_email');
-if (existingEmail && window.location.search === '') {
-  showRedirectOverlay('You\'re already signed in — opening your dashboard…');
-  const checkExisting = await fetch(`https://cfnuvhvncoumakrogrdb.supabase.co/rest/v1/users?email=eq.${existingEmail}&select=email`, {
-    headers: {
-      'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmbnV2aHZuY291bWFrcm9ncmRiIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODAxNzU2MSwiZXhwIjoyMDkzNTkzNTYxfQ.rZjJHR0rvQdw_tdQOGrtT8uaGxzYyZt-VxOLCK4sT-Q',
-      'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmbnV2aHZuY291bWFrcm9ncmRiIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODAxNzU2MSwiZXhwIjoyMDkzNTkzNTYxfQ.rZjJHR0rvQdw_tdQOGrtT8uaGxzYyZt-VxOLCK4sT-Q'
-    }
-  });
-  const existingData = await checkExisting.json();
-  setTimeout(() => {
-    window.location.href = existingData.length === 0 ? './arelo_onboarding.html' : CONFIG.dashboardUrl;
-  }, 600);
-  return;
-}
-
-  // Handle callback from OAuth provider
+  const existingEmail = localStorage.getItem('arelo_email');
+  if (existingEmail && window.location.search === '') {
+    showRedirectOverlay('You\'re already signed in — opening your dashboard…');
+    setTimeout(() => {
+      window.location.href = CONFIG.dashboardUrl;
+    }, 600);
+    return;
+  }
   handleOAuthCallback();
 })();
 </script>
