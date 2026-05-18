@@ -451,6 +451,29 @@ button,input,select{font:inherit}
   align-self:flex-start;
   border:1px solid var(--navy-line);
 }
+.cp-msg.cp-gap-q {
+  background:rgba(91,191,191,.08);
+  border-color:rgba(91,191,191,.3);
+  border-left:3px solid var(--teal);
+}
+.cp-msg.cp-gap-confirm {
+  font-size:12px;
+  opacity:.8;
+  border-style:dashed;
+}
+/* Dashboard tour highlight — pulses a glow ring around any element */
+.arelo-tour-highlight {
+  position:relative;
+  z-index:10;
+  box-shadow:0 0 0 3px rgba(91,191,191,.9), 0 0 20px rgba(91,191,191,.4) !important;
+  border-radius:12px;
+  transition:box-shadow .3s ease;
+  animation:tourPulse 1.2s ease-in-out infinite alternate;
+}
+@keyframes tourPulse {
+  from { box-shadow:0 0 0 3px rgba(91,191,191,.9), 0 0 20px rgba(91,191,191,.4); }
+  to   { box-shadow:0 0 0 5px rgba(91,191,191,.6), 0 0 32px rgba(91,191,191,.25); }
+}
 
 /* Suggested quick actions below the greeting message */
 .cp-suggestions {
@@ -1780,6 +1803,26 @@ button,input,select{font:inherit}
 .kanban-card.future{opacity:.55;background:var(--navy-soft)}
 .kanban-card.priority-high{border-left:3px solid #e07b00;padding-left:11px;background:#fffdf5}
 .kanban-card.priority-low{border-left:3px solid var(--teal);padding-left:11px}
+/* Energy bucket view */
+.energy-view { display:flex; flex-direction:column; gap:16px; padding:16px; }
+.energy-bucket { background:var(--surface); border:1px solid var(--line); border-radius:var(--r-md); overflow:hidden; }
+.energy-bucket-head { display:flex; align-items:center; gap:10px; padding:12px 16px; border-bottom:1px solid var(--line); }
+.energy-bucket-icon { font-size:18px; }
+.energy-bucket-label { font-size:13px; font-weight:700; color:var(--ink); flex:1; }
+.energy-bucket-count { font-size:12px; font-weight:700; color:var(--muted); background:var(--navy-soft); padding:2px 8px; border-radius:999px; }
+.energy-bucket-body { padding:8px; display:flex; flex-direction:column; gap:6px; }
+.energy-card { padding:10px 12px; border-radius:8px; background:var(--navy-soft); cursor:pointer; transition:background .12s; }
+.energy-card:hover { background:var(--teal-soft); }
+.energy-card-title { font-size:13px; font-weight:600; color:var(--ink); line-height:1.4; }
+.energy-card-meta { font-size:11px; color:var(--muted); margin-top:3px; }
+.energy-bucket-empty { padding:16px; text-align:center; font-size:12px; color:var(--muted); opacity:.6; }
+.energy-view-toggle { display:flex; align-items:center; gap:4px; }
+.energy-view-btn { padding:5px 10px; border-radius:999px; border:1px solid var(--line); background:transparent; color:var(--muted); font-size:11px; font-weight:700; cursor:pointer; transition:all .12s; font-family:inherit; }
+.energy-view-btn.active { background:var(--teal); border-color:var(--teal); color:#fff; }
+/* Sticker row on kanban cards */
+.sticker-row { display:flex; gap:4px; margin-top:8px; }
+.sticker-btn { padding:3px 7px; border-radius:6px; border:1px solid var(--line); background:var(--navy-soft); font-size:13px; cursor:pointer; transition:all .12s; line-height:1; }
+.sticker-btn:hover { background:var(--teal-soft); border-color:var(--teal); transform:scale(1.15); }
 .kanban-card-id{font-size:9px;font-weight:700;color:var(--teal-dark);letter-spacing:.1em;margin-bottom:5px;text-transform:uppercase;opacity:.7}
 .kanban-card-title{font-size:13px;font-weight:700;color:var(--ink);line-height:1.45;margin-bottom:8px}
 .kanban-card-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
@@ -2036,6 +2079,10 @@ button,input,select{font:inherit}
         </div>
       </div>
       <button class="icon-btn" title="Refresh" onclick="refreshTasks()">↻</button>
+      <div class="energy-view-toggle" id="energyViewToggle" style="display:none">
+        <button class="energy-view-btn active" id="btnKanban" onclick="setTasksViewMode('kanban')" title="Kanban view">⠿ Board</button>
+        <button class="energy-view-btn" id="btnEnergy" onclick="setTasksViewMode('energy')" title="Energy view">⚡ Energy</button>
+      </div>
       <button class="icon-btn" title="How are you feeling?" onclick="showMoodModal()">✦</button>
       <button class="icon-btn" title="Take a guided tour" onclick="startTour()" style="font-size:13px">?</button>
       <div class="avatar-btn" id="avatarBtn" title="Your account">SR</div>
@@ -2502,7 +2549,7 @@ function setFont(font) {
   applyBionic(bionicEnabled);
   const sel = document.getElementById('fontSelect');
   if (sel) sel.value = font;
-  localStorage.setItem('qwellme_font', font);
+  localStorage.setItem('arelo_font', font);
   // Persist to server so it syncs across devices
   if (currentUser?.email) savePreferencesToSheets({ font_preference: font });
 }
@@ -2513,7 +2560,7 @@ function setTextSize(idx) {
   document.querySelectorAll('h1').forEach(el => el.style.fontSize = s.title);
   const sel = document.getElementById('sizeSelect');
   if (sel) sel.value = idx;
-  localStorage.setItem('qwellme_textsize', idx);
+  localStorage.setItem('arelo_textsize', idx);
   if (currentUser?.email) savePreferencesToSheets({ text_size: String(idx) });
 }
 
@@ -2563,21 +2610,21 @@ function setTheme(theme) {
   // Orb modal uses modal-surface
   const orbModal = document.getElementById('orbModal');
   if (orbModal) orbModal.style.background = theme === 'dark' ? '#243347' : '#ffffff';
-  localStorage.setItem('qwellme_theme', theme);
+  localStorage.setItem('arelo_theme', theme);
   if (currentUser?.email) savePreferencesToSheets({ dark_mode: theme === 'dark' ? 'yes' : 'no' });
 }
 
 function restoreSettings() {
   // Server values take precedence (set by loadPreferencesFromSheets) — localStorage is fallback
-  const font  = currentUser?.font_preference  || localStorage.getItem('qwellme_font')      || 'default';
-  const size  = parseInt(currentUser?.text_size || localStorage.getItem('qwellme_textsize') || '1');
+  const font  = currentUser?.font_preference  || localStorage.getItem('arelo_font')      || 'default';
+  const size  = parseInt(currentUser?.text_size || localStorage.getItem('arelo_textsize') || '1');
   const theme = currentUser?.dark_mode === 'yes' ? 'dark'
               : currentUser?.dark_mode === 'no'  ? 'light'
-              : localStorage.getItem('qwellme_theme') || 'light';
+              : localStorage.getItem('arelo_theme') || 'light';
   // Sync back to localStorage so things work offline too
-  localStorage.setItem('qwellme_font',     font);
-  localStorage.setItem('qwellme_textsize', size);
-  localStorage.setItem('qwellme_theme',    theme);
+  localStorage.setItem('arelo_font',     font);
+  localStorage.setItem('arelo_textsize', size);
+  localStorage.setItem('arelo_theme',    theme);
   setFont(font);
   setTextSize(size);
   setTheme(theme);
@@ -2610,7 +2657,7 @@ function startClock() {
 function updateLastUpdatedChip() {
   const chip = document.getElementById('lastUpdatedChip');
   if (!chip) return;
-  const lastUpdated = localStorage.getItem('qwellme_last_updated');
+  const lastUpdated = localStorage.getItem('arelo_last_updated');
   if (!lastUpdated) return;
   const updatedDate = new Date(lastUpdated);
   const now = new Date();
@@ -2633,19 +2680,48 @@ function toggleSidebar() {
     ? `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 2L10 7L5 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
     : `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7L9 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
   btn.title = sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar';
-  localStorage.setItem('qwellme_sidebar_collapsed', sidebarCollapsed ? '1' : '');
+  localStorage.setItem('arelo_sidebar_collapsed', sidebarCollapsed ? '1' : '');
   if (currentUser?.email) savePreferencesToSheets({ sidebar_collapsed: sidebarCollapsed ? 'yes' : 'no' });
 }
 
 function boot() {
+  // ── One-time migration: qwellme_ → arelo_ localStorage keys ───────────────
+  (function migrateKeys() {
+    const map = [
+      ['arelo_font',              'arelo_font'],
+      ['arelo_textsize',          'arelo_textsize'],
+      ['arelo_theme',             'arelo_theme'],
+      ['arelo_last_updated',      'arelo_last_updated'],
+      ['arelo_sidebar_collapsed', 'arelo_sidebar_collapsed'],
+      ['arelo_email',             'arelo_email'],
+      ['arelo_api_key',           'arelo_api_key'],
+      ['arelo_user',              'arelo_user'],
+    ];
+    map.forEach(([old, nw]) => {
+      const val = localStorage.getItem(old);
+      if (val !== null) {
+        if (!localStorage.getItem(nw)) localStorage.setItem(nw, val);
+        localStorage.removeItem(old);
+      }
+    });
+    // Dynamic per-user visited keys
+    Object.keys(localStorage)
+      .filter(k => k.startsWith('qwellme_') && k.endsWith('_visited'))
+      .forEach(k => {
+        const nw = 'arelo_' + k.slice('qwellme_'.length);
+        if (!localStorage.getItem(nw)) localStorage.setItem(nw, localStorage.getItem(k));
+        localStorage.removeItem(k);
+      });
+  })();
+
   // Sidebar defaults to collapsed — companion panel takes the right column
   // (user can expand it with the collapse button as before)
-  const sidebarPref = localStorage.getItem('qwellme_sidebar_collapsed');
+  const sidebarPref = localStorage.getItem('arelo_sidebar_collapsed');
   if (sidebarPref === null) {
     // First load — start collapsed to give room to the companion panel
-    localStorage.setItem('qwellme_sidebar_collapsed', '1');
+    localStorage.setItem('arelo_sidebar_collapsed', '1');
   }
-  if (localStorage.getItem('qwellme_sidebar_collapsed') === '1') {
+  if (localStorage.getItem('arelo_sidebar_collapsed') === '1') {
     const sb = document.getElementById('sidebar');
     if (sb) sb.classList.add('collapsed');
   }
@@ -2653,12 +2729,12 @@ function boot() {
   // arelo_login.html writes arelo_email after OAuth; mirror to legacy key
   const oauthEmail = localStorage.getItem('arelo_email');
   const oauthName  = localStorage.getItem('arelo_name');
-  if (oauthEmail && !localStorage.getItem('qwellme_email')) {
-    localStorage.setItem('qwellme_email', oauthEmail);
+  if (oauthEmail && !localStorage.getItem('arelo_email')) {
+    localStorage.setItem('arelo_email', oauthEmail);
   }
 
   // Only email stored locally — everything else comes from Sheets / Supabase
-  const savedEmail = localStorage.getItem('qwellme_email') || localStorage.getItem('arelo_email');
+  const savedEmail = localStorage.getItem('arelo_email') || localStorage.getItem('arelo_email');
   if (savedEmail) {
     currentUser = { email: savedEmail, name: oauthName || '' };
     loadPreferencesFromSheets(savedEmail).then(() => {
@@ -2669,7 +2745,7 @@ function boot() {
       startClock();
       setupUser();
       loadTasks();
-      const visitedKey = `qwellme_${currentUser.email}_visited`;
+      const visitedKey = `arelo_${currentUser.email}_visited`;
       isFirstVisit = !localStorage.getItem(visitedKey);
       if (isFirstVisit) {
         orbProfile = {
@@ -2681,21 +2757,21 @@ function boot() {
         };
         localStorage.setItem(visitedKey, '1');
         orbStep = 0;
-        setTimeout(() => openOrbModal(), 500);
+        // Arelo handles the welcome — no popup
       } else {
         orbStep = 5;
-        setTimeout(() => openOrbModal(), 700);
+        // Arelo handles the greeting — no popup
       }
     });
   } else {
     // Legacy fallback — check old qwellme_user key
-    const saved = localStorage.getItem('qwellme_user');
+    const saved = localStorage.getItem('arelo_user');
     if (saved) {
       try {
         currentUser = JSON.parse(saved);
         if (currentUser?.email) {
-          localStorage.setItem('qwellme_email', currentUser.email);
-          localStorage.removeItem('qwellme_user');
+          localStorage.setItem('arelo_email', currentUser.email);
+          localStorage.removeItem('arelo_user');
           boot(); return;
         }
       } catch(e) {}
@@ -2810,9 +2886,9 @@ function updateGreeting() {
 
 function signOut() {
   // Clear all session keys — both legacy and OAuth
-  localStorage.removeItem('qwellme_email');
-  localStorage.removeItem('qwellme_b_visited');
-  localStorage.removeItem('qwellme_user');       // legacy cleanup
+  localStorage.removeItem('arelo_email');
+  localStorage.removeItem('arelo_b_visited');
+  localStorage.removeItem('arelo_user');       // legacy cleanup
   localStorage.removeItem('arelo_email');
   localStorage.removeItem('arelo_name');
   localStorage.removeItem('arelo_provider');
@@ -2826,7 +2902,7 @@ function showLoginScreen() {
   // Redirect to the dedicated OAuth login page
   const loginUrl = window.ARELO_LOGIN_URL || './arelo_login.html';
   // Clear any stale local state
-  localStorage.removeItem('qwellme_email');
+  localStorage.removeItem('arelo_email');
   localStorage.removeItem('arelo_email');
   localStorage.removeItem('arelo_name');
   window.location.href = loginUrl;
@@ -2973,7 +3049,7 @@ const WEBHOOK_ONBOARDING = 'https://hook.eu1.make.com/rvqvyby3rd3e3a9hxcj0nm4yyv
 function getStorageKey(suffix) {
   // Scope to email so key survives filename changes
   const email = currentUser?.email || 'guest';
-  return `qwellme_${email}_${suffix}`;
+  return `arelo_${email}_${suffix}`;
 }
 
 async function saveSystemProfile(updates) {
@@ -3235,7 +3311,7 @@ function processTasks(rows) {
   });
 
   console.log('Arelo B — open:', allTasks.length, 'done:', doneTasks.length, 'decisions:', qwellDecisions.length);
-  localStorage.setItem('qwellme_last_updated', new Date().toISOString());
+  localStorage.setItem('arelo_last_updated', new Date().toISOString());
   updateLastUpdatedChip();
   updateCounts();
   updateUpNext();
@@ -3379,6 +3455,21 @@ function sortTasks(tasks) {
   return t;
 }
 
+// ── Urgent cap — max 2 priority-high cards shown with urgent styling per render ──
+let _urgentCapCache = { ts: 0, key: '', ids: new Set() };
+function _urgentCap(tasks) {
+  const key  = tasks === allTasks ? 'all' : tasks === myTasks ? 'my' : 'other';
+  const now  = Date.now();
+  if (_urgentCapCache.key === key && now - _urgentCapCache.ts < 200) return _urgentCapCache.ids;
+  const ids = new Set(
+    [...(tasks || [])].filter(t => t.priority === 'high')
+      .sort((a, b) => taskPriorityScore(b) - taskPriorityScore(a))
+      .slice(0, 2).map(t => t.id)
+  );
+  _urgentCapCache = { ts: now, key, ids };
+  return ids;
+}
+
 function renderChronological(tasks, done) {
   const all = [
     ...tasks.map(t => ({...t, _isDone: false})),
@@ -3399,12 +3490,13 @@ function renderChronological(tasks, done) {
     done:   { label:'Done',      color:'var(--muted)' }
   };
 
+  const _capIds = _urgentCap(allTasks);
   const cards = all.map(t => {
     const meta = laneMeta[t._isDone ? 'done' : t.lane] || laneMeta.follow;
     const badge = `<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:${meta.color};color:#fff;opacity:.85">${meta.label}</span>`;
 
     const cls = ['task-card',
-      t.priority === 'high' ? 'priority-high' : '',
+      (_capIds.has(t.id) && t.priority === 'high') ? 'priority-high' : '',
       t._isDone ? 'is-done' : ''
     ].filter(Boolean).join(' ');
 
@@ -3714,14 +3806,14 @@ function cardHTML(t, isDone) {
   const isToday = created && created >= today;
 
   const cls = ['task-card',
-    t.priority==='high'?'priority-high':'',
+    (_urgentCap(allTasks).has(t.id) && t.priority==='high')?'priority-high':'',
     t.lane==='quick'?'quick-win':'',
     isDone?'is-done':'',
     isToday&&!isDone?'is-today':''
   ].filter(Boolean).join(' ');
 
   const chips = [];
-  if (t.priority==='high') chips.push(`<span class="chip urgent">Urgent</span>`);
+  if (_urgentCap(allTasks).has(t.id) && t.priority==='high') chips.push(`<span class="chip urgent">Urgent</span>`);
   if (t.action==='FILTER') chips.push(`<span class="chip quick">Filter</span>`);
   if (t.action==='UNSUBSCRIBE') chips.push(`<span class="chip quick">Unsubscribe</span>`);
   if (t.due && !isDone) {
@@ -4063,7 +4155,7 @@ function savePreferences() {
     calm_goal:            goal,
     family_names:         people.filter(p=>p.name).map(p=>p.relationship==='child'&&p.age?`${p.name}(${p.age}yo)`:p.name).join(', ')
   });
-  localStorage.setItem('qwellme_user', JSON.stringify(currentUser));
+  localStorage.setItem('arelo_user', JSON.stringify(currentUser));
 
   fetch(WEBHOOK_ONBOARDING, {
     method:'POST',
@@ -4440,7 +4532,7 @@ function applySnooze(id) {
 }
 
 async function generateSnippet(task) {
-  const apiKey = localStorage.getItem('qwellme_api_key');
+  const apiKey = localStorage.getItem('arelo_api_key');
   if (!apiKey) {
     const snippetEl = document.getElementById('drawerSnippet');
     if (snippetEl) snippetEl.innerHTML = `
@@ -4507,7 +4599,7 @@ function saveApiKey(taskId) {
     showToast('Please enter a valid API key');
     return;
   }
-  localStorage.setItem('qwellme_api_key', key);
+  localStorage.setItem('arelo_api_key', key);
   showToast('API key saved ✓');
   // Now generate
   const task = allTasks.find(t=>t.id===taskId);
@@ -5045,6 +5137,73 @@ function removeTaskFromUI(id) {
 }
 
 // Full path — fires webhook (called directly, not from confirmDone)
+// ── Recovery moment celebrations ─────────────────────────────────────────────
+function showRecoveryMoment(type) {
+  // Rate-limit to once per session per type
+  const key = `arelo_recovery_${type}`;
+  if (sessionStorage.getItem(key)) return;
+  sessionStorage.setItem(key, '1');
+
+  const messages = {
+    first_today: { icon: '✨', text: 'First one done today. That\'s how it starts.' },
+    streak_3:    { icon: '🔥', text: 'Three in a row. You\'re in flow.' },
+    re_entry:    { icon: '👋', text: 'Good to have you back. One task done — that\'s what matters.' }
+  };
+  const m = messages[type];
+  if (!m) return;
+
+  // Update last done date
+  localStorage.setItem('arelo_last_done_date', new Date().toDateString());
+
+  // Create overlay card
+  const el = document.createElement('div');
+  el.style.cssText = `
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--surface); border:1px solid var(--teal); border-radius:var(--r-md);
+    padding:14px 20px; display:flex; align-items:center; gap:12px;
+    box-shadow:0 8px 32px rgba(0,0,0,.18); z-index:9999;
+    font-family:inherit; opacity:0; transition:all .35s ease;
+    min-width:240px; max-width:320px;
+  `;
+  el.innerHTML = `
+    <span style="font-size:22px">${m.icon}</span>
+    <span style="font-size:13px;font-weight:600;color:var(--ink);line-height:1.4">${m.text}</span>
+  `;
+  document.body.appendChild(el);
+  requestAnimationFrame(() => {
+    el.style.opacity = '1';
+    el.style.transform = 'translateX(-50%) translateY(0)';
+  });
+  setTimeout(() => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateX(-50%) translateY(10px)';
+    setTimeout(() => el.remove(), 400);
+  }, 3500);
+}
+
+function _detectRecoveryType() {
+  const today = new Date().toDateString();
+  const lastDone = localStorage.getItem('arelo_last_done_date');
+  const lastDate = lastDone ? new Date(lastDone) : null;
+  const daysSince = lastDate ? Math.floor((Date.now() - lastDate) / 86400000) : 999;
+
+  if (daysSince >= 3) return 're_entry';
+
+  // Count tasks completed today from doneTasks / myTasks
+  const todayDone = (myTasks || []).filter(t =>
+    (t.status === 'done' || t.lane === 'done') &&
+    t.completedAt && new Date(t.completedAt).toDateString() === today
+  ).length;
+  const allTodayDone = (doneTasks || []).filter(t =>
+    t.completed_at && new Date(t.completed_at).toDateString() === today
+  ).length;
+  const totalToday = todayDone + allTodayDone;
+
+  if (totalToday === 1) return 'first_today';
+  if (totalToday > 0 && totalToday % 3 === 0) return 'streak_3';
+  return null;
+}
+
 function markDone(id) {
   removeTaskFromUI(id);
   const task = doneTasks.find(t=>t.id===id);
@@ -5054,6 +5213,8 @@ function markDone(id) {
     body: JSON.stringify({ message_id: id, action: 'Done', user_id: currentUser.email, issue_type: 'email', snoozed_until: '', timestamp: new Date().toISOString() })
   }).catch(e => console.warn('Mark done webhook failed:', e));
   if (task) updateTaskInSheets(id, { status: 'Done', completed_at: new Date().toISOString().slice(0,10) });
+  const recoveryType = _detectRecoveryType();
+  if (recoveryType) showRecoveryMoment(recoveryType);
 }
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
@@ -5178,7 +5339,7 @@ let briefingGenerated = false;
 
 async function generateBriefing() {
   if (briefingGenerated) return;
-  const apiKey = localStorage.getItem('qwellme_api_key');
+  const apiKey = localStorage.getItem('arelo_api_key');
   if (!apiKey || !allTasks.length) { generateStaticBriefing(); return; }
   briefingGenerated = true;
   const ctx = buildQwellContext();
@@ -5301,7 +5462,7 @@ function getQwellDoneMessage(task) {
 // MY TASKS — KANBAN ENGINE
 // ══════════════════════════════════════════
 
-function myTasksKey() { return `qwellme_${currentUser?.email||'guest'}_mytasks`; }
+function myTasksKey() { return `arelo_${currentUser?.email||'guest'}_mytasks`; }
 function loadMyTasks() {
   try { const r=localStorage.getItem(myTasksKey()); myTasks=r?JSON.parse(r):[]; } catch(e){myTasks=[];}
   updateMyTasksCount();
@@ -6039,6 +6200,9 @@ function commitUnloadDrafts() {
 
 function showKanbanBoard() {
   setTaskTab('board');
+  // Show energy view toggle
+  const toggle = document.getElementById('energyViewToggle');
+  if (toggle) toggle.style.display = 'flex';
   const content = getTaskContent();
   if (!content) return;
   content.innerHTML = `
@@ -6064,6 +6228,73 @@ function showKanbanBoard() {
     </div>
     <div class="kanban-board" id="kanbanBoard"></div>`;
   renderKanban();
+}
+
+// ── Energy bucket view ────────────────────────────────────────────────────────
+let _tasksViewMode = 'kanban'; // 'kanban' | 'energy'
+
+function setTasksViewMode(mode) {
+  _tasksViewMode = mode;
+  document.getElementById('btnKanban')?.classList.toggle('active', mode === 'kanban');
+  document.getElementById('btnEnergy')?.classList.toggle('active', mode === 'energy');
+  if (mode === 'energy') renderEnergyView();
+  else renderKanban();
+}
+
+function getEnergyGroups() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const open = myTasks.filter(t => t.lane !== 'done' && t.status !== 'done');
+  const groups = { quickWins: [], needsFocus: [], heavyStuff: [], waitingOn: [] };
+
+  open.forEach(t => {
+    const dueD = t.dueDate ? new Date(t.dueDate) : null;
+    const isOverdue = dueD && dueD < today;
+    const isWaiting = t.lane === 'waiting' ||
+      /\b(waiting|chase|chasing|blocked|pending)\b/i.test(t.title || '');
+
+    if (isWaiting) {
+      groups.waitingOn.push(t);
+    } else if (isOverdue || (t.priority === 'high' && dueD && (dueD - today) / 86400000 <= 1)) {
+      groups.heavyStuff.push(t);
+    } else if (t.lane === 'focus' || t.priority === 'high') {
+      groups.needsFocus.push(t);
+    } else {
+      groups.quickWins.push(t);
+    }
+  });
+
+  return groups;
+}
+
+function renderEnergyView() {
+  const board = document.getElementById('kanbanBoard');
+  if (!board) return;
+  const g = getEnergyGroups();
+  const buckets = [
+    { key: 'quickWins',   icon: '⚡', label: 'Quick Wins',   tasks: g.quickWins,   desc: 'Short, low-effort' },
+    { key: 'needsFocus',  icon: '🧠', label: 'Needs Focus',  tasks: g.needsFocus,  desc: 'Requires concentration' },
+    { key: 'heavyStuff',  icon: '🔥', label: 'Heavy Stuff',  tasks: g.heavyStuff,  desc: 'Overdue or high-stakes' },
+    { key: 'waitingOn',   icon: '🕐', label: 'Waiting On',   tasks: g.waitingOn,   desc: 'Blocked on someone else' },
+  ];
+  board.innerHTML = `<div class="energy-view">${buckets.map(b => {
+    const cards = b.tasks.length
+      ? b.tasks.map(t => {
+          const due = t.dueDate ? `Due ${formatDateShort(new Date(t.dueDate))}` : '';
+          return `<div class="energy-card" onclick="openTaskDetail('${t.id}')">
+            <div class="energy-card-title">${escHtml(t.title)}</div>
+            ${due ? `<div class="energy-card-meta">${due}</div>` : ''}
+          </div>`;
+        }).join('')
+      : `<div class="energy-bucket-empty">Nothing here</div>`;
+    return `<div class="energy-bucket">
+      <div class="energy-bucket-head">
+        <span class="energy-bucket-icon">${b.icon}</span>
+        <span class="energy-bucket-label">${b.label}</span>
+        <span class="energy-bucket-count">${b.tasks.length}</span>
+      </div>
+      <div class="energy-bucket-body">${cards}</div>
+    </div>`;
+  }).join('')}</div>`;
 }
 
 function renderKanban() {
@@ -6093,6 +6324,15 @@ function renderKanban() {
   }).join('');
 }
 
+// ── Sticker actions on kanban cards ──────────────────────────────────────────
+function handleSticker(taskId, action, event) {
+  event?.stopPropagation();
+  if (action === 'done') { markMyTaskDone(taskId); return; }
+  const laneMap = { quickwin: 'quick', focus: 'focus', waiting: 'waiting' };
+  const lane = laneMap[action];
+  if (lane) { updateMyTask(taskId, { lane }); saveMyTasks(); renderKanban(); }
+}
+
 function kanbanCardHTML(t, today) {
   const startD=t.startDate?new Date(t.startDate):null;
   const dueD=t.dueDate?new Date(t.dueDate):null;
@@ -6113,10 +6353,18 @@ function kanbanCardHTML(t, today) {
     return `<div class="person-avatar" title="${escHtml(name)}">${escHtml(initials(name))}</div>`;
   }).join('');
   const createdLabel = t.created ? formatDateShort(new Date(t.created)) : '';
-  const priCls=t.priority==='high'?'priority-high':t.priority==='low'?'priority-low':'';
+  const priCls=(_urgentCap(myTasks).has(t.id) && t.priority==='high')?'priority-high':t.priority==='low'?'priority-low':'';
+  const stickerRow = t.lane !== 'done' ? `
+    <div class="sticker-row" onclick="event.stopPropagation()">
+      <button class="sticker-btn" title="Quick Win"   onclick="handleSticker('${t.id}','quickwin',event)">⚡</button>
+      <button class="sticker-btn" title="Needs Focus" onclick="handleSticker('${t.id}','focus',event)">🧠</button>
+      <button class="sticker-btn" title="Waiting On"  onclick="handleSticker('${t.id}','waiting',event)">🕐</button>
+      <button class="sticker-btn" title="Mark done"   onclick="handleSticker('${t.id}','done',event)">🏁</button>
+    </div>` : '';
   return `<div class="kanban-card ${priCls} ${isFuture?'future':''}" id="kcard-${t.id}" draggable="true" ondragstart="dragTask('${t.id}',event)" onclick="openTaskDetail('${t.id}')">
     <div class="kanban-card-id">${escHtml(t.id)}${t.has_attachment ? ` <span title="Has attachment" style="opacity:.5;font-size:11px">📎</span>` : ''}</div>
     <div class="kanban-card-title">${escHtml(t.title)}</div>
+    ${stickerRow}
     <div class="kanban-card-meta">
       ${dateLabel?`<span class="${dateCls}">${dateLabel}</span>`:''}
       ${people?`<div class="kanban-card-people">${people}</div>`:''}
@@ -6163,7 +6411,7 @@ async function submitTaskInput() {
 }
 
 async function parseTaskWithClaude(text,imageBase64) {
-  const apiKey=localStorage.getItem('qwellme_api_key');
+  const apiKey=localStorage.getItem('arelo_api_key');
   const today=new Date().toISOString().slice(0,10);
   const prompt=`Today is ${today}. Extract task information and return ONLY valid JSON, no markdown.\nInput: "${text}"\n{"title":"action-oriented title","startDate":"YYYY-MM-DD or null","dueDate":"YYYY-MM-DD or null","priority":"high|medium|low","people":[{"name":"First","email":""}]}`;
   if(!apiKey) throw new Error('No API key');
@@ -6310,7 +6558,14 @@ function confirmMyTaskDone(id, action) {
 function addMyTask(task){task.area=task.area||task.project||classifyTaskArea(task);task.project=task.project||task.area;myTasks.unshift(task);saveMyTasks();saveTaskToSheets(task);}
 function updateMyTask(id,changes){const i=myTasks.findIndex(t=>t.id===id);if(i>=0){myTasks[i]={...myTasks[i],...changes};saveMyTasks();}}
 function deleteMyTask(id){myTasks=myTasks.filter(t=>t.id!==id);saveMyTasks();renderKanban();closeTaskDetail();}
-function markMyTaskDone(id){updateMyTask(id,{lane:'done',status:'done'});renderKanban();closeTaskDetail();showQwellToast('Done ✓');}
+function markMyTaskDone(id) {
+  updateMyTask(id, { lane: 'done', status: 'done', completedAt: new Date().toISOString() });
+  renderKanban();
+  closeTaskDetail();
+  showQwellToast('Done ✓');
+  const recoveryType = _detectRecoveryType();
+  if (recoveryType) showRecoveryMoment(recoveryType);
+}
 
 let detailTaskId=null;
 function openTaskDetail(id) {
@@ -6802,6 +7057,9 @@ async function sendCompanionMessage(prefill) {
   if (input && !prefill) { input.value = ''; input.style.height = 'auto'; }
   if (send) send.disabled = true;
 
+  // Progressive onboarding: flag pending gap before sending
+  if (!prefill && typeof gapOnUserMessage === 'function') gapOnUserMessage();
+
   msgs.innerHTML += `<div class="cp-msg user">${escHtml(text)}</div>`;
   const thinkId = 'cp-think-' + Date.now();
   msgs.innerHTML += `<div class="cp-msg thinking" id="${thinkId}">Arelo is thinking…</div>`;
@@ -6813,16 +7071,25 @@ async function sendCompanionMessage(prefill) {
 
   try {
     const ctx = buildQwellContext();
+    // Include gap fields if a gap question was just asked
+    const gapFields = (typeof gapGetPayloadFields === 'function') ? gapGetPayloadFields() : {};
+    if (typeof gapGetPayloadFields === 'function') _gap_pending = null;
+
     const res = await fetch(WEBHOOK_AGENT, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...ctx.payload, message: text })
+      body: JSON.stringify({ ...ctx.payload, message: text, ...gapFields })
     });
     const raw = await res.text();
     document.getElementById(thinkId)?.remove();
 
     let reply = raw;
-    try { const p = JSON.parse(raw); reply = p.reply || p.content?.[0]?.text || raw; } catch(e) {}
+    let parsedResponse = null;
+    try {
+      parsedResponse = JSON.parse(raw);
+      reply = parsedResponse.reply || parsedResponse.content?.[0]?.text || raw;
+    } catch(e) {}
+
     const displayReply = reply
       .replace(/\{"action":"[^"]+[^}]*\}/g, '')
       .replace(/\n{3,}/g, '\n\n')
@@ -6835,8 +7102,16 @@ async function sendCompanionMessage(prefill) {
     const actionMatch = reply.match(/\{"action":"(\w+)"([^}]*)\}/);
     if (actionMatch) { try { handleQwellAction(JSON.parse(actionMatch[0])); } catch(e) {} }
 
-    // Refresh ribbon after any interaction that may have changed tasks
+    // Handle gap_data returned by Make
+    if (parsedResponse?.gap_data && typeof _gapHandleResponse === 'function') {
+      _gapHandleResponse(parsedResponse);
+    }
+
+    // Refresh ribbon
     renderContextRibbon();
+
+    // Progressive onboarding: check if we should ask a gap question now
+    if (typeof gapOnResponseRendered === 'function') gapOnResponseRendered();
 
   } catch(e) {
     document.getElementById(thinkId)?.remove();
@@ -6857,7 +7132,7 @@ function toggleCompanionCollapse() {
   panel.classList.toggle('collapsed');
   const btn = panel.querySelector('[onclick="toggleCompanionCollapse()"]');
   if (btn) btn.innerHTML = '&times;';
-  localStorage.setItem('qwellme_companion_collapsed', panel.classList.contains('collapsed') ? '1' : '0');
+  localStorage.setItem('arelo_companion_collapsed', panel.classList.contains('collapsed') ? '1' : '0');
   if (currentUser?.email) savePreferencesToSheets({ companion_collapsed: panel.classList.contains('collapsed') ? 'yes' : 'no' });
 }
 
@@ -6878,7 +7153,7 @@ function restoreCompanionState() {
   if (panel) {
     panel.classList.remove('collapsed');
   }
-  localStorage.setItem('qwellme_companion_collapsed', '0');
+  localStorage.setItem('arelo_companion_collapsed', '0');
 }
 
 // ── Legacy aliases (kept so any remaining internal callers don't break) ──────
@@ -6903,6 +7178,7 @@ function updateDisplay() {
 document.addEventListener('qwellme:ready', () => {
   initCompanionPanel();
   restoreCompanionState();
+  if (typeof initProgressiveOnboarding === 'function') initProgressiveOnboarding();
 });
 </script>
 <script>
@@ -6925,5 +7201,347 @@ function handleQwellAction(action){
 }
 </script>
 
+<script>
+// ═══════════════════════════════════════════════════════════════════════════
+//  PROGRESSIVE CONTEXTUAL ONBOARDING
+//  Learns about the user naturally — one question per session,
+//  asked only when the moment is right. Never interrupts. Never repeats.
+// ═══════════════════════════════════════════════════════════════════════════
+
+let _gap_askedThisSession = false;
+let _gap_pending          = null;
+let _gap_history          = {};
+
+function _gapLoadHistory() {
+  try { _gap_history = JSON.parse(localStorage.getItem('arelo_gap_history') || '{}'); } catch(e) {}
+}
+function _gapSaveHistory() {
+  localStorage.setItem('arelo_gap_history', JSON.stringify(_gap_history));
+}
+
+const KNOWLEDGE_GAPS = [
+  {
+    id: 'name', priority: 1,
+    fieldMissing: (u) => !u.name || u.name.includes('@') || u.name === u.email?.split('@')[0],
+    contextOk: () => true,
+    question: "Before we start — what should I call you?",
+    extractPrompt: 'Extract the person\'s first name. Return JSON only: {"name":"FirstName"}',
+    onSave: async (p) => {
+      if (!p.name) return;
+      currentUser.name = p.name;
+      if (typeof setupUser === 'function') setupUser();
+      await _gapSaveUserFields({ name: p.name });
+    },
+    confirm: (p) => `Nice to meet you, ${p.name}.`
+  },
+  {
+    id: 'quiet_hours', priority: 2,
+    fieldMissing: (u) => !u.quiet_hours_start,
+    contextOk: (ctx) => ctx.hour >= 19 || ctx.hour <= 9,
+    question: "What times should I not bother you? I want to get that right.",
+    extractPrompt: 'Extract quiet hours. Return JSON only: {"quiet_hours_start":"HH:MM","quiet_hours_end":"HH:MM"} 24hr. Default {"quiet_hours_start":"21:00","quiet_hours_end":"08:00"} if unclear.',
+    onSave: async (p) => { Object.assign(currentUser, p); await _gapSaveUserFields(p); },
+    confirm: (p) => {
+      const fmt = t => { if (!t) return '?'; const [h] = t.split(':'); const hh = parseInt(h); return (hh > 12 ? hh-12 : hh||12) + (hh >= 12 ? 'pm' : 'am'); };
+      return `Got it — quiet from ${fmt(p.quiet_hours_start)} to ${fmt(p.quiet_hours_end)}.`;
+    }
+  },
+  {
+    id: 'family', priority: 3,
+    fieldMissing: (u) => !u.family_names,
+    contextOk: (ctx) => ctx.hasKidsSignal || ctx.sessionCount >= 2,
+    question: "Do you have children, or anyone at home I should keep in mind?",
+    extractPrompt: 'Extract family context. Return JSON only: {"family_names":"short description e.g. two kids: Maya 8, Sam 5"}. If none return {"family_names":""}.',
+    onSave: async (p) => {
+      currentUser.family_names = p.family_names || '';
+      await _gapSaveUserFields({ family_names: p.family_names || '' });
+      if (p.family_names && typeof saveSystemProfile === 'function') await saveSystemProfile({ family_members: p.family_names });
+    },
+    confirm: () => null
+  },
+  {
+    id: 'calm_goal', priority: 4,
+    fieldMissing: (u) => !u.calm_goal,
+    contextOk: (ctx) => ctx.taskCount >= 3 || ctx.sessionCount >= 3,
+    question: "What would actually feeling on top of things look like for you — even a rough idea?",
+    extractPrompt: 'Extract calm goal. Return JSON only: {"calm_goal":"their words, max 25 words"}.',
+    onSave: async (p) => {
+      currentUser.calm_goal = p.calm_goal;
+      await _gapSaveUserFields({ calm_goal: p.calm_goal });
+      if (typeof saveSystemProfile === 'function') await saveSystemProfile({ goal: p.calm_goal });
+    },
+    confirm: (p) => p.calm_goal ? `I'll keep that in mind — "${(p.calm_goal||'').slice(0,45)}${(p.calm_goal||'').length>45?'…':''}".` : null
+  },
+  {
+    id: 'tone', priority: 5,
+    fieldMissing: (u) => !u.tone || u.tone === 'gentle',
+    contextOk: (ctx) => ctx.sessionCount >= 2,
+    question: "How do you want me to talk to you — pretty direct and brief, or a bit warmer?",
+    extractPrompt: 'Classify tone. Return JSON only: {"tone":"direct"} or {"tone":"warm"} or {"tone":"gentle"}.',
+    onSave: async (p) => {
+      currentUser.tone = p.tone;
+      await _gapSaveUserFields({ tone: p.tone, personality: p.tone });
+      if (typeof saveSystemProfile === 'function') await saveSystemProfile({ tone: p.tone });
+    },
+    confirm: (p) => p.tone === 'direct' ? 'Short and direct — got it.' : 'I\'ll keep things warm.'
+  },
+  {
+    id: 'roles', priority: 6,
+    fieldMissing: (u) => !u.system?.roles,
+    contextOk: (ctx) => ctx.hasWorkSignal || ctx.sessionCount >= 3,
+    question: "Are you mostly dealing with work stuff, home life, or a mix of both?",
+    extractPrompt: 'Extract work/life context. Return JSON only: {"roles":"short description e.g. freelance + two kids"}.',
+    onSave: async (p) => {
+      if (!currentUser.system) currentUser.system = {};
+      currentUser.system.roles = p.roles;
+      if (typeof saveSystemProfile === 'function') await saveSystemProfile({ roles: p.roles });
+    },
+    confirm: () => null
+  },
+  {
+    id: 'urgent_keywords', priority: 7,
+    fieldMissing: (u) => !u.urgent_keywords,
+    contextOk: (ctx) => ctx.hasUrgentTask || ctx.sessionCount >= 4,
+    question: "Are there specific people or words that should always get my attention?",
+    extractPrompt: 'Extract urgent keywords/senders. Return JSON only: {"urgent_keywords":"comma-separated"}. If none: {"urgent_keywords":""}.',
+    onSave: async (p) => {
+      currentUser.urgent_keywords = p.urgent_keywords;
+      await _gapSaveUserFields({ urgent_keywords: p.urgent_keywords });
+      if (typeof saveSystemProfile === 'function') await saveSystemProfile({ keywords: p.urgent_keywords });
+    },
+    confirm: (p) => p.urgent_keywords ? `Watching for: ${p.urgent_keywords.slice(0,50)}.` : null
+  },
+  {
+    id: 'peak_time', priority: 8,
+    fieldMissing: (u) => !u.peak_time_start,
+    contextOk: (ctx) => ctx.hour >= 6 && ctx.hour <= 11,
+    question: "Are mornings usually your better time, or are you more of an afternoon person?",
+    extractPrompt: 'Extract peak focus time. Return JSON only: {"peak_time_start":"HH:MM","peak_time_end":"HH:MM","morning_time":"morning or afternoon or evening"}.',
+    onSave: async (p) => {
+      Object.assign(currentUser, p);
+      await _gapSaveUserFields({ morning_time: p.morning_time, peak_time_start: p.peak_time_start, peak_time_end: p.peak_time_end });
+    },
+    confirm: (p) => `${p.morning_time === 'morning' ? 'Mornings' : p.morning_time === 'afternoon' ? 'Afternoons' : 'Evenings'} — noted.`
+  },
+  {
+    id: 'overwhelm', priority: 9,
+    fieldMissing: (u) => !u.overwhelm_sources,
+    contextOk: (ctx) => ctx.taskCount >= 5 || ctx.sessionCount >= 4,
+    question: "Is it mainly the inbox that feels like a lot, or is it more the general weight of everything?",
+    extractPrompt: 'Extract overwhelm source. Return JSON only: {"overwhelm_sources":"short description e.g. mostly email"}.',
+    onSave: async (p) => {
+      currentUser.overwhelm_sources = p.overwhelm_sources;
+      await _gapSaveUserFields({ overwhelm_sources: p.overwhelm_sources });
+    },
+    confirm: () => null
+  }
+];
+
+function _gapBuildContext() {
+  const hour = new Date().getHours();
+  const tasks = allTasks || [];
+  const titles = tasks.map(t => (t.title || '').toLowerCase()).join(' ');
+  return {
+    hour,
+    taskCount:    (typeof openUserTasks === 'function' ? openUserTasks() : []).length,
+    sessionCount: parseInt(localStorage.getItem('arelo_session_count') || '0'),
+    hasKidsSignal:  /school|child|kid|pickup|homework|nursery|daycare/.test(titles),
+    hasWorkSignal:  /meeting|invoice|client|deadline|project|boss/.test(titles),
+    hasUrgentTask:  tasks.some(t => t.priority === 'high')
+  };
+}
+
+function _gapGetNext() {
+  if (_gap_askedThisSession) return null;
+  const u = currentUser || {};
+  const ctx = _gapBuildContext();
+  const DAY = 86400000;
+  const WEEK = DAY * 7;
+  for (const gap of [...KNOWLEDGE_GAPS].sort((a,b) => a.priority - b.priority)) {
+    if (!gap.fieldMissing(u)) continue;
+    const hist = _gap_history[gap.id] || {};
+    if (hist.answered) continue;
+    if (hist.lastAsked) {
+      const age = Date.now() - hist.lastAsked;
+      if (age < DAY) continue;
+      if (age < WEEK) continue;
+    }
+    if (gap.contextOk && !gap.contextOk(ctx)) continue;
+    return gap;
+  }
+  return null;
+}
+
+function _gapAsk(gap) {
+  if (!gap) return;
+  _gap_pending          = gap;
+  _gap_askedThisSession = true;
+  _gap_history[gap.id]  = { ..._gap_history[gap.id], lastAsked: Date.now() };
+  _gapSaveHistory();
+  const msgs = document.getElementById('cpMessages');
+  if (!msgs) return;
+  setTimeout(() => {
+    msgs.innerHTML += `<div class="cp-msg qwell cp-gap-q" data-gap="${escHtml(gap.id)}">${escHtml(gap.question)}</div>`;
+    msgs.scrollTop = msgs.scrollHeight;
+  }, 700);
+}
+
+async function _gapHandleResponse(responseData) {
+  if (!responseData?.gap_data || !responseData?.gap_id) return;
+  const gap = KNOWLEDGE_GAPS.find(g => g.id === responseData.gap_id);
+  if (!gap) return;
+  try {
+    const parsed = typeof responseData.gap_data === 'string'
+      ? JSON.parse(responseData.gap_data)
+      : responseData.gap_data;
+    await gap.onSave(parsed);
+    _gap_history[gap.id] = { ..._gap_history[gap.id], answered: true, answeredAt: Date.now() };
+    _gapSaveHistory();
+    const confirmMsg = gap.confirm?.(parsed);
+    if (confirmMsg) {
+      const msgs = document.getElementById('cpMessages');
+      if (msgs) {
+        setTimeout(() => {
+          msgs.innerHTML += `<div class="cp-msg qwell cp-gap-confirm">${escHtml(confirmMsg)}</div>`;
+          msgs.scrollTop = msgs.scrollHeight;
+        }, 350);
+      }
+    }
+    if (typeof renderContextRibbon === 'function') renderContextRibbon();
+  } catch(e) { console.warn('[Arelo gap] Could not process response:', e); }
+}
+
+async function _gapSaveUserFields(fields) {
+  if (!currentUser?.email) return;
+  try {
+    await fetch(WEBHOOK_ONBOARDING, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ account: currentUser.account || currentUser.email, email: currentUser.email, ...fields })
+    });
+  } catch(e) { console.warn('[Arelo gap] Save failed:', e); }
+}
+
+function gapGetPayloadFields() {
+  if (!_gap_pending) return {};
+  return { gap_id: _gap_pending.id, extract_prompt: _gap_pending.extractPrompt };
+}
+
+function gapOnUserMessage() {
+  if (_gap_pending) {
+    _gap_history[_gap_pending.id] = { ..._gap_history[_gap_pending.id], lastAsked: _gap_history[_gap_pending.id]?.lastAsked || Date.now() };
+    _gapSaveHistory();
+  }
+}
+
+function gapOnResponseRendered() {
+  if (_gap_pending) return;
+  const gap = _gapGetNext();
+  if (gap) _gapAsk(gap);
+}
+
+function _gapNewUserWelcome() {
+  const isNew = parseInt(localStorage.getItem('arelo_session_count') || '0') <= 1;
+  if (!isNew) return;
+  const panel = document.getElementById('companionPanel');
+  if (panel) panel.classList.remove('collapsed');
+  const msgs = document.getElementById('cpMessages');
+  if (!msgs) return;
+  const oauthName = localStorage.getItem('arelo_name');
+  const firstName = oauthName?.split(' ')[0];
+  const nameKnown = firstName && !firstName.includes('@');
+  const welcome = nameKnown
+    ? `Hi ${firstName} — I'm Arelo. I'll start getting your inbox sorted. One quick thing while I set up:`
+    : `Hi — I'm Arelo. Glad you're here. I'll start getting your inbox sorted. One quick thing while I set up:`;
+  msgs.innerHTML = `<div class="cp-msg qwell">${escHtml(welcome)}</div>`;
+  msgs.scrollTop = msgs.scrollHeight;
+  // Ask first gap question, then run the tour
+  setTimeout(() => {
+    const gap = _gapGetNext();
+    if (gap) _gapAsk(gap);
+    // Tour runs in parallel — gives time for user to read the welcome
+    _runDashboardTour();
+  }, 500);
+}
+
+function initProgressiveOnboarding() {
+  _gapLoadHistory();
+  const n = parseInt(localStorage.getItem('arelo_session_count') || '0') + 1;
+  localStorage.setItem('arelo_session_count', String(n));
+  _gap_askedThisSession = false;
+  _gap_pending          = null;
+  const isNew = parseInt(localStorage.getItem('arelo_session_count') || '0') <= 1;
+  if (isNew) setTimeout(_gapNewUserWelcome, 1500);
+}
+
+// ── Dashboard tour ────────────────────────────────────────────────────────────
+
+// Highlight an element briefly with a teal glow ring
+function _tourHighlight(id, duration) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.add('arelo-tour-highlight');
+  setTimeout(() => el.classList.remove('arelo-tour-highlight'), duration || 3000);
+}
+
+// Add a companion message with a delay
+function _tourMsg(text, delay) {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      const msgs = document.getElementById('cpMessages');
+      if (msgs) {
+        msgs.innerHTML += `<div class="cp-msg qwell">${escHtml(text)}</div>`;
+        msgs.scrollTop = msgs.scrollHeight;
+      }
+      resolve();
+    }, delay || 0);
+  });
+}
+
+// The tour itself — sequential highlights + companion narration
+async function _runDashboardTour() {
+  const steps = [
+    {
+      id: 'taskArea',
+      delay: 800,
+      msg: "This is your board — where everything you need to do lives. Tasks from your inbox land here automatically once your scan runs."
+    },
+    {
+      id: null, // sidebar — use .sidebar class
+      selectorClass: 'sidebar',
+      delay: 4000,
+      msg: "Over on the left: Today shows what's urgent right now. Focus is for when you want to work through things. Arelo's Check is where I flag anything that needs a decision."
+    },
+    {
+      id: 'greetingStrip',
+      delay: 7500,
+      msg: "Up here I'll show you a quick summary each time you open the app — what's due, what's urgent, how you're doing."
+    },
+    {
+      id: 'cpContextRibbon',
+      delay: 11000,
+      msg: "This ribbon just above our chat keeps the most important things in view — so you always know where things stand without having to ask."
+    },
+    {
+      id: null,
+      delay: 14500,
+      msg: "That's the tour. I'll get to know you better as we go — one question at a time, no pressure. What would you like to do first?"
+    }
+  ];
+
+  for (const step of steps) {
+    await _tourMsg(step.msg, step.delay);
+    if (step.id) {
+      _tourHighlight(step.id, 3500);
+    } else if (step.selectorClass) {
+      const el = document.querySelector('.' + step.selectorClass);
+      if (el) {
+        el.classList.add('arelo-tour-highlight');
+        setTimeout(() => el.classList.remove('arelo-tour-highlight'), 3500);
+      }
+    }
+  }
+}
+</script>
 </body>
 </html>
