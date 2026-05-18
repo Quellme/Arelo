@@ -5254,8 +5254,10 @@ function buildQwellContext() {
   return {
     // For the Make webhook payload
     payload: {
+      account:          u.account || u.email || '',
+      inbox_email:      u.email || '',
       user_email:       u.email || '',
-      user_name:        firstName,
+      user_name:        u.name && !u.name.includes('@') ? u.name.split(' ')[0] : '',
       tone,
       goal,
       family_context:   family,
