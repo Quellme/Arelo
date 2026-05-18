@@ -5216,9 +5216,8 @@ function fmtDate(iso) {
 function buildQwellContext() {
   const u  = currentUser || {};
   const sys = u.system || {};
-
   // User identity & tone
-  const name     = u.name || u.email?.split('@')[0] || '';
+  const name     = (u.name && !u.name.includes('@')) ? u.name : '';
   const firstName = name.split(' ')[0];
   const tone     = u.tone || sys.tone || 'gentle';
   const goal     = u.calm_goal || sys.goal || '';
@@ -5229,7 +5228,7 @@ function buildQwellContext() {
   const roles     = sys.roles || '';
   const userNotes = sys.user_notes || '';
   const topSenders = sys.top_senders || '';
-
+  
   // Task snapshot
   const open     = allTasks.filter(t => t.status !== 'done' && t.lane !== 'done');
   const overdue  = open.filter(t => { const d = taskCalendarDate(t); return d && d < new Date(); });
@@ -5257,7 +5256,7 @@ function buildQwellContext() {
       account:          u.account || u.email || '',
       inbox_email:      u.email || '',
       user_email:       u.email || '',
-      user_name:        u.name && !u.name.includes('@') ? u.name.split(' ')[0] : '',
+      user_name:        firstName,
       tone,
       goal,
       family_context:   family,
