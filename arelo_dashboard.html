@@ -3116,7 +3116,7 @@ async function loadTasks() {
   try {
     const email = currentUser.email;
     const res = await fetch(
-      `https://cfnuvhvncoumakrogrdb.supabase.co/rest/v1/tasks?account=eq.${encodeURIComponent(email)}&order=created.desc`,
+      `https://cfnuvhvncoumakrogrdb.supabase.co/rest/v1/tasks?ainbox_email=eq.${encodeURIComponent(email)}&order=created.desc`,
       {
         method: 'GET',
         headers: {
