@@ -2685,34 +2685,6 @@ function toggleSidebar() {
 }
 
 function boot() {
-  // ── One-time migration: qwellme_ → arelo_ localStorage keys ───────────────
-  (function migrateKeys() {
-    const map = [
-      ['arelo_font',              'arelo_font'],
-      ['arelo_textsize',          'arelo_textsize'],
-      ['arelo_theme',             'arelo_theme'],
-      ['arelo_last_updated',      'arelo_last_updated'],
-      ['arelo_sidebar_collapsed', 'arelo_sidebar_collapsed'],
-      ['arelo_email',             'arelo_email'],
-      ['arelo_api_key',           'arelo_api_key'],
-      ['arelo_user',              'arelo_user'],
-    ];
-    map.forEach(([old, nw]) => {
-      const val = localStorage.getItem(old);
-      if (val !== null) {
-        if (!localStorage.getItem(nw)) localStorage.setItem(nw, val);
-        localStorage.removeItem(old);
-      }
-    });
-    // Dynamic per-user visited keys
-    Object.keys(localStorage)
-      .filter(k => k.startsWith('qwellme_') && k.endsWith('_visited'))
-      .forEach(k => {
-        const nw = 'arelo_' + k.slice('qwellme_'.length);
-        if (!localStorage.getItem(nw)) localStorage.setItem(nw, localStorage.getItem(k));
-        localStorage.removeItem(k);
-      });
-  })();
 
   // Sidebar defaults to collapsed — companion panel takes the right column
   // (user can expand it with the collapse button as before)
