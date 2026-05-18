@@ -2899,12 +2899,7 @@ function signOut() {
 }
 
 function showLoginScreen() {
-  // Redirect to the dedicated OAuth login page
   const loginUrl = window.ARELO_LOGIN_URL || './arelo_login.html';
-  // Clear any stale local state
-  localStorage.removeItem('arelo_email');
-  localStorage.removeItem('arelo_email');
-  localStorage.removeItem('arelo_name');
   window.location.href = loginUrl;
 }
 
