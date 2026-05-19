@@ -6513,7 +6513,6 @@ function toggleAttachment(id) {
   if(tog){tog.style.background=newVal?'var(--teal)':'var(--line)';tog.querySelector('div').style.left=newVal?'18px':'2px';}
   renderKanban();
 }
-
 function saveTaskToSheets(task) {
   if (!task || !currentUser) return;
   const assignedTo=(task.people||[]).map(p=>p.name||p.email).filter(Boolean).join(', ');
@@ -6524,25 +6523,25 @@ function saveTaskToSheets(task) {
       created:(task.created||new Date().toISOString()).slice(0,10),
       due:task.dueDate||'', status:task.lane==='done'?'Done':'open',
       action:'TASK', priority:task.priority||'medium', subject:'',
-      sender_name:'', message_id:task.id||'', snoozed_until:'',
+      sender_name:'', message_id:task.id||'', task_id:task.id||'',
+      snoozed_until:'',
       completed_at:task.lane==='done'?new Date().toISOString().slice(0,10):'',
       inbox_email:currentUser.email, visibility:'private',
       assigned_to:assignedTo, notes:task.notes||'',
-      qwell_due:'', qwell_due_reason:'', issue_type:'task',
-      has_attachment:task.has_attachment||false,
+      arelo_due:'', arelo_due_reason:'', issue_type:'task',
+      has_attachment:String(task.has_attachment||false),
       task_startdate:task.startDate||'',
       task_area:task.area||'',
       project:task.project||task.area||'',
       source:task.source||'manual'
     })
   }).catch(e=>console.warn('Task sync failed:',e));
-  // Also update any existing row (handles edits to notes, priority, dates etc)
   updateTaskInSheets(task.id, {
     status:       task.lane==='done'?'Done':'open',
     priority:     task.priority||'medium',
     notes:        task.notes||'',
     assigned_to:  assignedTo,
-    has_attachment: task.has_attachment||false,
+    has_attachment: String(task.has_attachment||false),
     task_startdate: task.startDate||'',
     task_area:    task.area||'',
     project:      task.project||task.area||'',
