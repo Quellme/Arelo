@@ -2776,7 +2776,7 @@ async function loadPreferencesFromSheets(email) {
         account:              data['account (A)'] || data.account || email,
         dark_mode:            data['Dark mode (on/off) (C)'] || data.dark_mode || 'no',
         dashboard_filter:     data['Dashboard filter preference (E)'] || data.dashboard_filter || 'today',
-        onboarding_complete:  data['Onboarding completed (D)'] || data.onboarding_complete || 'no',
+        onboarding_completed:  data['Onboarding completed (D)'] || data.onboarding_completed || 'no',
         protect_from_missing: data.protect_from_missing || [],
         calm_goal:            data.calm_goal || '',
         urgent_keywords:      data.urgent_keywords || '',
@@ -2830,7 +2830,7 @@ async function savePreferencesToSheets(updates) {
     account:              currentUser.account || currentUser.email,
     dark_mode:            currentUser.dark_mode || 'no',
     dashboard_filter:     currentUser.dashboard_filter || 'today',
-    onboarding_completed:  currentUser.onboarding_complete || 'no',
+    onboarding_completed:  currentUser.onboarding_completed || 'no',
     // Device-sync display settings
     font_preference:      currentUser.font_preference  || '',
     text_size:            currentUser.text_size         || '',
@@ -3041,7 +3041,7 @@ async function saveSystemProfile(updates) {
     learning_rules:      updates.learning_rules   || sys.learning_rules   || '',
     user_notes:          updates.user_notes       || sys.user_notes       || '',
     qwell_personality:   updates.qwell_personality|| sys.qwell_personality|| '',
-    onboarding_complete: updates.onboarding_complete || currentUser.onboarding_complete || 'no',
+    onboarding_completed: updates.onboarding_completed || currentUser.onboarding_completed || 'no',
     last_updated:        new Date().toISOString().slice(0,10),
     family_members:      updates.family_members   || sys.family_members   || currentUser.family_names || '',
     roles:               updates.roles            || sys.roles            || '',
@@ -3077,7 +3077,7 @@ function saveProfile() {
   savePreferencesToSheets({
     dark_mode:           currentUser.dark_mode || 'no',
     dashboard_filter:    currentUser.dashboard_filter || 'today',
-    onboarding_complete: 'yes',
+    onboarding_completed: 'yes',
     account:             currentUser.email
   });
 
@@ -3087,27 +3087,9 @@ function saveProfile() {
     goal:                orbProfile.calm_goal     || currentUser.calm_goal || '',
     keywords:            orbProfile.urgent_keywords || currentUser.urgent_keywords || '',
     family_members:      orbProfile.family_names  || currentUser.family_names || '',
-    onboarding_complete: 'yes'
+    onboarding_completed: 'yes'
   });
 
-  // Legacy onboarding webhook (keep for now)
-  const payload = {
-    account:              currentUser.email,
-    email:                currentUser.email,
-    name:                 currentUser.name             || '',
-    tone:                 currentUser.tone             || '',
-    personality:          currentUser.tone             || '',
-    protect_from_missing: (currentUser.protect_from_missing || []).join(','),
-    calm_goal:            currentUser.calm_goal        || '',
-    urgent_keywords:      currentUser.urgent_keywords  || '',
-    family_names:         currentUser.family_names     || '',
-    update_preferences_only: true
-  };
-  fetch(WEBHOOK_ONBOARDING, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  }).catch(e => console.warn('Profile save failed (non-blocking):', e));
 }
 
 function dismissModal() {
