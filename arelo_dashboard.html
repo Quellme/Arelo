@@ -7505,14 +7505,18 @@ function _gapNewUserWelcome() {
   }, 500);
 }
 
-function initProgressiveOnboarding() {
-  _gapLoadHistory();
-  const n = parseInt(localStorage.getItem('arelo_session_count') || '0') + 1;
-  localStorage.setItem('arelo_session_count', String(n));
-  _gap_askedThisSession = false;
-  _gap_pending          = null;
-  const isNew = parseInt(localStorage.getItem('arelo_session_count') || '0') <= 1;
-  if (isNew) setTimeout(_gapNewUserWelcome, 1500);
+function _gapBuildContext() {
+  const hour = new Date().getHours();
+  const tasks = allTasks || [];
+  const titles = tasks.map(t => (t.title || '').toLowerCase()).join(' ');
+  return {
+    hour,
+    taskCount:    (typeof openUserTasks === 'function' ? openUserTasks() : []).length,
+    sessionCount: Object.keys(_gap_history || {}).length,
+    hasKidsSignal:  /school|child|kid|pickup|homework|nursery|daycare/.test(titles),
+    hasWorkSignal:  /meeting|invoice|client|deadline|project|boss/.test(titles),
+    hasUrgentTask:  tasks.some(t => t.priority === 'high')
+  };
 }
 
 // ── Dashboard tour ────────────────────────────────────────────────────────────
