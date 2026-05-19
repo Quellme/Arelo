@@ -3333,7 +3333,7 @@ function refreshTasks() {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ account: email })
   }).then(() => {
-    setTimeout(() => loadTasks(), 8000);
+    setTimeout(() => loadTasks(), 75000);
   }).catch(() => {
     showToast('Scan failed — please try again');
     loadTasks();
