@@ -3076,7 +3076,7 @@ function saveProfile() {
   savePreferencesToSheets({
     dark_mode:           currentUser.dark_mode || 'no',
     dashboard_filter:    currentUser.dashboard_filter || 'today',
-    onboarding_completed: 'yes',
+    onboarding_complete: 'yes',
     account:             currentUser.email
   });
 
@@ -3086,7 +3086,7 @@ function saveProfile() {
     goal:                orbProfile.calm_goal     || currentUser.calm_goal || '',
     keywords:            orbProfile.urgent_keywords || currentUser.urgent_keywords || '',
     family_members:      orbProfile.family_names  || currentUser.family_names || '',
-    onboarding_completed: 'yes'
+    onboarding_complete: 'yes'
   });
 
 }
@@ -4113,7 +4113,7 @@ function savePreferences() {
   });
 
   savePreferencesToSheets({
-    onboarding_completed: 'yes'
+    onboarding_complete: 'yes'
   });
 
   saveSystemProfile({
@@ -7226,7 +7226,12 @@ function handleQwellAction(action){
   } else if(action.action==='SNOOZE'&&action.task_id){
     const task=allTasks.find(t=>t.id===action.task_id);
     if(task){task.snoozedUntil=action.until;showToast('Snoozed until '+action.until);}
+  } else if(action.action==='UPDATE_SYSTEM'||action.action==='SAVE_SYSTEM'){
+    const fields = action.fields || action;
+    const { action: _a, ...rest } = fields;
+    if(typeof saveSystemProfile==='function') saveSystemProfile(rest);
   }
+}
 }
 </script>
 
