@@ -3040,15 +3040,16 @@ async function saveSystemProfile(updates) {
     top_senders:         updates.top_senders      || sys.top_senders      || '',
     learning_rules:      updates.learning_rules   || sys.learning_rules   || '',
     user_notes:          updates.user_notes       || sys.user_notes       || '',
-    qwell_personality:   updates.qwell_personality|| sys.qwell_personality|| '',
-    onboarding_completed: updates.onboarding_completed || currentUser.onboarding_completed || 'no',
+    arelo_personality:   updates.arelo_personality|| sys.arelo_personality|| '',
+    onboarding_complete: updates.onboarding_complete || currentUser.onboarding_complete || 'no',
     last_updated:        new Date().toISOString().slice(0,10),
     family_members:      updates.family_members   || sys.family_members   || currentUser.family_names || '',
     roles:               updates.roles            || sys.roles            || '',
     time_patterns:       updates.time_patterns    || sys.time_patterns    || '',
     stress_triggers:     updates.stress_triggers  || sys.stress_triggers  || '',
     ignore_patterns:     updates.ignore_patterns  || sys.ignore_patterns  || '',
-    completion_patterns: updates.completion_patterns || sys.completion_patterns || ''
+    completion_patterns: updates.completion_patterns || sys.completion_patterns || '',
+    user_instructions:   updates.user_instructions|| sys.user_instructions|| ''
   };
   // Update local state
   currentUser.system = { ...sys, ...updates };
