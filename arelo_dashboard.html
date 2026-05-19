@@ -3164,12 +3164,12 @@ async function loadTasks() {
   try {
     const email = currentUser.email;
     const res = await fetch(
-      `https://cfnuvhvncoumakrogrdb.supabase.co/rest/v1/tasks?inbox_email=eq.${encodeURIComponent(email)}&order=created.desc`,
+      `${SUPABASE_URL}/rest/v1/tasks?inbox_email=eq.${encodeURIComponent(email)}&order=created.desc`,
       {
         method: 'GET',
         headers: {
-          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmbnV2aHZuY291bWFrcm9ncmRiIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODAxNzU2MSwiZXhwIjoyMDkzNTkzNTYxfQ.rZjJHR0rvQdw_tdQOGrtT8uaGxzYyZt-VxOLCK4sT-Q',
-          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmbnV2aHZuY291bWFrcm9ncmRiIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODAxNzU2MSwiZXhwIjoyMDkzNTkzNTYxfQ.rZjJHR0rvQdw_tdQOGrtT8uaGxzYyZt-VxOLCK4sT-Q',
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
           'Content-Type': 'application/json'
         }
       }
