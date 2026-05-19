@@ -2235,6 +2235,10 @@ const WEBHOOK_AGENT         = 'https://hook.eu1.make.com/3y7r08yb0hx88qgon2db6vf
 const WEBHOOK_UPDATE_TASK   = 'https://hook.eu1.make.com/eiobrxyvmpunkmr5gy0pnekws0uugnt0';
 const WEBHOOK_ON_DEMAND_SCAN = 'https://hook.eu1.make.com/rahyfy57nypqpqe5wypqug52vw70y3b9';
 
+// ── SUPABASE DIRECT ACCESS (for cross-device task boot) ──────────────────────
+const SUPABASE_URL      = 'https://cfnuvhvncoumakrogrdb.supabase.co';
+const SUPABASE_ANON_KEY = 'YOUR_ANON_PUBLIC_KEY_HERE'; // ← paste anon key from Supabase → Project Settings → API (NOT the service role key)
+
 
 
 // ── STATE ────────────────────────────────────────────────────────────────────
@@ -2717,6 +2721,7 @@ function boot() {
       startClock();
       setupUser();
       loadTasks();
+      loadMyTasksFromSupabase(); // async: merges Supabase truth over localStorage cache for cross-device sync
       const visitedKey = `arelo_${currentUser.email}_visited`;
       isFirstVisit = !localStorage.getItem(visitedKey);
       if (isFirstVisit) {
@@ -5435,7 +5440,58 @@ function loadMyTasks() {
   try { const r=localStorage.getItem(myTasksKey()); myTasks=r?JSON.parse(r):[]; } catch(e){myTasks=[];}
   updateMyTasksCount();
 }
-function saveMyTasks() { localStorage.setItem(myTasksKey(),JSON.stringify(myTasks)); updateMyTasksCount(); }
+
+async function loadMyTasksFromSupabase() {
+  if (!currentUser?.email) return;
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/tasks?account=eq.${encodeURIComponent(currentUser.email)}&issue_type=eq.task&status=neq.Done&select=*`,
+      { headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` } }
+    );
+    if (!res.ok) throw new Error(`Supabase ${res.status}`);
+    const rows = await res.json();
+    if (!rows.length) return;
+
+    const remoteTasks = rows.map(r => ({
+      id:             r.message_id,
+      title:          r.title          || '',
+      priority:       r.priority       || 'medium',
+      lane:           r.status === 'Done'       ? 'done'
+                    : r.status === 'inProgress' ? 'inProgress'
+                    : r.status === 'waiting'    ? 'waiting'
+                    : 'notStarted',
+      status:         r.status         || 'open',
+      notes:          r.notes          || '',
+      dueDate:        r.due            || r.arelo_due || '',
+      startDate:      r.task_startdate || '',
+      created:        r.created        || new Date().toISOString(),
+      area:           r.task_area      || r.project || '',
+      project:        r.project        || r.task_area || '',
+      has_attachment: r.has_attachment || false,
+      source:         r.source         || 'manual',
+      people:         r.assigned_to
+                        ? r.assigned_to.split(',').map(s => ({ name: s.trim() })).filter(p => p.name)
+                        : [],
+    }));
+
+    // Remote is source of truth; preserve any local-only tasks not yet synced up
+    const remoteIds = new Set(remoteTasks.map(t => t.id));
+    const localOnly = myTasks.filter(t => !remoteIds.has(t.id));
+    myTasks = [...remoteTasks, ...localOnly];
+    localStorage.setItem(myTasksKey(), JSON.stringify(myTasks));
+    updateMyTasksCount();
+    if (typeof renderKanban === 'function') renderKanban();
+  } catch(e) {
+    console.warn('Could not load tasks from Supabase — using local cache', e);
+  }
+}
+
+function saveMyTasks() {
+  localStorage.setItem(myTasksKey(), JSON.stringify(myTasks));
+  updateMyTasksCount();
+  // Per-task Supabase writes happen in addMyTask() via saveTaskToSheets()
+  // and in updateMyTask() via updateTaskInSheets() — no bulk write needed here.
+}
 function updateMyTasksCount() {
   const open=myTasks.filter(t=>t.lane!=='done').length;
   const el=document.getElementById('countMyTasks');
@@ -6524,7 +6580,24 @@ function confirmMyTaskDone(id, action) {
 }
 
 function addMyTask(task){task.area=task.area||task.project||classifyTaskArea(task);task.project=task.project||task.area;myTasks.unshift(task);saveMyTasks();saveTaskToSheets(task);}
-function updateMyTask(id,changes){const i=myTasks.findIndex(t=>t.id===id);if(i>=0){myTasks[i]={...myTasks[i],...changes};saveMyTasks();}}
+function updateMyTask(id, changes) {
+  const i = myTasks.findIndex(t => t.id === id);
+  if (i >= 0) {
+    myTasks[i] = { ...myTasks[i], ...changes };
+    saveMyTasks();
+    // Sync the updated fields back to Supabase so other devices see them
+    updateTaskInSheets(id, {
+      status:         myTasks[i].lane === 'done' ? 'Done' : myTasks[i].status || 'open',
+      priority:       myTasks[i].priority        || 'medium',
+      notes:          myTasks[i].notes           || '',
+      snoozed_until:  myTasks[i].snoozedUntil    || '',
+      completed_at:   myTasks[i].lane === 'done' ? new Date().toISOString().slice(0, 10) : '',
+      task_area:      myTasks[i].area            || '',
+      project:        myTasks[i].project         || '',
+      has_attachment: myTasks[i].has_attachment  || false,
+    });
+  }
+}
 function deleteMyTask(id){myTasks=myTasks.filter(t=>t.id!==id);saveMyTasks();renderKanban();closeTaskDetail();}
 function markMyTaskDone(id) {
   updateMyTask(id, { lane: 'done', status: 'done', completedAt: new Date().toISOString() });
