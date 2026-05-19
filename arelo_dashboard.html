@@ -1930,7 +1930,7 @@ button,input,select{font:inherit}
 
   <div class="sidebar-scroll">
     <div class="sidebar-section">
-      <div class="nav-item active" data-view="today" onclick="setView('today',this)" title="Today" style="flex-direction:column;align-items:flex-start;gap:2px;padding:10px 12px">
+      <div class="nav-item" data-view="today" onclick="setView('today',this)" title="Today" style="flex-direction:column;align-items:flex-start;gap:2px;padding:10px 12px">
         <div style="display:flex;align-items:center;gap:14px;width:100%">
           <div class="nav-icon" style="width:28px;height:28px;flex-shrink:0"><span style="font-size:16px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.3))">🏡</span></div>
           <div class="nav-label" style="flex:1;font-size:unset;color:unset">
@@ -1942,7 +1942,7 @@ button,input,select{font:inherit}
     </div>
 
     <div class="sidebar-section">
-      <div class="nav-item" data-view="focus" onclick="setView('focus',this)" title="Focus">
+      <div class="nav-item active" data-view="focus" onclick="setView('focus',this)" title="Focus">
         <div class="nav-icon"><span style="font-size:16px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.3))">🎯</span></div>
         <span class="nav-label">Focus</span>
         <span class="nav-count urgent" id="countFocus">—</span>
@@ -2722,7 +2722,9 @@ function boot() {
       startClock();
       setupUser();
       loadTasks();
-      loadMyTasksFromSupabase(); // async: merges Supabase truth over localStorage cache for cross-device sync
+      loadMyTasksFromSupabase();
+      const focusNav = document.querySelector('.nav-item[data-view="focus"]');
+      setView('focus', focusNav);
       const visitedKey = `arelo_${currentUser.email}_visited`;
       isFirstVisit = !localStorage.getItem(visitedKey);
       if (isFirstVisit) {
