@@ -3074,10 +3074,10 @@ function saveProfile() {
 
   // Save UI preferences
   savePreferencesToSheets({
-    dark_mode:           currentUser.dark_mode || 'no',
-    dashboard_filter:    currentUser.dashboard_filter || 'today',
-    onboarding_complete: 'yes',
-    account:             currentUser.email
+    dark_mode:            currentUser.dark_mode || 'no',
+    dashboard_filter:     currentUser.dashboard_filter || 'today',
+    onboarding_completed: 'yes',
+    account:              currentUser.email
   });
 
   // Save to System profile sheet
@@ -3940,7 +3940,7 @@ function renderPreferences() {
         <div class="pref-section-title">Inbox scan</div>
         <div class="pref-section-sub">Control when Arelo reads your inbox history.</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <button onclick="showToast('Quick Scan will run shortly')" style="padding:12px;border-radius:12px;border:1.5px solid var(--line);background:var(--page);font-size:13px;font-weight:700;color:var(--ink);cursor:pointer;text-align:left;font-family:inherit;transition:all .15s" onmouseover="this.style.borderColor='var(--teal)';this.style.background='var(--teal-soft)'" onmouseout="this.style.borderColor='var(--line)';this.style.background='var(--page)'">
+          <button onclick="refreshTasks()" style="padding:12px;border-radius:12px;border:1.5px solid var(--line);background:var(--page);font-size:13px;font-weight:700;color:var(--ink);cursor:pointer;text-align:left;font-family:inherit;transition:all .15s" onmouseover="this.style.borderColor='var(--teal)';this.style.background='var(--teal-soft)'" onmouseout="this.style.borderColor='var(--line)';this.style.background='var(--page)'">
             <div>⚡ Quick Scan</div>
             <div style="font-size:11px;color:var(--muted);font-weight:400;margin-top:3px">Unread emails now</div>
           </button>
@@ -5230,10 +5230,14 @@ function buildQwellContext() {
   const today    = open.filter(t => { const d = taskCalendarDate(t); if (!d) return false; const n = new Date(); n.setHours(0,0,0,0); d.setHours(0,0,0,0); return d.getTime() === n.getTime(); });
   const myOpen   = openUserTasks();
 
-  // Rich task list — top 12 most relevant
-  const richTasks = myOpen
+  // Rich task list — top 12 most relevant from both inbox and manual tasks
+  const allOpen = [
+    ...open.map(t => ({...t, dueDate: t.dueDate || t.due || t.qwellDue || ''})),
+    ...myOpen.filter(t => !open.find(o => o.id === t.id))
+  ];
+  const richTasks = allOpen
     .slice()
-    .sort((a,b) => taskPriorityScore(b) - taskPriorityScore(a))
+    .sort((a,b) => (typeof taskPriorityScore === 'function' ? taskPriorityScore(b) - taskPriorityScore(a) : 0))
     .slice(0, 12)
     .map(t => {
       const due = t.dueDate || t.due || t.qwellDue || '';
@@ -6583,6 +6587,10 @@ function updateMyTask(id, changes) {
       task_area:      myTasks[i].area            || '',
       project:        myTasks[i].project         || '',
       has_attachment: myTasks[i].has_attachment  || false,
+      title:          myTasks[i].title           || '',
+      due:            myTasks[i].dueDate         || '',
+      task_startdate: myTasks[i].startDate       || '',
+      assigned_to:    (myTasks[i].people||[]).map(p=>p.name||p.email).filter(Boolean).join(', '),
     });
   }
 }
@@ -7231,7 +7239,6 @@ function handleQwellAction(action){
     const { action: _a, ...rest } = fields;
     if(typeof saveSystemProfile==='function') saveSystemProfile(rest);
   }
-}
 }
 </script>
 
