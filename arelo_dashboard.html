@@ -3159,7 +3159,13 @@ async function loadTasks() {
       }
     );
     const rows = await res.json();
-    const filtered = rows.filter(r => r && r.title);
+    if (!res.ok || !Array.isArray(rows)) {
+  console.error('Could not load tasks from Supabase — using local cache', 'Error: Supabase', res.status);
+  // fall back to localStorage cache
+  processTasks(JSON.parse(localStorage.getItem('arelo_tasks_cache') || '[]'));
+  return;
+}
+const filtered = rows.filter(r => r && r.title);
     console.log('Arelo — tasks loaded:', filtered.length);
     processTasks(filtered);
   } catch(e) {
