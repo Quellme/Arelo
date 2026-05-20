@@ -3742,9 +3742,12 @@ function formatDue(due) {
     if (diff <= 7)  return `Due in ${diff} days`;
     return `Due ${date.toLocaleDateString('en-GB', {day:'numeric',month:'short'})}`;
   }
-  // Handle YYYY-MM-DD string
+  // Handle YYYY-MM-DD or full ISO timestamp (e.g. 2026-05-18T20:53:33.685Z)
+  // Strip time component so we compare local calendar dates, not UTC instants
   if (due.includes('-')) {
-    const date = new Date(due);
+    const dateStr = due.includes('T') ? due.split('T')[0] : due;
+    const [y, m, d] = dateStr.split('-').map(Number);
+    const date = new Date(y, m - 1, d); // local midnight — no timezone shift
     const today = new Date(); today.setHours(0,0,0,0);
     const diff = Math.round((date - today) / 86400000);
     if (diff < 0)  return `Overdue`;
@@ -5838,6 +5841,13 @@ function taskCalendarDate(task) {
   if (!raw || raw === 'NONE' || raw === 'null') return null;
   const num = parseInt(raw);
   if (!isNaN(num) && num > 40000) return new Date((num - 25569) * 86400000);
+  // Strip time component from ISO timestamps to avoid UTC-vs-local date shift
+  if (typeof raw === 'string' && raw.includes('-')) {
+    const dateStr = raw.includes('T') ? raw.split('T')[0] : raw;
+    const [y, m, d] = dateStr.split('-').map(Number);
+    const date = new Date(y, m - 1, d);
+    return isNaN(date.getTime()) ? null : date;
+  }
   const date = new Date(raw);
   return isNaN(date.getTime()) ? null : date;
 }
@@ -6977,11 +6987,18 @@ const COMPANION_SUGGESTIONS = [
 ];
 
 let companionInitialised = false;
+let companionHistory = []; // { role: 'user'|'assistant', content: string }[] — full thread sent on every message
 
 // Called from boot() after user and tasks load
 function initCompanionPanel() {
   if (companionInitialised) return;
   companionInitialised = true;
+
+  // Restore conversation history from localStorage (survives page refresh)
+  try {
+    const saved = localStorage.getItem('arelo_chat_history');
+    if (saved) companionHistory = JSON.parse(saved);
+  } catch(e) { companionHistory = []; }
 
   renderContextRibbon();
   renderCompanionGreeting();
@@ -7082,7 +7099,7 @@ function hideCompanionSuggestions() {
   if (el) el.innerHTML = '';
 }
 
-// Core send function — posts full context to Make webhook
+// Core send function — posts full context + conversation history to Make webhook
 async function sendCompanionMessage(prefill) {
   const input  = document.getElementById('cpInput');
   const send   = document.getElementById('cpSend');
@@ -7112,10 +7129,15 @@ async function sendCompanionMessage(prefill) {
     const gapFields = (typeof gapGetPayloadFields === 'function') ? gapGetPayloadFields() : {};
     if (typeof gapGetPayloadFields === 'function') _gap_pending = null;
 
+    // Enrich the latest user message with live task context (mirrors old single-message format)
+    companionHistory.push({ role: 'user', content: `${text}\n\nMy open tasks:\n${ctx.payload.tasks_context}` });
+    try { localStorage.setItem('arelo_chat_history', JSON.stringify(companionHistory)); } catch(e) {}
+    const historyToSend = companionHistory.slice(-20);
+
     const res = await fetch(WEBHOOK_AGENT, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...ctx.payload, message: text, ...gapFields })
+      body: JSON.stringify({ ...ctx.payload, message: text, history: historyToSend, ...gapFields })
     });
     const raw = await res.text();
     document.getElementById(thinkId)?.remove();
@@ -7131,6 +7153,10 @@ async function sendCompanionMessage(prefill) {
       .replace(/\{"action":"[^"]+[^}]*\}/g, '')
       .replace(/\n{3,}/g, '\n\n')
       .trim();
+
+    // Add assistant reply to history
+    companionHistory.push({ role: 'assistant', content: reply });
+    try { localStorage.setItem('arelo_chat_history', JSON.stringify(companionHistory)); } catch(e) {}
 
     msgs.innerHTML += `<div class="cp-msg qwell">${escHtml(displayReply)}</div>`;
     msgs.scrollTop = msgs.scrollHeight;
@@ -7151,6 +7177,9 @@ async function sendCompanionMessage(prefill) {
     if (typeof gapOnResponseRendered === 'function') gapOnResponseRendered();
 
   } catch(e) {
+    // Roll back user message from history on error — keeps history clean
+    companionHistory.pop();
+    try { localStorage.setItem('arelo_chat_history', JSON.stringify(companionHistory)); } catch(e) {}
     document.getElementById(thinkId)?.remove();
     msgs.innerHTML += `<div class="cp-msg qwell">I couldn't connect right now. Try again in a moment.</div>`;
     msgs.scrollTop = msgs.scrollHeight;
