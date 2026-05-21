@@ -320,39 +320,46 @@ button,input,select{font:inherit}
 
 /* ── Left-side Arelo companion panel — slides out from sidebar ── */
 .companion-panel {
-  position: fixed;
-  top: 0; left: 0; bottom: 0;
-  width: 340px;
-  background: var(--surface, rgba(255,255,255,0.06));
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  /* Sits in the flex row between sidebar and main — closed = zero width */
+  flex-shrink: 0;
+  width: 0;
+  overflow: hidden;
+  height: 100vh;
+  background: var(--navy-dark);
   border-right: 1px solid var(--line, rgba(255,255,255,0.09));
   display: flex;
   flex-direction: column;
-  z-index: 200;
-  transform: translateX(-340px);
-  transition: transform .28s cubic-bezier(.4,0,.2,1);
-  box-shadow: 4px 0 32px rgba(0,0,0,0.35);
+  transition: width .28s cubic-bezier(.4,0,.2,1);
+  position: relative;
+  z-index: 100;
 }
 .companion-panel.open {
-  transform: translateX(0);
+  width: 320px;
+  overflow: visible;
 }
-/* Sidebar shifts right when panel opens on desktop */
-@media (min-width: 769px) {
-  .sidebar { transition: margin-left .28s cubic-bezier(.4,0,.2,1); }
-  .app-shell.companion-open .sidebar { margin-left: 340px; }
-  .app-shell.companion-open .main { margin-left: 340px; }
+/* Inner wrapper — fixed width so content doesn't squish during animation */
+.companion-panel-inner {
+  width: 320px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
-/* Scrim for mobile */
+/* Scrim for mobile only */
 .companion-scrim {
   display: none;
-  position: fixed; inset: 0; z-index: 199;
+  position: fixed; inset: 0; z-index: 99;
   background: rgba(0,0,0,0.4);
 }
-.app-shell.companion-open .companion-scrim { display: block; }
-@media (min-width: 769px) {
-  .app-shell.companion-open .companion-scrim { display: none; }
-}
+@media (max-width: 768px) {
+  .companion-panel {
+    position: fixed;
+    top: 0; left: var(--sidebar-collapsed, 64px); bottom: 0;
+    width: 0; height: auto;
+    z-index: 200;
+  }
+  .companion-panel.open { width: 300px; overflow: hidden; }
+  }
 
 /* ── Right column: the Arelo companion panel ── */
 
@@ -2528,6 +2535,7 @@ button,input,select{font:inherit}
 
   <!-- LEFT-SIDE: Arelo companion panel -->
   <div class="companion-panel" id="companionPanel">
+    <div class="companion-panel-inner">
 
     <!-- Header -->
     <div class="cp-header">
@@ -2569,7 +2577,8 @@ button,input,select{font:inherit}
         Send
       </button>
     </div>
-  </div>
+    </div><!-- end companion-panel-inner -->
+  </div><!-- end companion-panel -->
 
   <!-- Companion collapsed stub removed — orb lives in sidebar nav -->
 
@@ -8888,15 +8897,12 @@ async function sendCompanionMessage(prefill) {
 // Collapse/expand the companion panel to a thin strip
 function toggleCompanionCollapse() {
   const panel = document.getElementById('companionPanel');
-  const shell = document.getElementById('appShell');
-  if (!panel || !shell) return;
+  if (!panel) return;
   const isOpen = panel.classList.contains('open');
   if (isOpen) {
     panel.classList.remove('open');
-    shell.classList.remove('companion-open');
   } else {
     panel.classList.add('open');
-    shell.classList.add('companion-open');
     setTimeout(() => document.getElementById('cpInput')?.focus(), 280);
   }
   localStorage.setItem('arelo_companion_collapsed', isOpen ? '1' : '0');
@@ -8916,13 +8922,11 @@ function toggleCompanionMobile() {
 
 // Restore collapse state from localStorage
 function restoreCompanionState() {
-  // Panel starts closed (off-screen left); only open if user had it open last session
-  const wasClosed = localStorage.getItem('arelo_companion_collapsed') !== '0';
-  if (!wasClosed) {
+  // Panel starts closed; only re-open if user explicitly had it open last session
+  const wasOpen = localStorage.getItem('arelo_companion_collapsed') === '0';
+  if (wasOpen) {
     const panel = document.getElementById('companionPanel');
-    const shell = document.getElementById('appShell');
     if (panel) panel.classList.add('open');
-    if (shell) shell.classList.add('companion-open');
   }
 }
 
