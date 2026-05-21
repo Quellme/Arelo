@@ -249,7 +249,7 @@ button,input,select{font:inherit}
   transition:flex .28s cubic-bezier(.22,1,.36,1);
 }
 .main.drawer-open { flex:1; }
-
+.sidebar.collapsed ~ .main { flex:1; }
 
 /* ── Left column: the "background" dashboard ── */
 .main-bg {
@@ -318,53 +318,22 @@ button,input,select{font:inherit}
   scrollbar-color:var(--navy-line) transparent;
 }
 
-/* ── Left-side Arelo companion panel — slides out from sidebar ── */
-.companion-panel {
-  /* Sits in the flex row between sidebar and main — closed = zero width */
-  flex-shrink: 0;
-  width: 0;
-  overflow: hidden;
-  height: 100vh;
-  background: var(--navy-dark);
-  border-right: 1px solid var(--line, rgba(255,255,255,0.09));
-  display: flex;
-  flex-direction: column;
-  transition: width .28s cubic-bezier(.4,0,.2,1);
-  position: relative;
-  z-index: 100;
-}
-.companion-panel.open {
-  width: 320px;
-  overflow: visible;
-}
-/* Inner wrapper — fixed width so content doesn't squish during animation */
-.companion-panel-inner {
-  width: 320px;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-/* Scrim for mobile only */
-.companion-scrim {
-  display: none;
-  position: fixed; inset: 0; z-index: 99;
-  background: rgba(0,0,0,0.4);
-}
-@media (max-width: 768px) {
-  .companion-panel {
-    position: fixed;
-    top: 0; left: var(--sidebar-collapsed, 64px); bottom: 0;
-    width: 0; height: auto;
-    z-index: 200;
-  }
-  .companion-panel.open { width: 300px; overflow: hidden; }
-  }
-
 /* ── Right column: the Arelo companion panel ── */
-
+.companion-panel {
+  width:var(--companion-w);
+  flex-shrink:0;
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  background:var(--surface);
+  border-right:1px solid var(--line);
+  box-shadow:4px 0 24px rgba(30,46,62,.06);
+  position:relative;
+  z-index:5;
+  transition:width .28s cubic-bezier(.22,1,.36,1);
+}
 @media(min-width:1400px){
-  
+  .companion-panel { width:var(--companion-w-wide); }
 }
 
 /* Companion panel header */
@@ -566,8 +535,16 @@ button,input,select{font:inherit}
 .cp-send:disabled { opacity:.35;pointer-events:none; }
 
 /* Companion panel collapsed state — icon strip only, expand on hover/click */
-
-
+.companion-panel.collapsed {
+  width:0;
+  overflow:hidden;
+  border:none;
+}
+.companion-panel.collapsed .cp-header,
+.companion-panel.collapsed .cp-context-ribbon,
+.companion-panel.collapsed .cp-messages,
+.companion-panel.collapsed .cp-suggestions,
+.companion-panel.collapsed .cp-input-area { display:none; }
 .companion-panel.collapsed .cp-collapsed-tab {
   display:flex;flex-direction:column;align-items:center;
   padding:20px 0;gap:16px;
@@ -583,10 +560,22 @@ button,input,select{font:inherit}
 
 /* Responsive: below 900px, companion slides over as overlay */
 @media(max-width:900px){
-  
-  
+  .companion-panel {
+    position:fixed;left:var(--sidebar-collapsed);top:0;bottom:0;
+    width:min(var(--companion-w), calc(100vw - 60px));
+    z-index:200;
+    overflow:hidden;
+    transition:width .3s cubic-bezier(.22,1,.36,1);
+    box-shadow:var(--shadow-xl);
+  }
+  .companion-panel.mobile-open {
+    width:min(var(--companion-w), calc(100vw - 60px));
+  }
   .main-bg { width:100%; }
-  
+  .cp-mobile-toggle {
+    display:flex !important;
+  }
+}
 .cp-mobile-toggle {
   display:none;
   position:fixed;bottom:24px;right:20px;z-index:199;
@@ -622,7 +611,11 @@ button,input,select{font:inherit}
   transform:none;
   transition:opacity .18s ease, transform .18s ease;
 }
-
+#companionPanel.collapsed {
+  opacity:0;
+  pointer-events:none;
+  transform:translateY(16px) scale(.97);
+}
 #companionPanel .cp-header {
   padding:24px 24px 18px;
   background:var(--surface);
@@ -2457,6 +2450,64 @@ button,input,select{font:inherit}
   </div>
 </aside>
 
+  <!-- LEFT: Arelo companion panel — slides open from sidebar -->
+  <div class="companion-panel collapsed" id="companionPanel">
+
+    <!-- Header -->
+    <div class="cp-header">
+      <div class="cp-orb"></div>
+      <div class="cp-identity">
+        <div class="cp-name">Arelo</div>
+        <div class="cp-status">
+          <div class="cp-status-dot"></div>
+          <span id="cpStatusText">Your personal AI</span>
+        </div>
+      </div>
+      <button onclick="toggleCompanionCollapse()" title="Minimise Arelo"
+        style="width:28px;height:28px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--muted);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0"
+        onmouseover="this.style.background='var(--navy-soft)'" onmouseout="this.style.background='transparent'">&times;</button>
+    </div>
+
+    <!-- Context ribbon — what Arelo knows about you -->
+    <div class="cp-context-ribbon" id="cpContextRibbon">
+      <!-- Populated by JS after user loads -->
+      <span class="cp-context-tag" style="opacity:.5">Loading…</span>
+    </div>
+
+    <!-- Messages -->
+    <div class="cp-messages" id="cpMessages">
+      <div class="cp-msg qwell" id="cpGreeting">Hello. Loading your space…</div>
+    </div>
+
+    <!-- Contextual quick-action suggestions -->
+    <div class="cp-suggestions" id="cpSuggestions"></div>
+
+    <!-- Input -->
+    <div class="cp-input-area">
+      <textarea class="cp-input" id="cpInput" rows="1"
+        placeholder="Ask Arelo anything…"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendCompanionMessage()}"
+        oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px';document.getElementById('appShell').classList.toggle('companion-active',this.value.length>0)"
+        ></textarea>
+      <button class="cp-send" id="cpSend" onclick="sendCompanionMessage()" title="Send">
+        Send
+      </button>
+    </div>
+  </div>
+
+  <!-- Collapsed tab (visible when panel is collapsed) -->
+  <div class="companion-panel collapsed" id="companionCollapsed" style="display:none">
+    <div class="cp-collapsed-tab">
+      <button class="cp-expand-btn" onclick="toggleCompanionCollapse()" title="Open Arelo"></button>
+    </div>
+  </div>
+
+  <!-- Mobile toggle button (hidden on desktop) -->
+  <button class="cp-mobile-toggle" id="cpMobileToggle" onclick="toggleCompanionCollapse()" title="Open Arelo">
+    <div class="orb-inner"></div>
+  </button>
+
+
 <!-- ═══════════════════════════════════════
      MAIN — two column layout
      .main-bg  = left: dashboard (background)
@@ -2530,57 +2581,6 @@ button,input,select{font:inherit}
   </div>
   </div><!-- end .main-bg -->
 
-  <!-- Scrim (mobile backdrop when panel is open) -->
-  <div class="companion-scrim" id="companionScrim" onclick="toggleCompanionCollapse()"></div>
-
-  <!-- LEFT-SIDE: Arelo companion panel -->
-  <div class="companion-panel" id="companionPanel">
-    <div class="companion-panel-inner">
-
-    <!-- Header -->
-    <div class="cp-header">
-      <div class="cp-orb"></div>
-      <div class="cp-identity">
-        <div class="cp-name">Arelo</div>
-        <div class="cp-status">
-          <div class="cp-status-dot"></div>
-          <span id="cpStatusText">Your personal AI</span>
-        </div>
-      </div>
-      <button onclick="toggleCompanionCollapse()" title="Minimise Arelo"
-        style="width:28px;height:28px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--muted);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0"
-        onmouseover="this.style.background='var(--navy-soft)'" onmouseout="this.style.background='transparent'">&times;</button>
-    </div>
-
-    <!-- Context ribbon — what Arelo knows about you -->
-    <div class="cp-context-ribbon" id="cpContextRibbon">
-      <!-- Populated by JS after user loads -->
-      <span class="cp-context-tag" style="opacity:.5">Loading…</span>
-    </div>
-
-    <!-- Messages -->
-    <div class="cp-messages" id="cpMessages">
-      <div class="cp-msg qwell" id="cpGreeting">Hello. Loading your space…</div>
-    </div>
-
-    <!-- Contextual quick-action suggestions -->
-    <div class="cp-suggestions" id="cpSuggestions"></div>
-
-    <!-- Input -->
-    <div class="cp-input-area">
-      <textarea class="cp-input" id="cpInput" rows="1"
-        placeholder="Ask Arelo anything…"
-        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendCompanionMessage()}"
-        oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px';document.getElementById('appShell').classList.toggle('companion-active',this.value.length>0)"
-        ></textarea>
-      <button class="cp-send" id="cpSend" onclick="sendCompanionMessage()" title="Send">
-        Send
-      </button>
-    </div>
-    </div><!-- end companion-panel-inner -->
-  </div><!-- end companion-panel -->
-
-  <!-- Companion collapsed stub removed — orb lives in sidebar nav -->
 
 </main>
 
@@ -2650,9 +2650,9 @@ const WEBHOOK_SAVE_TASK     = 'https://hook.eu1.make.com/f1w2yg3wbh78c8plwgauqgw
 const WEBHOOK_AGENT         = 'https://hook.eu1.make.com/3y7r08yb0hx88qgon2db6vfpc4amssi6';
 const WEBHOOK_UPDATE_TASK   = 'https://hook.eu1.make.com/eiobrxyvmpunkmr5gy0pnekws0uugnt0';
 const WEBHOOK_ON_DEMAND_SCAN = 'https://hook.eu1.make.com/rahyfy57nypqpqe5wypqug52vw70y3b9';
-const WEBHOOK_SAVE_NOTE     = 'https://hook.eu1.make.com/YOUR_SAVE_NOTE_WEBHOOK_URL';   // Arelo — Save Note
-const WEBHOOK_GET_NOTES     = 'https://hook.eu1.make.com/YOUR_GET_NOTES_WEBHOOK_URL';   // Arelo — Get Notes
-const WEBHOOK_GET_CALENDAR  = 'https://hook.eu1.make.com/YOUR_GET_CALENDAR_WEBHOOK_URL'; // Arelo — Get Calendar
+const WEBHOOK_SAVE_NOTE     = 'https://hook.eu1.make.com/4ph4olkhs7qek8htg6f0st46gsqxh78k';
+const WEBHOOK_GET_NOTES     = 'https://hook.eu1.make.com/3pbfuj5lg6w6q0pc1ee1nfa2cwz9jxcs';
+const WEBHOOK_GET_CALENDAR  = 'https://hook.eu1.make.com/fgph7t4puycjwgyardmutp8k3z3ij1gc';
 
 // ── SUPABASE DIRECT ACCESS (for cross-device task boot) ──────────────────────
 const SUPABASE_URL      = 'https://cfnuvhvncoumakrogrdb.supabase.co';
@@ -6184,7 +6184,7 @@ function renderBacklogItem(t, isMemory) {
 function sortBacklogWithArelo() {
   // Open companion and ask it to sort the backlog
   const panel = document.getElementById('companionPanel');
-  if (panel && !panel.classList.contains('open')) toggleCompanionCollapse();
+  if (panel && panel.classList.contains('collapsed')) toggleCompanionCollapse();
   setTimeout(() => {
     const input = document.getElementById('cpInput');
     if (input) { input.value = 'Can you help me sort through my backlog and decide which items to tackle first?'; input.focus(); }
@@ -6219,8 +6219,8 @@ function toggleNavSection(key) {
 function openAreloAgent() {
   const panel = document.getElementById('companionPanel');
   if (!panel) return;
-  if (!panel.classList.contains('open')) toggleCompanionCollapse();
-  else setTimeout(() => document.getElementById('cpInput')?.focus(), 50);
+  if (panel.classList.contains('collapsed')) toggleCompanionCollapse();
+  setTimeout(() => document.getElementById('cpInput')?.focus(), 200);
 }
 
 /* ══════════════════════════════════════════
@@ -6650,37 +6650,21 @@ function loadCalEvents() {
 function saveCalEvents() {
   try { localStorage.setItem('arelo_cal_events', JSON.stringify(_calEvents)); } catch(e) {}
 }
-
 let _gcalFetching = false;
 async function refreshGcalEvents(dateFrom, dateTo) {
-  if (!currentUser?.email) return;
-  if (!WEBHOOK_GET_CALENDAR || WEBHOOK_GET_CALENDAR.includes('YOUR_')) return;
-  if (_gcalFetching) return;
-  _gcalFetching = true;
+  if (!currentUser?.email || !WEBHOOK_GET_CALENDAR || WEBHOOK_GET_CALENDAR.includes('YOUR_')) return;
+  if (_gcalFetching) return; _gcalFetching = true;
   try {
     const res = await fetch(WEBHOOK_GET_CALENDAR, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        account:   currentUser.email,
-        date_from: dateFrom,
-        date_to:   dateTo
-      })
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ account: currentUser.email, date_from: dateFrom, date_to: dateTo })
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     const items = data.events || (Array.isArray(data) ? data : []);
     if (items.length) {
-      _gcalEvents = items.map(e => ({
-        id:     e.id     || 'gcal_' + Math.random().toString(36).slice(2),
-        title:  e.title  || e.summary || '(No title)',
-        date:   e.date   || (e.start?.date) || (e.start?.dateTime?.slice(0,10)) || '',
-        time:   e.time   || (e.start?.dateTime ? new Date(e.start.dateTime).toTimeString().slice(0,5) : ''),
-        allDay: e.allDay ?? !e.start?.dateTime,
-        color:  e.color  || '#2563eb',
-        source: 'google'
-      }));
-      renderCalendarView(); // re-render with live events
+      _gcalEvents = items.map(e => ({ id: e.id||'gcal_'+Math.random().toString(36).slice(2), title: e.title||e.summary||'(No title)', date: e.date||(e.start?.date)||(e.start?.dateTime?.slice(0,10))||'', time: e.time||(e.start?.dateTime ? new Date(e.start.dateTime).toTimeString().slice(0,5) : ''), allDay: e.allDay??!e.start?.dateTime, color:'#2563eb', source:'google' }));
+      renderCalendarView();
     }
   } catch(e) { console.warn('GCal fetch failed:', e); }
   finally { _gcalFetching = false; }
@@ -7105,55 +7089,35 @@ function notesKey() { return `arelo_${currentUser?.email||'guest'}_notes`; }
 function loadNotes() {
   try { const r = localStorage.getItem(notesKey()); _notes = r ? JSON.parse(r) : []; } catch(e) { _notes = []; }
 }
-
 async function loadNotesFromSupabase() {
-  if (!currentUser?.email) return;
-  if (!WEBHOOK_GET_NOTES || WEBHOOK_GET_NOTES.includes('YOUR_')) return;
+  if (!currentUser?.email || !WEBHOOK_GET_NOTES || WEBHOOK_GET_NOTES.includes('YOUR_')) return;
   try {
     const res = await fetch(WEBHOOK_GET_NOTES, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ account: currentUser.email })
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const remote = await res.json();
     if (Array.isArray(remote) && remote.length) {
-      // Normalise field names (Supabase uses note_id, created_at, updated_at)
-      _notes = remote.map(n => ({
-        id:      n.note_id || n.id,
-        title:   n.title   || '',
-        content: n.content || '',
-        area:    n.area    || '',
-        created: n.created_at || n.created || '',
-        updated: n.updated_at || n.updated || ''
-      }));
+      _notes = remote.map(n => ({ id: n.note_id||n.id, title: n.title||'', content: n.content||'', area: n.area||'', created: n.created_at||n.created||'', updated: n.updated_at||n.updated||'' }));
       try { localStorage.setItem(notesKey(), JSON.stringify(_notes)); } catch(e) {}
       updateNotesSidebar();
-      // Re-render notes view if currently visible
       const area = document.getElementById('taskArea');
-      if (area && document.getElementById('navNotes')?.classList.contains('active')) {
-        renderNotesView(area);
-      }
+      if (area && document.getElementById('navNotes')?.classList.contains('active')) renderNotesView(area);
     }
   } catch(e) { console.warn('Notes remote load failed:', e); }
 }
 function saveNotes(changedNote) {
   try { localStorage.setItem(notesKey(), JSON.stringify(_notes)); } catch(e) {}
   updateNotesSidebar();
-  // Sync changed note to Supabase via Make
   if (changedNote && currentUser?.email && WEBHOOK_SAVE_NOTE && !WEBHOOK_SAVE_NOTE.includes('YOUR_')) {
     fetch(WEBHOOK_SAVE_NOTE, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        note_id:    changedNote.id,
-        account:    currentUser.email,
-        email:      currentUser.email,
-        title:      changedNote.title      || '',
-        content:    changedNote.content    || '',
-        area:       changedNote.area       || '',
-        created_at: changedNote.created    || new Date().toISOString(),
-        updated_at: changedNote.updated    || new Date().toISOString()
+        note_id: changedNote.id, account: currentUser.email, email: currentUser.email,
+        title: changedNote.title || '', content: changedNote.content || '',
+        area: changedNote.area || '', created_at: changedNote.created || new Date().toISOString(),
+        updated_at: changedNote.updated || new Date().toISOString()
       })
     }).catch(e => console.warn('Note sync failed:', e));
   }
@@ -7259,12 +7223,12 @@ function saveNoteModal() {
   if (!title) { showToast('Please enter a title'); return; }
   if (_editingNoteId) {
     const i = _notes.findIndex(n => n.id === _editingNoteId);
-    if (i >= 0) { _notes[i] = { ..._notes[i], title, content, area, updated: new Date().toISOString() }; }
+    if (i >= 0) _notes[i] = { ..._notes[i], title, content, area, updated: new Date().toISOString() };
   } else {
     _notes.unshift({ id: 'note_' + Date.now(), title, content, area, created: new Date().toISOString(), updated: new Date().toISOString() });
   }
-  const saved = _editingNoteId ? _notes.find(n => n.id === _editingNoteId) : _notes[0];
-  saveNotes(saved);
+  const _saved = _editingNoteId ? _notes.find(n => n.id === _editingNoteId) : _notes[0];
+  saveNotes(_saved);
   document.getElementById('noteModal').style.display = 'none';
   renderNotesView();
   showToast(_editingNoteId ? 'Note updated ✓' : 'Note added ✓');
@@ -8898,15 +8862,11 @@ async function sendCompanionMessage(prefill) {
 function toggleCompanionCollapse() {
   const panel = document.getElementById('companionPanel');
   if (!panel) return;
-  const isOpen = panel.classList.contains('open');
-  if (isOpen) {
-    panel.classList.remove('open');
-  } else {
-    panel.classList.add('open');
-    setTimeout(() => document.getElementById('cpInput')?.focus(), 280);
-  }
-  localStorage.setItem('arelo_companion_collapsed', isOpen ? '1' : '0');
-  if (currentUser?.email) savePreferencesToSheets({ companion_collapsed: isOpen ? 'yes' : 'no' });
+  panel.classList.toggle('collapsed');
+  const btn = panel.querySelector('[onclick="toggleCompanionCollapse()"]');
+  if (btn) btn.innerHTML = '&times;';
+  localStorage.setItem('arelo_companion_collapsed', panel.classList.contains('collapsed') ? '1' : '0');
+  if (currentUser?.email) savePreferencesToSheets({ companion_collapsed: panel.classList.contains('collapsed') ? 'yes' : 'no' });
 }
 
 // Mobile: slide the panel in/out as overlay
@@ -8922,11 +8882,14 @@ function toggleCompanionMobile() {
 
 // Restore collapse state from localStorage
 function restoreCompanionState() {
-  // Panel starts closed; only re-open if user explicitly had it open last session
+  const panel = document.getElementById('companionPanel');
+  if (!panel) return;
+  // Start collapsed (orb in sidebar); only open if user had it open last session
   const wasOpen = localStorage.getItem('arelo_companion_collapsed') === '0';
   if (wasOpen) {
-    const panel = document.getElementById('companionPanel');
-    if (panel) panel.classList.add('open');
+    panel.classList.remove('collapsed');
+  } else {
+    panel.classList.add('collapsed');
   }
 }
 
