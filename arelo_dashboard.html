@@ -6074,7 +6074,7 @@ function renderFlowTaskCard(t) {
   const areaColors = {work:'#eef2f7|#3d5a7a',people:'#f8f0f8|#6d3a6d',home:'#f0f8f0|#2d6a4f',admin:'#fdf8f0|#7a5c2a',waiting:'#f5f5f5|#666',later:'#f5f5f5|#888'};
   const [bg, col] = (areaColors[area] || '#eef2f7|#3d5a7a').split('|');
   const isUrgent = t.priority === 'high';
-  const dueLabel = t.dueDate ? formatRelativeDate(t.dueDate) : '';
+  const dueLabel = t.dueDate ? formatDue(t.dueDate) : (t.due ? formatDue(t.due) : '');
   const overdue = t.dueDate && new Date(t.dueDate) < new Date() && t.lane !== 'done';
   const noteChip = t.notes ? `<span style="font-size:10px;background:var(--teal-soft);color:var(--teal-dark);padding:2px 7px;border-radius:6px;font-weight:700">📋 Note</span>` : '';
   return `<div class="task-card" onclick="openTaskDetail('${t.id}')" draggable="true"
