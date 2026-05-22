@@ -3855,6 +3855,10 @@ function renderChronological(tasks, done) {
             ${t.sender ? `<span class="task-card-source" style="margin-bottom:0">${escHtml(t.sender)}</span>` : ''}
             <span style="margin-left:auto;display:flex;align-items:center;gap:6px">${t.has_attachment ? `<span title="Has attachment" style="font-size:13px;opacity:.6">📎</span>` : ''}${badge}${createdStr ? `<span style="margin-left:4px">${createdStr}</span>` : ''}</span>
           </div>
+          ${(t.created || t.account) ? `<div style="display:flex;align-items:center;gap:10px;margin-bottom:3px">
+            ${t.created ? `<span style="font-size:10px;color:var(--muted);opacity:.7">📅 ${fmtDate(t.created)}</span>` : ''}
+            ${t.account ? `<span style="font-size:10px;color:var(--muted);opacity:.7;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:140px" title="${escHtml(t.account)}">📬 ${escHtml(t.account)}</span>` : ''}
+          </div>` : ''}
           <div class="task-card-title">${escHtml(t.title)}</div>
         </div>
       </div>`;
@@ -4205,6 +4209,10 @@ function cardHTML(t, isDone) {
           ${t.sender?`<span class="task-card-source" style="margin-bottom:0;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(t.sender)}</span>`:'<span style="flex:1"></span>'}
           ${topRightStr}
         </div>
+        ${(t.created || t.account) ? `<div style="display:flex;align-items:center;gap:10px;margin-bottom:3px">
+          ${t.created ? `<span style="font-size:10px;color:var(--muted);opacity:.7">📅 ${fmtDate(t.created)}</span>` : ''}
+          ${t.account ? `<span style="font-size:10px;color:var(--muted);opacity:.7;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:140px" title="${escHtml(t.account)}">📬 ${escHtml(t.account)}</span>` : ''}
+        </div>` : ''}
         <div class="task-card-title">${escHtml(t.title)}</div>
         ${chips.length?`<div class="task-card-chips">${chips.join('')}</div>`:''}
       </div>
