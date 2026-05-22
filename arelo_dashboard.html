@@ -4099,16 +4099,16 @@ function renderView(view) {
       '<div style="display:flex;align-items:center;gap:14px;margin-bottom:22px;padding:18px 20px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg)">'
       + '<div class="qwell-companion-orb" style="width:40px;height:40px;flex-shrink:0"></div>'
       + '<div style="flex:1">'
-      + '<div style="font-size:15px;font-weight:800;color:var(--navy);margin-bottom:3px">Here's what I've been doing</div>'
-      + '<div style="font-size:12px;color:var(--muted);line-height:1.5">Nothing is deleted. See what's waiting for you, what I handled quietly, and what's done.</div>'
+      + '<div style="font-size:15px;font-weight:800;color:var(--navy);margin-bottom:3px">Here&#39;s what I&#39;ve been doing</div>'
+      + '<div style="font-size:12px;color:var(--muted);line-height:1.5">Nothing is deleted. See what&#39;s waiting for you, what I handled quietly, and what&#39;s done.</div>'
       + '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">'
       + '<span style="padding:4px 10px;border-radius:999px;background:var(--teal-soft);border:1px solid rgba(91,191,191,.3);font-size:11px;font-weight:700;color:var(--teal-dark)">' + waiting.length + ' waiting for you</span>'
       + '<span style="padding:4px 10px;border-radius:999px;background:var(--navy-soft);border:1px solid var(--navy-line);font-size:11px;font-weight:700;color:var(--muted)">' + handled.length + ' handled quietly</span>'
       + '<span style="padding:4px 10px;border-radius:999px;background:var(--navy-soft);border:1px solid var(--navy-line);font-size:11px;font-weight:700;color:var(--muted)">' + done.length + ' done</span>'
       + '</div></div></div>'
-      + trustGroup('⚡ Waiting for you (Focus)', waiting, 'Ready when you are — not all at once.', 'waiting')
+      + trustGroup('⚡ Waiting for you (Focus)', waiting, 'Ready when you are - not all at once.', 'waiting')
       + trustGroup('🤫 Handled quietly', handled, 'Filtered, resolved, or treated as low-risk noise. You can review anything here.', 'handled')
-      + trustGroup('✓ Done', done, 'A short trail of what\'s been finished recently.', 'done');
+      + trustGroup('✓ Done', done, 'A short trail of what&#39;s been finished recently.', 'done');
     return;
 
   if (view === 'all') {
