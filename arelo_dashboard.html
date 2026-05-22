@@ -4110,6 +4110,7 @@ function renderView(view) {
       + trustGroup('🤫 Handled quietly', handled, 'Filtered, resolved, or treated as low-risk noise. You can review anything here.', 'handled')
       + trustGroup('✓ Done', done, 'A short trail of what&#39;s been finished recently.', 'done');
     return;
+  }
 
   if (view === 'all') {
     area.innerHTML = [
