@@ -571,7 +571,7 @@ button,input,select{font:inherit}
 .cp-collapsed-tab { display:none; }
 .cp-expand-btn {
   width:36px;height:36px;border-radius:50%;
-  background:radial-gradient(circle at 35% 35%,#a8e6e6,#5bbfbf 60%,#2a8a8a);
+  background:radial-gradient(circle at 35% 35%,#1a5c5c,#2a8080 40%,#a8e6e6);
   border:none;cursor:pointer;
   box-shadow:0 0 12px rgba(91,191,191,.4);
   animation:orbFloat 4s ease-in-out infinite;
@@ -596,6 +596,7 @@ button,input,select{font:inherit}
 }
 .cp-mobile-toggle {
   display:none !important;
+  visibility:hidden;
   position:fixed;bottom:24px;right:20px;z-index:199;
   width:52px;height:52px;border-radius:50%;
   background:var(--navy);border:none;cursor:pointer;
@@ -604,7 +605,7 @@ button,input,select{font:inherit}
 }
 .cp-mobile-toggle .orb-inner {
   width:32px;height:32px;border-radius:50%;
-  background:radial-gradient(circle at 35% 35%,#a8e6e6,#5bbfbf 60%,#2a8a8a);
+  background:radial-gradient(circle at 35% 35%,#1a5c5c,#2a8080 40%,#a8e6e6);
   box-shadow:0 0 12px rgba(91,191,191,.6);
 }
 
@@ -1114,7 +1115,7 @@ button,input,select{font:inherit}
 }
 .cp-expand-btn {
   width:36px;height:36px;border-radius:50%;
-  background:radial-gradient(circle at 35% 35%,#a8e6e6,#5bbfbf 60%,#2a8a8a);
+  background:radial-gradient(circle at 35% 35%,#1a5c5c,#2a8080 40%,#a8e6e6);
   border:none;cursor:pointer;
   box-shadow:0 0 12px rgba(91,191,191,.4);
   animation:orbFloat 4s ease-in-out infinite;
@@ -2118,7 +2119,7 @@ button,input,select{font:inherit}
 .nav-agent-orb {
   display:flex; align-items:center; justify-content:center;
   width:30px; height:30px; border-radius:50%;
-  background:radial-gradient(circle at 35% 35%, #fff 0%, #b8e8e8 35%, #5bbfbf 70%, #2a8080 100%);
+  background:radial-gradient(circle at 35% 35%, #1a5c5c 0%, #2a8080 30%, #5bbfbf 65%, #c8f0f0 100%);
   box-shadow:0 0 10px var(--teal-glow);
   animation:orbPulse 3s ease-in-out infinite alternate;
   flex-shrink:0; cursor:pointer; border:none;
@@ -2399,64 +2400,10 @@ button,input,select{font:inherit}
 
   <div class="sidebar-upcoming">
 
-    <!-- Settings panel -->
-    <div id="settingsPanel" style="padding:4px 12px 10px">
-      <!-- Collapsible header -->
-      <button onclick="toggleDisplaySettings()" id="displayToggleBtn"
-        style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:6px 0;background:none;border:none;cursor:pointer;color:rgba(255,255,255,.3);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;font-family:inherit">
-        <span>Display</span>
-        <span id="displayToggleArrow" style="font-size:10px;transition:transform .2s">▾</span>
-      </button>
 
-      <!-- Collapsible content -->
-      <div id="displaySettingsBody" style="display:none;overflow:hidden">
-        <!-- Font dropdown -->
-        <div style="margin-bottom:8px;margin-top:4px">
-          <label style="font-size:11px;color:rgba(255,255,255,.45);display:block;margin-bottom:4px">Font</label>
-          <select id="fontSelect" onchange="setFont(this.value)"
-            style="width:100%;padding:7px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:#2c4260;color:#fff;font-size:12px;cursor:pointer;outline:none">
-            <option value="default" style="background:#2c4260;color:#fff">Standard</option>
-            <option value="nunito" style="background:#2c4260;color:#fff">Rounded (Nunito)</option>
-            <option value="dyslexic" style="background:#2c4260;color:#fff">Dyslexia-friendly</option>
-            <option value="bionic" style="background:#2c4260;color:#fff">Bionic Reading</option>
-          </select>
-        </div>
-
-        <!-- Size dropdown -->
-        <div style="margin-bottom:10px">
-          <label style="font-size:11px;color:rgba(255,255,255,.45);display:block;margin-bottom:4px">Text size</label>
-          <select id="sizeSelect" onchange="setTextSize(parseInt(this.value))"
-            style="width:100%;padding:7px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:#2c4260;color:#fff;font-size:12px;cursor:pointer;outline:none">
-            <option value="0" style="background:#2c4260;color:#fff">Small</option>
-            <option value="1" selected style="background:#2c4260;color:#fff">Medium</option>
-            <option value="2" style="background:#2c4260;color:#fff">Large</option>
-          </select>
-        </div>
-
-        <!-- Theme -->
-        <div style="display:flex;gap:6px">
-          <button onclick="setTheme('light')" id="theme-light"
-            style="flex:1;padding:7px 6px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:rgba(255,255,255,.75);font-size:11px;font-weight:700;cursor:pointer;transition:all .15s">
-            ☀ Light
-          </button>
-          <button onclick="setTheme('dark')" id="theme-dark"
-            style="flex:1;padding:7px 6px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:rgba(255,255,255,.75);font-size:11px;font-weight:700;cursor:pointer;transition:all .15s">
-            ◑ Dark
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div class="sidebar-divider" style="margin:4px 10px 6px"></div>
 
     <div style="display:flex;align-items:center;gap:6px;padding:4px 2px">
-      <button onclick="setView('preferences',null)" title="Preferences"
-        style="flex:1;display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;background:transparent;border:none;color:rgba(255,255,255,.5);font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;font-family:inherit;text-align:left"
-        onmouseover="this.style.background='rgba(255,255,255,.08)';this.style.color='rgba(255,255,255,.8)'"
-        onmouseout="this.style.background='transparent';this.style.color='rgba(255,255,255,.5)'">
-        <span style="font-size:15px">⚙</span>
-        <span id="prefNavLabel">Preferences</span>
-      </button>
+
       <button onclick="signOut()" title="Sign out"
         style="width:32px;height:32px;border-radius:8px;background:transparent;border:none;color:rgba(255,255,255,.4);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0"
         onmouseover="this.style.background='rgba(255,255,255,.08)';this.style.color='rgba(255,255,255,.7)'"
@@ -2521,9 +2468,7 @@ button,input,select{font:inherit}
   </div>
 
   <!-- Mobile toggle button (hidden on desktop) -->
-  <button class="cp-mobile-toggle" id="cpMobileToggle" onclick="toggleCompanionCollapse()" title="Open Arelo">
-    <div class="orb-inner"></div>
-  </button>
+
 
 
 <!-- ═══════════════════════════════════════
