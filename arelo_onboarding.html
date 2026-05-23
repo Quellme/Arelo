@@ -248,7 +248,7 @@ button,input,select{font:inherit}
   height:100vh; overflow:hidden;
   transition:flex .28s cubic-bezier(.22,1,.36,1);
 }
-.main.drawer-open { flex:0 0 calc(100vw - var(--sidebar-w) - 380px); }
+.main.drawer-open { flex:1; }
 .sidebar.collapsed ~ .main { flex:1; }
 
 /* ── Left column: the "background" dashboard ── */
@@ -309,7 +309,26 @@ button,input,select{font:inherit}
   font-size:12px;font-weight:700;color:#fff;
   cursor:pointer;letter-spacing:.02em;
   border:2px solid var(--navy-mid);
+  position:relative;
+  transition:border-color .15s;
 }
+.avatar-btn:hover { border-color:var(--teal); }
+.avatar-menu {
+  display:none; position:absolute; top:calc(100% + 8px); right:0;
+  background:#0d1b28; border:1px solid rgba(255,255,255,0.15);
+  border-radius:12px; padding:6px; min-width:170px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.4); z-index:500; flex-direction:column; gap:2px;
+}
+.avatar-btn.menu-open .avatar-menu { display:flex; }
+.avatar-menu-item {
+  display:flex; align-items:center; gap:9px; padding:9px 11px; border-radius:8px;
+  font-size:13px; font-weight:600; color:rgba(255,255,255,0.88); cursor:pointer;
+  border:none; background:transparent; font-family:inherit; text-align:left;
+  width:100%; transition:background .12s; white-space:nowrap;
+}
+.avatar-menu-item:hover { background:rgba(255,255,255,0.1); color:#fff; }
+.avatar-menu-item.danger { color:#f08080; }
+.avatar-menu-divider { height:1px; background:var(--line); margin:4px 2px; }
 
 .main-body {
   flex:1;overflow-y:auto;
@@ -326,8 +345,8 @@ button,input,select{font:inherit}
   display:flex;
   flex-direction:column;
   background:var(--surface);
-  border-left:1px solid var(--line);
-  box-shadow:-4px 0 24px rgba(30,46,62,.06);
+  border-right:1px solid var(--line);
+  box-shadow:4px 0 24px rgba(30,46,62,.06);
   position:relative;
   z-index:5;
   transition:width .28s cubic-bezier(.22,1,.36,1);
@@ -536,7 +555,9 @@ button,input,select{font:inherit}
 
 /* Companion panel collapsed state — icon strip only, expand on hover/click */
 .companion-panel.collapsed {
-  width:52px;
+  width:0;
+  overflow:hidden;
+  border:none;
 }
 .companion-panel.collapsed .cp-header,
 .companion-panel.collapsed .cp-context-ribbon,
@@ -550,7 +571,7 @@ button,input,select{font:inherit}
 .cp-collapsed-tab { display:none; }
 .cp-expand-btn {
   width:36px;height:36px;border-radius:50%;
-  background:radial-gradient(circle at 35% 35%,#a8e6e6,#5bbfbf 60%,#2a8a8a);
+  background:radial-gradient(circle at 35% 35%,#1a5c5c,#2a8080 40%,#a8e6e6);
   border:none;cursor:pointer;
   box-shadow:0 0 12px rgba(91,191,191,.4);
   animation:orbFloat 4s ease-in-out infinite;
@@ -559,15 +580,14 @@ button,input,select{font:inherit}
 /* Responsive: below 900px, companion slides over as overlay */
 @media(max-width:900px){
   .companion-panel {
-    position:fixed;right:0;top:0;bottom:0;
-    width:min(var(--companion-w), calc(100vw - 60px));
+    position:fixed;left:var(--sidebar-collapsed);top:0;bottom:0;
+    width:0;overflow:hidden;
     z-index:200;
-    transform:translateX(100%);
-    transition:transform .3s cubic-bezier(.22,1,.36,1);
+    transition:width .3s cubic-bezier(.22,1,.36,1);
     box-shadow:var(--shadow-xl);
   }
   .companion-panel.mobile-open {
-    transform:translateX(0);
+    width:min(var(--companion-w), calc(100vw - 60px));
   }
   .main-bg { width:100%; }
   .cp-mobile-toggle {
@@ -575,7 +595,8 @@ button,input,select{font:inherit}
   }
 }
 .cp-mobile-toggle {
-  display:none;
+  display:none !important;
+  visibility:hidden;
   position:fixed;bottom:24px;right:20px;z-index:199;
   width:52px;height:52px;border-radius:50%;
   background:var(--navy);border:none;cursor:pointer;
@@ -584,7 +605,7 @@ button,input,select{font:inherit}
 }
 .cp-mobile-toggle .orb-inner {
   width:32px;height:32px;border-radius:50%;
-  background:radial-gradient(circle at 35% 35%,#a8e6e6,#5bbfbf 60%,#2a8a8a);
+  background:radial-gradient(circle at 35% 35%,#1a5c5c,#2a8080 40%,#a8e6e6);
   box-shadow:0 0 12px rgba(91,191,191,.6);
 }
 
@@ -1094,7 +1115,7 @@ button,input,select{font:inherit}
 }
 .cp-expand-btn {
   width:36px;height:36px;border-radius:50%;
-  background:radial-gradient(circle at 35% 35%,#a8e6e6,#5bbfbf 60%,#2a8a8a);
+  background:radial-gradient(circle at 35% 35%,#1a5c5c,#2a8080 40%,#a8e6e6);
   border:none;cursor:pointer;
   box-shadow:0 0 12px rgba(91,191,191,.4);
   animation:orbFloat 4s ease-in-out infinite;
@@ -2098,7 +2119,7 @@ button,input,select{font:inherit}
 .nav-agent-orb {
   display:flex; align-items:center; justify-content:center;
   width:30px; height:30px; border-radius:50%;
-  background:radial-gradient(circle at 35% 35%, #fff 0%, #b8e8e8 35%, #5bbfbf 70%, #2a8080 100%);
+  background:radial-gradient(circle at 35% 35%, #e8f8f8 0%, #e8f8f8 8%, #5bbfbf 35%, #2a8080 65%, #1a5555 100%);
   box-shadow:0 0 10px var(--teal-glow);
   animation:orbPulse 3s ease-in-out infinite alternate;
   flex-shrink:0; cursor:pointer; border:none;
@@ -2266,6 +2287,258 @@ button,input,select{font:inherit}
 /* Time-of-day grouping */
 .time-group-head { font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); padding:0 0 6px; border-bottom:1px solid var(--line); margin-bottom:8px; margin-top:14px; }
 .time-group-head:first-child { margin-top:0; }
+
+/* ══════════════════════════════════════════
+   TASK BOARD (replaces old kanban/today-flow)
+══════════════════════════════════════════ */
+.tb-shell{display:flex;flex-direction:column;height:100%;overflow:hidden}
+.tb-toolbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 0 12px;flex-shrink:0;gap:8px;
+}
+.tb-toolbar-left{display:flex;align-items:center;gap:8px}
+.tb-btn{
+  display:flex;align-items:center;gap:5px;
+  padding:6px 13px;border-radius:999px;
+  border:1px solid var(--line);background:var(--surface);
+  font-size:12px;font-weight:700;color:var(--muted);
+  cursor:pointer;font-family:'Nunito',sans-serif;
+  transition:all .12s;white-space:nowrap;
+}
+.tb-btn:hover{border-color:var(--navy-line);color:var(--ink)}
+.tb-btn.primary{background:var(--navy);border-color:var(--navy);color:#fff}
+.tb-btn.primary:hover{background:var(--navy-dark)}
+.tb-view-toggle{display:flex;background:var(--navy-soft);border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden}
+.tb-view-btn{
+  display:flex;align-items:center;justify-content:center;
+  width:30px;height:30px;border:none;background:transparent;
+  color:var(--muted);cursor:pointer;transition:background .12s,color .12s;
+}
+.tb-view-btn:hover{background:var(--navy-line);color:var(--ink)}
+.tb-view-btn.active{background:var(--navy);color:#fff}
+/* board columns */
+.tb-columns{
+  display:flex;gap:0;flex:1;overflow-x:auto;
+  align-items:flex-start;padding-bottom:8px;
+  scrollbar-width:thin;scrollbar-color:var(--navy-line) transparent;
+}
+.tb-columns::-webkit-scrollbar{height:5px}
+.tb-columns::-webkit-scrollbar-thumb{background:var(--navy-line);border-radius:3px}
+.tb-col{
+  flex:0 0 200px;min-width:200px;
+  display:flex;flex-direction:column;
+  padding:0 10px;
+  max-height:100%;position:relative;
+}
+.tb-col:not(:last-child)::after{
+  content:'';position:absolute;right:0;top:8px;bottom:8px;
+  width:1px;background:var(--line);
+}
+.tb-col.drag-over .tb-cards{background:var(--teal-soft);border-radius:var(--r-md)}
+.tb-col-head{padding:0 0 10px;flex-shrink:0}
+.tb-col-title-wrap{cursor:pointer;padding:2px 4px;border-radius:var(--r-sm);transition:background .12s;display:inline-block}
+.tb-col-title-wrap:hover{background:rgba(61,90,122,.07)}
+.tb-col-title{font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;color:var(--navy-dark);white-space:nowrap}
+.tb-col-sub{font-size:11px;color:var(--muted);padding-left:4px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-col-title-input{
+  font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;color:var(--navy-dark);
+  background:var(--surface);border:1.5px solid var(--teal);border-radius:var(--r-sm);
+  padding:2px 6px;width:130px;outline:none;
+}
+.tb-col-meta{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.tb-col-count{
+  font-size:10px;font-weight:700;color:var(--muted);
+  background:rgba(61,90,122,.1);padding:1px 6px;border-radius:999px;
+  font-family:'Nunito',sans-serif;
+}
+/* cards */
+.tb-cards{
+  flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:0;
+  min-height:40px;padding-bottom:6px;
+  scrollbar-width:thin;scrollbar-color:var(--navy-line) transparent;
+}
+.tb-cards::-webkit-scrollbar{width:3px}
+.tb-cards::-webkit-scrollbar-thumb{background:var(--navy-line);border-radius:2px}
+.tb-card{
+  background:transparent;border:none;
+  border-bottom:1px solid var(--line);
+  padding:9px 4px;cursor:grab;position:relative;
+  transition:background .12s;user-select:none;
+}
+.tb-card:first-child{border-top:1px solid var(--line)}
+.tb-card:hover{background:var(--surface);border-radius:var(--r-sm);border-color:transparent}
+.tb-card:hover+.tb-card{border-top:1px solid var(--line)}
+.tb-card.dragging{opacity:.4;transform:rotate(1deg);cursor:grabbing}
+.tb-card.drag-above{border-top:2px solid var(--teal)}
+.tb-card.drag-below{border-bottom:2px solid var(--teal)}
+.tb-card-title{
+  font-size:13px;font-weight:600;color:var(--ink);
+  line-height:1.4;margin-bottom:4px;
+  word-break:break-word;padding-right:20px;
+}
+.tb-card-snippet{
+  font-size:11px;color:var(--muted);line-height:1.4;margin-bottom:5px;
+  display:-webkit-box;-webkit-box-orient:vertical;
+  -webkit-line-clamp:2;overflow:hidden;
+}
+.tb-card-meta{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.tb-card-actions{position:absolute;top:7px;right:2px;display:none;gap:2px}
+.tb-card:hover .tb-card-actions{display:flex}
+.tb-card-btn{
+  width:20px;height:20px;border:none;background:transparent;
+  border-radius:var(--r-sm);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;color:var(--muted);transition:background .12s,color .12s;
+}
+.tb-card-btn:hover{background:var(--navy-line);color:var(--ink)}
+/* tags */
+.tb-tag{font-size:10px;font-weight:700;padding:1px 7px;border-radius:999px;font-family:'Nunito',sans-serif}
+.tb-tag.area-work   {background:#e3eaf5;color:#2c4260}
+.tb-tag.area-people {background:#f0e8f7;color:#5a2d82}
+.tb-tag.area-home   {background:#e8f5ea;color:#1a5c2a}
+.tb-tag.area-admin  {background:#fff3e0;color:#7c4800}
+.tb-tag.area-waiting{background:#f5f0e8;color:#5c4a1a}
+.tb-tag.area-later  {background:#f0f0f0;color:#4a4a4a}
+.tb-pri{font-size:10px;font-weight:700;padding:1px 7px;border-radius:999px;font-family:'Nunito',sans-serif}
+.tb-pri.high  {background:#fbe8e8;color:#b84040}
+.tb-pri.medium{background:#fef0e0;color:#b07030}
+.tb-pri.low   {background:#eaf2ea;color:#2e6b30}
+.tb-due{font-size:10px;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:3px}
+.tb-due.overdue{color:#c0392b}
+/* add area */
+.tb-add-area{padding:6px 4px 0;flex-shrink:0}
+.tb-add-btn{
+  width:100%;padding:7px 8px;background:transparent;
+  border:1.5px dashed var(--navy-line);border-radius:var(--r-md);
+  cursor:pointer;font-size:12px;font-weight:700;color:var(--muted);
+  font-family:'Nunito',sans-serif;text-align:left;
+  display:flex;align-items:center;gap:6px;
+  transition:border-color .15s,color .15s,background .15s;
+}
+.tb-add-btn:hover{border-color:var(--teal);color:var(--teal-dark);background:var(--teal-soft)}
+.tb-add-form{display:none;flex-direction:column;gap:6px}
+.tb-add-form.open{display:flex}
+.tb-add-input{
+  width:100%;padding:8px 10px;border:1.5px solid var(--teal);border-radius:var(--r-md);
+  background:var(--surface);font-size:13px;color:var(--ink);outline:none;resize:none;line-height:1.4;
+}
+.tb-add-input::placeholder{color:var(--muted);font-weight:400}
+.tb-add-row{display:flex;gap:5px}
+.tb-add-select,.tb-add-date{
+  flex:1;padding:5px 7px;border:1px solid var(--line);border-radius:var(--r-sm);
+  background:var(--surface);font-size:11px;color:var(--ink);outline:none;cursor:pointer;
+}
+.tb-add-btns{display:flex;gap:5px}
+.tb-save-btn{
+  flex:1;padding:7px;background:var(--navy);color:#fff;border:none;
+  border-radius:999px;font-size:12px;font-weight:800;cursor:pointer;
+  font-family:'Nunito',sans-serif;transition:background .12s;
+}
+.tb-save-btn:hover{background:var(--navy-dark)}
+.tb-cancel-btn{
+  padding:7px 10px;background:transparent;border:1px solid var(--line);
+  border-radius:999px;font-size:12px;font-weight:700;color:var(--muted);
+  cursor:pointer;font-family:'Nunito',sans-serif;
+}
+.tb-cancel-btn:hover{background:var(--navy-soft)}
+.tb-archive-note{font-size:10px;color:var(--muted);text-align:center;padding:3px 0;font-style:italic;flex-shrink:0}
+.tb-empty{padding:14px 4px;text-align:center;font-size:12px;color:var(--muted);font-style:italic}
+/* list view */
+.tb-list-wrap{flex:1;overflow-y:auto;padding:4px 0 16px}
+.tb-list-group{margin-bottom:20px}
+.tb-list-head{
+  display:flex;align-items:center;gap:8px;
+  padding:6px 0 7px;border-bottom:1.5px solid var(--line);margin-bottom:2px;
+}
+.tb-list-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.tb-list-label{font-family:'Nunito',sans-serif;font-size:11px;font-weight:800;color:var(--navy-dark);flex:1;text-transform:uppercase;letter-spacing:.04em}
+.tb-list-count{font-size:11px;font-weight:700;color:var(--muted);background:rgba(61,90,122,.1);padding:1px 7px;border-radius:999px;font-family:'Nunito',sans-serif}
+.tb-list-row{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:9px 6px;border-radius:var(--r-md);
+  border:1px solid transparent;cursor:pointer;
+  transition:background .12s,border-color .12s;position:relative;
+}
+.tb-list-row:hover{background:var(--surface);border-color:var(--line)}
+.tb-list-check{
+  width:16px;height:16px;border-radius:50%;
+  border:1.5px solid var(--navy-line);flex-shrink:0;margin-top:2px;
+  display:flex;align-items:center;justify-content:center;
+  transition:border-color .12s,background .12s;cursor:pointer;
+}
+.tb-list-check:hover{border-color:var(--teal)}
+.tb-list-check.done{background:var(--teal);border-color:var(--teal)}
+.tb-list-check.done::after{content:'';display:block;width:8px;height:5px;border-left:1.5px solid #fff;border-bottom:1.5px solid #fff;transform:rotate(-45deg) translate(1px,-1px)}
+.tb-list-body{flex:1;min-width:0}
+.tb-list-title{font-size:13px;font-weight:600;color:var(--ink);line-height:1.4;margin-bottom:3px}
+.tb-list-title.done{opacity:.45;text-decoration:line-through}
+.tb-list-snippet{font-size:11px;color:var(--muted);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px}
+.tb-list-meta{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.tb-list-actions{display:none;align-items:center;flex-shrink:0}
+.tb-list-row:hover .tb-list-actions{display:flex}
+.tb-list-empty{padding:10px 0 2px;text-align:center;font-size:12px;color:var(--muted);font-style:italic}
+.tb-list-add{
+  display:flex;align-items:center;gap:8px;padding:7px 6px;
+  border-radius:var(--r-md);border:1.5px dashed var(--navy-line);
+  cursor:pointer;font-size:12px;font-weight:700;color:var(--muted);
+  font-family:'Nunito',sans-serif;margin-top:4px;
+  transition:border-color .15s,color .15s,background .15s;
+}
+.tb-list-add:hover{border-color:var(--teal);color:var(--teal-dark);background:var(--teal-soft)}
+/* move menu */
+.tb-move-menu{
+  position:fixed;z-index:1001;background:var(--surface);
+  border:1px solid var(--line);border-radius:var(--r-md);
+  box-shadow:var(--shadow-md);padding:6px 0;min-width:175px;display:none;
+}
+.tb-move-menu.open{display:block}
+.tb-move-label{font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;padding:4px 12px 2px;font-family:'Nunito',sans-serif}
+.tb-move-item{
+  display:flex;align-items:center;gap:8px;padding:7px 12px;
+  font-size:13px;font-weight:600;color:var(--ink);cursor:pointer;
+  font-family:'Nunito',sans-serif;transition:background .1s;
+}
+.tb-move-item:hover{background:var(--navy-soft)}
+.tb-move-item.current{color:var(--muted);pointer-events:none}
+.tb-move-divider{height:1px;background:var(--line);margin:4px 0}
+.tb-move-delete{display:flex;align-items:center;gap:8px;padding:7px 12px;font-size:13px;font-weight:600;color:#c0392b;cursor:pointer;font-family:'Nunito',sans-serif;transition:background .1s}
+.tb-move-delete:hover{background:#fdf0ef}
+/* filter dropdown */
+.tb-filter-btn{
+  display:flex;align-items:center;gap:5px;padding:6px 11px;
+  border:1px solid var(--line);background:var(--surface);border-radius:999px;
+  cursor:pointer;font-size:12px;font-weight:700;color:var(--muted);
+  font-family:'Nunito',sans-serif;transition:all .12s;
+}
+.tb-filter-btn:hover{border-color:var(--navy-line);color:var(--ink)}
+.tb-filter-btn.active{background:var(--navy);border-color:var(--navy);color:#fff}
+.tb-filter-dot{width:6px;height:6px;border-radius:50%;background:var(--teal);display:none;flex-shrink:0}
+.tb-filter-btn.active .tb-filter-dot{display:block;background:#fff}
+.tb-filter-dd{
+  position:fixed;z-index:1002;background:var(--surface);
+  border:1px solid var(--line);border-radius:var(--r-lg);
+  box-shadow:var(--shadow-md);padding:16px;width:240px;display:none;
+}
+.tb-filter-dd.open{display:block}
+.tb-fd-sec{margin-bottom:13px}
+.tb-fd-sec:last-child{margin-bottom:0}
+.tb-fd-label{font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-family:'Nunito',sans-serif;margin-bottom:7px;display:block}
+.tb-fd-chips{display:flex;flex-wrap:wrap;gap:5px}
+.tb-fd-chip{
+  padding:3px 10px;border-radius:999px;border:1px solid var(--line);background:transparent;
+  font-size:11px;font-weight:700;color:var(--muted);cursor:pointer;
+  font-family:'Nunito',sans-serif;transition:all .12s;
+}
+.tb-fd-chip:hover{border-color:var(--navy-line);color:var(--ink);background:var(--navy-soft)}
+.tb-fd-chip.active{background:var(--navy);border-color:var(--navy);color:#fff}
+.tb-fd-chip.active.ph{background:#b84040;border-color:#b84040}
+.tb-fd-chip.active.pm{background:#b07030;border-color:#b07030}
+.tb-fd-chip.active.pl{background:var(--teal-dark);border-color:var(--teal-dark)}
+.tb-fd-chip.active.do{background:#b84040;border-color:#b84040}
+.tb-fd-foot{padding-top:11px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.tb-fd-count{font-size:11px;color:var(--muted);font-style:italic}
+.tb-fd-clear{font-size:11px;font-weight:700;color:var(--teal-dark);background:none;border:none;cursor:pointer;font-family:'Nunito',sans-serif;padding:2px 6px;border-radius:var(--r-sm);transition:background .12s}
+.tb-fd-clear:hover{background:var(--teal-soft)}
 </style>
 </head>
 <body>
@@ -2379,150 +2652,14 @@ button,input,select{font:inherit}
 
   <div class="sidebar-upcoming">
 
-    <!-- Settings panel -->
-    <div id="settingsPanel" style="padding:4px 12px 10px">
-      <!-- Collapsible header -->
-      <button onclick="toggleDisplaySettings()" id="displayToggleBtn"
-        style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:6px 0;background:none;border:none;cursor:pointer;color:rgba(255,255,255,.3);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;font-family:inherit">
-        <span>Display</span>
-        <span id="displayToggleArrow" style="font-size:10px;transition:transform .2s">▾</span>
-      </button>
 
-      <!-- Collapsible content -->
-      <div id="displaySettingsBody" style="display:none;overflow:hidden">
-        <!-- Font dropdown -->
-        <div style="margin-bottom:8px;margin-top:4px">
-          <label style="font-size:11px;color:rgba(255,255,255,.45);display:block;margin-bottom:4px">Font</label>
-          <select id="fontSelect" onchange="setFont(this.value)"
-            style="width:100%;padding:7px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:#2c4260;color:#fff;font-size:12px;cursor:pointer;outline:none">
-            <option value="default" style="background:#2c4260;color:#fff">Standard</option>
-            <option value="nunito" style="background:#2c4260;color:#fff">Rounded (Nunito)</option>
-            <option value="dyslexic" style="background:#2c4260;color:#fff">Dyslexia-friendly</option>
-            <option value="bionic" style="background:#2c4260;color:#fff">Bionic Reading</option>
-          </select>
-        </div>
 
-        <!-- Size dropdown -->
-        <div style="margin-bottom:10px">
-          <label style="font-size:11px;color:rgba(255,255,255,.45);display:block;margin-bottom:4px">Text size</label>
-          <select id="sizeSelect" onchange="setTextSize(parseInt(this.value))"
-            style="width:100%;padding:7px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:#2c4260;color:#fff;font-size:12px;cursor:pointer;outline:none">
-            <option value="0" style="background:#2c4260;color:#fff">Small</option>
-            <option value="1" selected style="background:#2c4260;color:#fff">Medium</option>
-            <option value="2" style="background:#2c4260;color:#fff">Large</option>
-          </select>
-        </div>
 
-        <!-- Theme -->
-        <div style="display:flex;gap:6px">
-          <button onclick="setTheme('light')" id="theme-light"
-            style="flex:1;padding:7px 6px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:rgba(255,255,255,.75);font-size:11px;font-weight:700;cursor:pointer;transition:all .15s">
-            ☀ Light
-          </button>
-          <button onclick="setTheme('dark')" id="theme-dark"
-            style="flex:1;padding:7px 6px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:rgba(255,255,255,.75);font-size:11px;font-weight:700;cursor:pointer;transition:all .15s">
-            ◑ Dark
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div class="sidebar-divider" style="margin:4px 10px 6px"></div>
-
-    <div style="display:flex;align-items:center;gap:6px;padding:4px 2px">
-      <button onclick="setView('preferences',null)" title="Preferences"
-        style="flex:1;display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;background:transparent;border:none;color:rgba(255,255,255,.5);font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;font-family:inherit;text-align:left"
-        onmouseover="this.style.background='rgba(255,255,255,.08)';this.style.color='rgba(255,255,255,.8)'"
-        onmouseout="this.style.background='transparent';this.style.color='rgba(255,255,255,.5)'">
-        <span style="font-size:15px">⚙</span>
-        <span id="prefNavLabel">Preferences</span>
-      </button>
-      <button onclick="signOut()" title="Sign out"
-        style="width:32px;height:32px;border-radius:8px;background:transparent;border:none;color:rgba(255,255,255,.4);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0"
-        onmouseover="this.style.background='rgba(255,255,255,.08)';this.style.color='rgba(255,255,255,.7)'"
-        onmouseout="this.style.background='transparent';this.style.color='rgba(255,255,255,.4)'"
-        title="Sign out">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-      </button>
-    </div>
   </div>
 </aside>
 
-<!-- ═══════════════════════════════════════
-     MAIN — two column layout
-     .main-bg  = left: dashboard (background)
-     .companion-panel = right: Arelo (always present, primary)
-═══════════════════════════════════════ -->
-<main class="main">
-
-  <!-- LEFT: background dashboard column -->
-  <div class="main-bg" id="mainBg">
-  <div class="main-header">
-    <div class="main-header-left">
-      <h1 id="viewTitle">Today</h1>
-      <div class="main-header-sub" id="viewSub">Focus on what matters most</div>
-      <div class="header-progress-bar">
-        <div class="header-progress-fill" id="progressFill" style="width:0%"></div>
-      </div>
-    </div>
-    <div class="header-actions">
-      <span id="lastUpdatedChip" style="display:none;font-size:11px;color:var(--muted);padding:5px 10px;border-radius:999px;background:var(--surface);border:1px solid var(--line);white-space:nowrap"></span>
-      <!-- Sort dropdown -->
-      <div style="position:relative" id="sortDropdownWrap">
-        <button class="icon-btn" id="sortToggleBtn" onclick="toggleSortDropdown()" title="Sort tasks"
-          style="display:flex;align-items:center;gap:5px;width:auto;padding:0 12px;font-size:12px;font-weight:700;border-radius:999px;white-space:nowrap">
-          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" style="flex-shrink:0"><path d="M2 4h12M4 8h8M6 12h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          <span id="sortLabel">Sort</span>
-          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style="flex-shrink:0"><path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-        <div id="sortDropdown" style="display:none;position:absolute;top:calc(100% + 6px);right:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--shadow-md);min-width:200px;z-index:50;overflow:hidden">
-          <div class="sort-option" id="sort-received-desc" onclick="setSort('received-desc')" style="padding:10px 14px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:10px;color:var(--ink);transition:background .12s">
-            <span>📅</span> Received — newest first
-          </div>
-          <div class="sort-option" id="sort-received-asc" onclick="setSort('received-asc')" style="padding:10px 14px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:10px;color:var(--ink);transition:background .12s">
-            <span>📅</span> Received — oldest first
-          </div>
-          <div class="sort-option" id="sort-due-asc" onclick="setSort('due-asc')" style="padding:10px 14px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:10px;color:var(--ink);transition:background .12s">
-            <span>⏰</span> Due date — soonest first
-          </div>
-          <div class="sort-option" id="sort-due-desc" onclick="setSort('due-desc')" style="padding:10px 14px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:10px;color:var(--ink);transition:background .12s">
-            <span>⏰</span> Due date — latest first
-          </div>
-        </div>
-      </div>
-      <button class="icon-btn" title="Refresh" onclick="refreshTasks()">↻</button>
-      <div class="energy-view-toggle" id="energyViewToggle" style="display:none">
-        <button class="energy-view-btn active" id="btnKanban" onclick="setTasksViewMode('kanban')" title="Kanban view">⠿ Board</button>
-        <button class="energy-view-btn" id="btnEnergy" onclick="setTasksViewMode('energy')" title="Energy view">⚡ Energy</button>
-      </div>
-      <button class="icon-btn" title="How are you feeling?" onclick="showMoodModal()">✦</button>
-      <button class="icon-btn" title="Take a guided tour" onclick="startTour()" style="font-size:13px">?</button>
-      <div class="avatar-btn" id="avatarBtn" title="Your account">SR</div>
-    </div>
-  </div>
-
-  <div class="main-body" id="mainBody">
-    <!-- Greeting strip -->
-    <div class="greeting-strip" id="greetingStrip">
-      <div class="greeting-orb-small"></div>
-      <div class="greeting-text">
-        <strong id="greetingLine">Good morning.</strong>
-        <span id="greetingSubline">Loading your tasks…</span>
-      </div>
-      <span class="greeting-cta" onclick="quickAddTaskFromGreeting()" style="cursor:pointer;flex-shrink:0">+ Add task</span>
-    </div>
-
-    <!-- Task area -->
-    <div id="taskArea">
-      <div class="skeleton"></div>
-      <div class="skeleton" style="height:56px;opacity:.6"></div>
-      <div class="skeleton" style="height:56px;opacity:.4"></div>
-    </div>
-  </div>
-  </div><!-- end .main-bg -->
-
-  <!-- RIGHT: Arelo companion panel — always present -->
-  <div class="companion-panel" id="companionPanel">
+  <!-- Arelo companion panel — left of main -->
+  <div class="companion-panel collapsed" id="companionPanel">
 
     <!-- Header -->
     <div class="cp-header">
@@ -2574,9 +2711,89 @@ button,input,select{font:inherit}
   </div>
 
   <!-- Mobile toggle button (hidden on desktop) -->
-  <button class="cp-mobile-toggle" id="cpMobileToggle" onclick="toggleCompanionCollapse()" title="Open Arelo">
-    <div class="orb-inner"></div>
-  </button>
+
+
+
+<!-- ═══════════════════════════════════════
+     MAIN — two column layout
+     .main-bg  = left: dashboard (background)
+     .companion-panel = right: Arelo (always present, primary)
+═══════════════════════════════════════ -->
+<main class="main">
+
+  <!-- LEFT: background dashboard column -->
+  <div class="main-bg" id="mainBg">
+  <div class="main-header">
+    <div class="main-header-left">
+      <h1 id="viewTitle">Today</h1>
+      <div class="main-header-sub" id="viewSub">Focus on what matters most</div>
+      <div class="header-progress-bar">
+        <div class="header-progress-fill" id="progressFill" style="width:0%"></div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <span id="lastUpdatedChip" style="display:none;font-size:11px;color:var(--muted);padding:5px 10px;border-radius:999px;background:var(--surface);border:1px solid var(--line);white-space:nowrap"></span>
+      <!-- Sort dropdown -->
+      <div style="position:relative" id="sortDropdownWrap">
+        <button class="icon-btn" id="sortToggleBtn" onclick="toggleSortDropdown()" title="Sort tasks"
+          style="display:flex;align-items:center;gap:5px;width:auto;padding:0 12px;font-size:12px;font-weight:700;border-radius:999px;white-space:nowrap">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" style="flex-shrink:0"><path d="M2 4h12M4 8h8M6 12h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <span id="sortLabel">Sort</span>
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style="flex-shrink:0"><path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div id="sortDropdown" style="display:none;position:absolute;top:calc(100% + 6px);right:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--shadow-md);min-width:200px;z-index:50;overflow:hidden">
+          <div class="sort-option" id="sort-received-desc" onclick="setSort('received-desc')" style="padding:10px 14px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:10px;color:var(--ink);transition:background .12s">
+            <span>📅</span> Received — newest first
+          </div>
+          <div class="sort-option" id="sort-received-asc" onclick="setSort('received-asc')" style="padding:10px 14px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:10px;color:var(--ink);transition:background .12s">
+            <span>📅</span> Received — oldest first
+          </div>
+          <div class="sort-option" id="sort-due-asc" onclick="setSort('due-asc')" style="padding:10px 14px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:10px;color:var(--ink);transition:background .12s">
+            <span>⏰</span> Due date — soonest first
+          </div>
+          <div class="sort-option" id="sort-due-desc" onclick="setSort('due-desc')" style="padding:10px 14px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:10px;color:var(--ink);transition:background .12s">
+            <span>⏰</span> Due date — latest first
+          </div>
+        </div>
+      </div>
+      <button class="icon-btn" title="Refresh" onclick="refreshTasks()">↻</button>
+      <div class="energy-view-toggle" id="energyViewToggle" style="display:none">
+        <button class="energy-view-btn active" id="btnKanban" onclick="setTasksViewMode('kanban')" title="Kanban view">⠿ Board</button>
+        <button class="energy-view-btn" id="btnEnergy" onclick="setTasksViewMode('energy')" title="Energy view">⚡ Energy</button>
+      </div>
+      <button class="icon-btn" title="How are you feeling?" onclick="showMoodModal()">✦</button>
+      <button class="icon-btn" title="Take a guided tour" onclick="startTour()" style="font-size:13px">?</button>
+      <div class="avatar-btn" id="avatarBtn" title="Your account" onclick="toggleAvatarMenu(event)">
+        <span id="avatarInitials">SR</span>
+        <div class="avatar-menu" id="avatarMenu">
+          <button class="avatar-menu-item" onclick="event.stopPropagation();setView('preferences',null);closeAvatarMenu()">⚙️ Preferences</button>
+          <button class="avatar-menu-item" onclick="event.stopPropagation();setView('preferences',null);closeAvatarMenu()">🎨 Display</button>
+          <div class="avatar-menu-divider"></div>
+          <button class="avatar-menu-item danger" onclick="event.stopPropagation();signOut()">↩ Sign out</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-body" id="mainBody">
+    <!-- Greeting strip -->
+    <div class="greeting-strip" id="greetingStrip">
+      <div class="greeting-orb-small"></div>
+      <div class="greeting-text">
+        <strong id="greetingLine">Good morning.</strong>
+        <span id="greetingSubline">Loading your tasks…</span>
+      </div>
+      <span class="greeting-cta" onclick="quickAddTaskFromGreeting()" style="cursor:pointer;flex-shrink:0">+ Add task</span>
+    </div>
+
+    <!-- Task area -->
+    <div id="taskArea">
+      <div class="skeleton"></div>
+      <div class="skeleton" style="height:56px;opacity:.6"></div>
+      <div class="skeleton" style="height:56px;opacity:.4"></div>
+    </div>
+  </div>
+  </div><!-- end .main-bg -->
 
 </main>
 
@@ -2646,6 +2863,9 @@ const WEBHOOK_SAVE_TASK     = 'https://hook.eu1.make.com/f1w2yg3wbh78c8plwgauqgw
 const WEBHOOK_AGENT         = 'https://hook.eu1.make.com/3y7r08yb0hx88qgon2db6vfpc4amssi6';
 const WEBHOOK_UPDATE_TASK   = 'https://hook.eu1.make.com/eiobrxyvmpunkmr5gy0pnekws0uugnt0';
 const WEBHOOK_ON_DEMAND_SCAN = 'https://hook.eu1.make.com/rahyfy57nypqpqe5wypqug52vw70y3b9';
+const WEBHOOK_SAVE_NOTE     = 'https://hook.eu1.make.com/4ph4olkhs7qek8htg6f0st46gsqxh78k';
+const WEBHOOK_GET_NOTES     = 'https://hook.eu1.make.com/3pbfuj5lg6w6q0pc1ee1nfa2cwz9jxcs';
+const WEBHOOK_GET_CALENDAR  = 'https://hook.eu1.make.com/fgph7t4puycjwgyardmutp8k3z3ij1gc';
 
 // ── SUPABASE DIRECT ACCESS (for cross-device task boot) ──────────────────────
 const SUPABASE_URL      = 'https://cfnuvhvncoumakrogrdb.supabase.co';
@@ -3135,6 +3355,7 @@ function boot() {
       setupUser();
       loadTasks();
       loadMyTasksFromSupabase();
+      loadNotesFromSupabase();
       const focusNav = document.querySelector('.nav-item[data-view="focus"]');
       setView('focus', focusNav);
       const visitedKey = `arelo_${currentUser.email}_visited`;
@@ -3235,7 +3456,14 @@ async function loadPreferencesFromSheets(email) {
   }
 }
 
-async function savePreferencesToSheets(updates) {
+let _prefSaveTimer = null;
+let _prefPendingUpdates = {};
+function savePreferencesToSheets(updates) {
+  _prefPendingUpdates = { ..._prefPendingUpdates, ...updates };
+  clearTimeout(_prefSaveTimer);
+  _prefSaveTimer = setTimeout(() => { _flushPreferenceSave(_prefPendingUpdates); _prefPendingUpdates = {}; }, 1500);
+}
+async function _flushPreferenceSave(updates) {
   if (!currentUser?.email) return;
   const payload = {
     email:                currentUser.email,
@@ -3265,7 +3493,7 @@ async function savePreferencesToSheets(updates) {
 function setupUser() {
   const name = currentUser.name || currentUser.email.split('@')[0];
   const initials = name.split(' ').map(p=>p[0]).join('').toUpperCase().slice(0,2);
-  document.getElementById('avatarBtn').textContent = initials;
+  const _ab=document.getElementById('avatarInitials');if(_ab)_ab.textContent=initials;
   updateGreeting();
 }
 
@@ -3879,6 +4107,10 @@ function renderChronological(tasks, done) {
             ${t.sender ? `<span class="task-card-source" style="margin-bottom:0">${escHtml(t.sender)}</span>` : ''}
             <span style="margin-left:auto;display:flex;align-items:center;gap:6px">${t.has_attachment ? `<span title="Has attachment" style="font-size:13px;opacity:.6">📎</span>` : ''}${badge}${createdStr ? `<span style="margin-left:4px">${createdStr}</span>` : ''}</span>
           </div>
+          ${(t.created || t.account) ? `<div style="display:flex;align-items:center;gap:10px;margin-bottom:3px">
+            ${t.created ? `<span style="font-size:10px;color:var(--muted);opacity:.7">📅 ${fmtDate(t.created)}</span>` : ''}
+            ${t.account ? `<span style="font-size:10px;color:var(--muted);opacity:.7;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:140px" title="${escHtml(t.account)}">📬 ${escHtml(t.account)}</span>` : ''}
+          </div>` : ''}
           <div class="task-card-title">${escHtml(t.title)}</div>
         </div>
       </div>`;
@@ -4017,8 +4249,6 @@ function renderView(view) {
     const waiting = [...allTasks].sort((a,b) => scoreTask(b) - scoreTask(a));
     const handled = [...qwellDecisions];
     const done    = [...doneTasks].slice(0, 6);
-    const sorted  = allTasks.length + doneTasks.length + qwellDecisions.length;
-    const summaryText = sorted + ' emails sorted · ' + handled.length + ' handled · ' + allTasks.length + ' left (we\'ll take them one at a time)';
 
     function trustCard(t, kind) {
       const sender  = t.sender ? escHtml(t.sender.split('<')[0].trim()) : '';
@@ -4047,30 +4277,42 @@ function renderView(view) {
     }
 
     function trustGroup(label, tasks, desc, kind) {
-      if (!tasks.length) return '<div style="margin-bottom:18px"><div style="font-size:13px;font-weight:800;color:var(--navy);margin-bottom:2px">' + label + ' <span style="color:var(--muted);font-weight:600">0</span></div><div style="font-size:12px;color:var(--muted);padding:10px 0">Nothing here right now.</div></div>';
+      const gid = 'tg_' + kind;
+      const hdr = '<div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:12px 0 8px;border-top:1px solid var(--line)" onclick="toggleTrustGroup(\'' + gid + '\')">'
+        + '<div style="display:flex;align-items:center;gap:8px">'
+        + '<span style="font-size:13px;font-weight:800;color:var(--navy)">' + label + '</span>'
+        + '<span style="font-size:11px;font-weight:600;padding:2px 7px;border-radius:99px;background:var(--surface);color:var(--muted)">' + tasks.length + '</span>'
+        + '</div>'
+        + '<span id="chev_' + gid + '" style="font-size:11px;color:var(--muted);transition:transform .2s;display:inline-block">' + (tasks.length ? '▾' : '') + '</span>'
+        + '</div>';
+      if (!tasks.length) return '<div>' + hdr + '<div style="font-size:12px;color:var(--muted);padding:4px 0 12px">Nothing here right now.</div></div>';
       const visible = tasks.slice(0, 8);
       const more    = tasks.length > 8 ? '<div style="font-size:12px;color:var(--muted);padding:4px 2px">' + (tasks.length - 8) + ' more tucked away for later.</div>' : '';
-      return '<div style="margin-bottom:24px">'
-        + '<div style="font-size:13px;font-weight:800;color:var(--navy);margin-bottom:2px">' + label + ' <span style="color:var(--muted);font-weight:600">' + tasks.length + '</span></div>'
+      return '<div>'
+        + hdr
+        + '<div id="' + gid + '">'
         + '<div style="font-size:12px;color:var(--muted);margin-bottom:10px">' + desc + '</div>'
         + visible.map(t => trustCard(t, kind)).join('')
-        + more + '</div>';
+        + more + '</div></div>';
     }
 
     area.innerHTML =
-      '<div style="background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px 22px;margin-bottom:22px">'
-      + '<div style="font-size:18px;font-weight:900;color:var(--navy);margin-bottom:6px">What Arelo did</div>'
-      + '<div style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:14px">Nothing is deleted here. This view is for trust: see what was sorted, what is waiting, and what Arelo kept out of your way.</div>'
-      + '<div style="display:flex;gap:8px;flex-wrap:wrap">'
-      + '<span style="padding:5px 12px;border-radius:999px;background:var(--navy-soft);border:1px solid var(--navy-line);font-size:12px;font-weight:700;color:var(--navy)">' + summaryText + '</span>'
-      + '<span style="padding:5px 12px;border-radius:999px;background:var(--navy-soft);border:1px solid var(--navy-line);font-size:12px;font-weight:700;color:var(--navy)">' + handled.length + ' handled quietly</span>'
-      + '<span style="padding:5px 12px;border-radius:999px;background:var(--navy-soft);border:1px solid var(--navy-line);font-size:12px;font-weight:700;color:var(--navy)">' + waiting.length + ' waiting for you</span>'
-      + '</div></div>'
-      + trustGroup('Waiting for you', waiting, 'Ready when you are. Arelo is not asking you to do these all at once.', 'waiting')
-      + trustGroup('Handled quietly', handled, 'These were filtered, resolved, or treated as low-risk noise.', 'handled')
-      + trustGroup('Already done', done, 'A short trail of what has been finished recently.', 'done');
+      '<div style="display:flex;align-items:center;gap:14px;margin-bottom:22px;padding:18px 20px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg)">'
+      + '<div class="qwell-companion-orb" style="width:40px;height:40px;flex-shrink:0"></div>'
+      + '<div style="flex:1">'
+      + '<div style="font-size:15px;font-weight:800;color:var(--navy);margin-bottom:3px">Here&#39;s what I&#39;ve been doing</div>'
+      + '<div style="font-size:12px;color:var(--muted);line-height:1.5">Nothing is deleted. See what&#39;s waiting for you, what I handled quietly, and what&#39;s done.</div>'
+      + '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">'
+      + '<span style="padding:4px 10px;border-radius:999px;background:var(--teal-soft);border:1px solid rgba(91,191,191,.3);font-size:11px;font-weight:700;color:var(--teal-dark)">' + waiting.length + ' waiting for you</span>'
+      + '<span style="padding:4px 10px;border-radius:999px;background:var(--navy-soft);border:1px solid var(--navy-line);font-size:11px;font-weight:700;color:var(--muted)">' + handled.length + ' handled quietly</span>'
+      + '<span style="padding:4px 10px;border-radius:999px;background:var(--navy-soft);border:1px solid var(--navy-line);font-size:11px;font-weight:700;color:var(--muted)">' + done.length + ' done</span>'
+      + '</div></div></div>'
+      + trustGroup('⚡ Waiting for you (Focus)', waiting, 'Ready when you are - not all at once.', 'waiting')
+      + trustGroup('🤫 Handled quietly', handled, 'Filtered, resolved, or treated as low-risk noise. You can review anything here.', 'handled')
+      + trustGroup('✓ Done', done, 'A short trail of what&#39;s been finished recently.', 'done');
     return;
   }
+
   if (view === 'all') {
     area.innerHTML = [
       renderSection('Focus', sortTasks(allTasks.filter(t=>t.lane==='focus')), 'focus'),
@@ -4219,6 +4461,10 @@ function cardHTML(t, isDone) {
           ${t.sender?`<span class="task-card-source" style="margin-bottom:0;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(t.sender)}</span>`:'<span style="flex:1"></span>'}
           ${topRightStr}
         </div>
+        ${(t.created || t.account) ? `<div style="display:flex;align-items:center;gap:10px;margin-bottom:3px">
+          ${t.created ? `<span style="font-size:10px;color:var(--muted);opacity:.7">📅 ${fmtDate(t.created)}</span>` : ''}
+          ${t.account ? `<span style="font-size:10px;color:var(--muted);opacity:.7;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:140px" title="${escHtml(t.account)}">📬 ${escHtml(t.account)}</span>` : ''}
+        </div>` : ''}
         <div class="task-card-title">${escHtml(t.title)}</div>
         ${chips.length?`<div class="task-card-chips">${chips.join('')}</div>`:''}
       </div>
@@ -4511,6 +4757,7 @@ function confirmDeleteData() {
 }
 
 function savePreferences() {
+  clearTimeout(_prefSaveTimer); _prefPendingUpdates = {};
   const name       = document.getElementById('prefName')?.value?.trim() || currentUser?.name || '';
   const keywords   = document.getElementById('prefKeywords')?.value?.trim() || '';
   const tone       = document.querySelector('.pref-option.selected[data-field="tone"]')?.dataset?.value || currentUser?.tone || '';
@@ -5961,35 +6208,564 @@ let unloadVoiceRecog = null;
 let unloadListening = false;
 
 /* ── task sub-view state ── */
-let _taskSubView = 'todayflow'; // 'todayflow' | 'backlog'
-let _flowGrouping = 'energy';  // 'energy' | 'time'
+/* ══════════════════════════════════════════
+   TASK BOARD — replaces old today-flow/kanban UI
+   Uses myTasks array; adds col field alongside lane
+══════════════════════════════════════════ */
 
+const TB_COLS = [
+  { id:'brainstorm', label:'Brainstorms',         subtitle:'Capture anything',         dot:'#9ab5cc', tint:'rgba(154,181,204,0.08)' },
+  { id:'ready',      label:'Ready to start',      subtitle:'Pick one and begin',       dot:'#5bbfbf', tint:'rgba(91,191,191,0.08)'  },
+  { id:'inprogress', label:'In progress',         subtitle:'Currently moving',         dot:'#e07b00', tint:'rgba(224,123,0,0.06)'   },
+  { id:'waiting',    label:'Waiting on someone',  subtitle:'Not yours to move yet',    dot:'#a78bfa', tint:'rgba(167,139,250,0.08)' },
+  { id:'done',       label:'Done',                subtitle:'Clears after 7 days',      dot:'#52c47f', tint:'rgba(82,196,127,0.06)'  },
+];
+const TB_AREA_LABELS = ['work','people','home','admin','waiting','later'];
+
+let _tbFilters   = { area:null, priority:null, due:null };
+let _tbViewMode  = 'board';
+let _tbRenaming  = null;
+let _tbDragId    = null;
+let _tbColsKey   = () => `arelo_${currentUser?.email||'guest'}_tbcols`;
+let _tbUserCols  = null;  // custom labels
+
+/* lane ↔ col mapping so rest of dashboard still works */
+function tbLaneToCol(lane) {
+  if (lane === 'inProgress') return 'inprogress';
+  if (lane === 'waiting')    return 'waiting';
+  if (lane === 'done')       return 'done';
+  return 'brainstorm';
+}
+function tbColToLane(col) {
+  if (col === 'inprogress') return 'inProgress';
+  if (col === 'waiting')    return 'waiting';
+  if (col === 'done')       return 'done';
+  return 'notStarted';
+}
+function tbGetCol(t) {
+  return t.col || tbLaneToCol(t.lane || 'notStarted');
+}
+function tbSetCol(t, col) {
+  t.col  = col;
+  t.lane = tbColToLane(col);
+  if (col === 'done' && !t.completedAt) t.completedAt = new Date().toISOString();
+  if (col !== 'done') delete t.completedAt;
+}
+
+function tbGetCols() {
+  if (!_tbUserCols) {
+    try {
+      const stored = JSON.parse(localStorage.getItem(_tbColsKey()) || 'null');
+      _tbUserCols = stored || {};
+    } catch(e) { _tbUserCols = {}; }
+  }
+  return TB_COLS.map(c => ({ ...c, label: _tbUserCols[c.id] || c.label }));
+}
+function tbSaveCols(cols) {
+  const map = {};
+  cols.forEach(c => { map[c.id] = c.label; });
+  localStorage.setItem(_tbColsKey(), JSON.stringify(map));
+  _tbUserCols = map;
+}
+
+function tbAutoArchive() {
+  const cutoff = Date.now() - 7*86400000;
+  const before = myTasks.length;
+  myTasks = myTasks.filter(t => {
+    if (tbGetCol(t) !== 'done') return true;
+    const ts = t.completedAt ? new Date(t.completedAt).getTime() : 0;
+    return !ts || ts > cutoff;
+  });
+  if (myTasks.length !== before) saveMyTasks();
+}
+
+/* ── ENTRY POINT (called by setView) ── */
 function setTaskSubView(sub) {
-  _taskSubView = sub || 'todayflow';
-  // update sub-item active states
-  document.getElementById('subTodayFlow')?.classList.toggle('active', _taskSubView === 'todayflow');
-  document.getElementById('subBacklog')?.classList.toggle('active', _taskSubView === 'backlog');
+  // kept for nav compatibility — sub-view concept replaced by board/list toggle
   renderTasksView();
+}
+function updateTodayFlowCount() {
+  const open = myTasks.filter(t => tbGetCol(t) !== 'done').length;
+  const el = document.getElementById('countTodayFlow');
+  if (el) { el.textContent = open || ''; el.style.display = open ? '' : 'none'; }
+  const bl = document.getElementById('countBacklog');
+  if (bl) { bl.textContent = ''; bl.style.display = 'none'; }
 }
 
 function renderTasksView() {
   loadMyTasks();
+  tbAutoArchive();
   const area = document.getElementById('taskArea');
-  if (_taskSubView === 'backlog') {
-    renderBacklogView(area);
-  } else {
-    renderTodayFlowView(area);
-  }
+  if (!area) return;
+
+  const cols = tbGetCols();
+  const filtered = tbGetFiltered();
+  const anyFilter = Object.values(_tbFilters).some(Boolean);
+
+  area.innerHTML = `
+    <div class="tb-shell">
+      <div class="tb-toolbar">
+        <div class="tb-toolbar-left">
+          <div class="tb-view-toggle">
+            <button class="tb-view-btn ${_tbViewMode==='board'?'active':''}" id="tbBtnBoard"
+              onclick="tbSetView('board')" title="Board view">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                <rect x="0" y="0" width="3.5" height="13" rx="1" fill="currentColor"/>
+                <rect x="4.75" y="0" width="3.5" height="13" rx="1" fill="currentColor"/>
+                <rect x="9.5" y="0" width="3.5" height="13" rx="1" fill="currentColor"/>
+              </svg>
+            </button>
+            <button class="tb-view-btn ${_tbViewMode==='list'?'active':''}" id="tbBtnList"
+              onclick="tbSetView('list')" title="List view">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                <rect x="0" y="1" width="13" height="2" rx="1" fill="currentColor"/>
+                <rect x="0" y="5.5" width="13" height="2" rx="1" fill="currentColor"/>
+                <rect x="0" y="10" width="13" height="2" rx="1" fill="currentColor"/>
+              </svg>
+            </button>
+          </div>
+          <button class="tb-filter-btn ${anyFilter?'active':''}" id="tbFilterBtn"
+            onclick="tbToggleFilterDd()">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M1 2h10M3 6h6M5 10h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            Filter
+            <span class="tb-filter-dot" id="tbFilterDot"></span>
+          </button>
+          ${anyFilter ? `<span style="font-size:11px;color:var(--muted);font-style:italic">${filtered.length} shown</span>` : ''}
+        </div>
+        <button class="tb-btn primary" onclick="tbShowAddForm('brainstorm')">+ Add task</button>
+      </div>
+      <div id="tbBoardArea" style="flex:1;overflow:hidden;display:flex;flex-direction:column">
+        ${_tbViewMode === 'board' ? '<div class="tb-columns" id="tbColumns"></div>' : '<div class="tb-list-wrap" id="tbListWrap"></div>'}
+      </div>
+    </div>`;
+
+  if (_tbViewMode === 'board') tbRenderBoard(cols, filtered);
+  else tbRenderList(cols, filtered);
+
   updateTodayFlowCount();
+  tbSyncFilterUI(cols);
 }
 
-function updateTodayFlowCount() {
-  const open = myTasks.filter(t => t.lane !== 'done').length;
-  const el = document.getElementById('countTodayFlow');
-  if (el) { el.textContent = open; el.style.display = open ? '' : 'none'; }
-  const bl = document.getElementById('countBacklog');
-  if (bl) { bl.textContent = ''; bl.style.display = 'none'; }
+/* ── BOARD ── */
+function tbRenderBoard(cols, filtered) {
+  const container = document.getElementById('tbColumns');
+  if (!container) return;
+  cols.forEach(col => container.appendChild(tbMakeCol(col, filtered)));
 }
+
+function tbMakeCol(col, filtered) {
+  const colTasks = filtered.filter(t => tbGetCol(t) === col.id);
+  const wrap = document.createElement('div');
+  wrap.className = 'tb-col'; wrap.dataset.col = col.id;
+
+  wrap.addEventListener('dragover', e => { e.preventDefault(); wrap.classList.add('drag-over'); });
+  wrap.addEventListener('dragleave', e => { if (!wrap.contains(e.relatedTarget)) wrap.classList.remove('drag-over'); });
+  wrap.addEventListener('drop', e => {
+    e.preventDefault(); wrap.classList.remove('drag-over');
+    const id = e.dataTransfer.getData('tbTaskId'); if (!id) return;
+    const t = myTasks.find(t => t.id === id);
+    if (!t || tbGetCol(t) === col.id) return;
+    tbMoveTask(id, col.id);
+  });
+
+  wrap.innerHTML = `
+    <div class="tb-col-head">
+      <div class="tb-col-meta">
+        <div class="tb-col-title-wrap" title="Click to rename" onclick="tbStartRename('${col.id}')">
+          <div class="tb-col-title" id="tbColTitle_${col.id}">${escHtml(col.label)}</div>
+        </div>
+        <span class="tb-col-count">${colTasks.length}</span>
+      </div>
+      <div class="tb-col-sub">${escHtml(col.subtitle)}</div>
+    </div>`;
+
+  const cards = document.createElement('div');
+  cards.className = 'tb-cards';
+  if (!colTasks.length) {
+    cards.innerHTML = `<div class="tb-empty">Nothing here yet</div>`;
+  } else {
+    colTasks.forEach(t => cards.appendChild(tbMakeCard(t, col)));
+  }
+  wrap.appendChild(cards);
+
+  if (col.id === 'done') {
+    const n = document.createElement('div');
+    n.className = 'tb-archive-note'; n.textContent = 'Clears after 7 days';
+    wrap.appendChild(n);
+  }
+  if (col.id === 'brainstorm') {
+    const addArea = document.createElement('div');
+    addArea.className = 'tb-add-area';
+    addArea.innerHTML = `
+      <button class="tb-add-btn" id="tbAddBtn_${col.id}" onclick="tbShowAddForm('${col.id}')">
+        <span style="font-size:15px;font-weight:300">+</span> Add a thought
+      </button>
+      <div class="tb-add-form" id="tbAddForm_${col.id}">
+        <textarea class="tb-add-input" id="tbAddInput_${col.id}" rows="2"
+          placeholder="What's on your mind?"
+          onkeydown="tbAddKey(event,'${col.id}')"></textarea>
+        <div class="tb-add-row">
+          <select class="tb-add-select" id="tbAddArea_${col.id}">
+            ${TB_AREA_LABELS.map(a=>`<option value="${a}">${tbCap(a)}</option>`).join('')}
+          </select>
+          <select class="tb-add-select" id="tbAddPri_${col.id}">
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="low">Low</option>
+          </select>
+        </div>
+        <input class="tb-add-date" id="tbAddDue_${col.id}" type="date">
+        <div class="tb-add-btns">
+          <button class="tb-save-btn" onclick="tbSaveAdd('${col.id}')">Add ✓</button>
+          <button class="tb-cancel-btn" onclick="tbHideAddForm('${col.id}')">Cancel</button>
+        </div>
+      </div>`;
+    wrap.appendChild(addArea);
+  }
+  return wrap;
+}
+
+function tbMakeCard(task, col) {
+  const card = document.createElement('div');
+  card.className = 'tb-card'; card.draggable = true;
+  card.addEventListener('dragstart', e => { e.dataTransfer.setData('tbTaskId', task.id); card.classList.add('dragging'); _tbDragId = task.id; });
+  card.addEventListener('dragend',   () => { card.classList.remove('dragging'); _tbDragId = null; });
+  card.addEventListener('dragover',  e => {
+    e.preventDefault(); e.stopPropagation();
+    document.querySelectorAll('.tb-card').forEach(c => c.classList.remove('drag-above','drag-below'));
+    const mid = card.getBoundingClientRect().top + card.getBoundingClientRect().height / 2;
+    card.classList.add(e.clientY < mid ? 'drag-above' : 'drag-below');
+  });
+  card.addEventListener('dragleave', () => card.classList.remove('drag-above','drag-below'));
+  card.addEventListener('drop', e => {
+    e.stopPropagation();
+    card.classList.remove('drag-above','drag-below');
+    const id = e.dataTransfer.getData('tbTaskId');
+    if (!id || id === task.id) return;
+    const rect = card.getBoundingClientRect();
+    tbReorder(id, task.id, e.clientY < rect.top + rect.height/2, col.id);
+  });
+  card.addEventListener('click', () => openTaskDetail(task.id));
+
+  const dueLabel = tbFmtDue(task.dueDate || task.due);
+  const isDone   = col.id === 'done';
+  const snippet  = (task.notes || '').trim();
+
+  card.innerHTML = `
+    <div class="tb-card-title" style="${isDone?'opacity:.45;text-decoration:line-through':''}">${escHtml(task.title)}</div>
+    ${snippet ? `<div class="tb-card-snippet">${escHtml(snippet)}</div>` : ''}
+    <div class="tb-card-meta">
+      ${task.area ? `<span class="tb-tag area-${task.area}">${tbCap(task.area)}</span>` : ''}
+      ${task.priority ? `<span class="tb-pri ${task.priority}">${tbCap(task.priority)}</span>` : ''}
+      ${dueLabel ? `<span class="tb-due${dueLabel.overdue?' overdue':''}">${tbClockSvg()}${dueLabel.text}</span>` : ''}
+    </div>
+    <div class="tb-card-actions">
+      <button class="tb-card-btn" onclick="event.stopPropagation();tbOpenMoveMenu(event,'${task.id}')" title="Move / edit">⋯</button>
+    </div>`;
+  return card;
+}
+
+/* ── LIST ── */
+function tbRenderList(cols, filtered) {
+  const wrap = document.getElementById('tbListWrap');
+  if (!wrap) return;
+  cols.forEach(col => {
+    const colTasks = filtered.filter(t => tbGetCol(t) === col.id);
+    const group = document.createElement('div'); group.className = 'tb-list-group';
+    group.innerHTML = `
+      <div class="tb-list-head">
+        <div class="tb-list-dot" style="background:${col.dot}"></div>
+        <div class="tb-list-label">${escHtml(col.label)}</div>
+        <span class="tb-list-count">${colTasks.length}</span>
+      </div>`;
+    if (!colTasks.length) {
+      group.innerHTML += `<div class="tb-list-empty">Nothing here yet</div>`;
+    } else {
+      colTasks.forEach(t => {
+        const isDone   = col.id === 'done';
+        const dueLabel = tbFmtDue(t.dueDate || t.due);
+        const snippet  = (t.notes || '').trim();
+        const row = document.createElement('div');
+        row.className = 'tb-list-row';
+        row.style.background = col.tint || 'transparent';
+        row.innerHTML = `
+          <div class="tb-list-check ${isDone?'done':''}"
+            onclick="event.stopPropagation();tbListToggleDone('${t.id}')"
+            title="${isDone?'Reopen':'Mark done'}"></div>
+          <div class="tb-list-body">
+            <div class="tb-list-title ${isDone?'done':''}">${escHtml(t.title)}</div>
+            ${snippet ? `<div class="tb-list-snippet">${escHtml(snippet)}</div>` : ''}
+            <div class="tb-list-meta">
+              ${t.area ? `<span class="tb-tag area-${t.area}">${tbCap(t.area)}</span>` : ''}
+              ${t.priority ? `<span class="tb-pri ${t.priority}">${tbCap(t.priority)}</span>` : ''}
+              ${dueLabel ? `<span class="tb-due${dueLabel.overdue?' overdue':''}">${tbClockSvg()}${dueLabel.text}</span>` : ''}
+            </div>
+          </div>
+          <div class="tb-list-actions">
+            <button class="tb-card-btn" onclick="event.stopPropagation();tbOpenMoveMenu(event,'${t.id}')" title="Move / edit">⋯</button>
+          </div>`;
+        row.addEventListener('click', () => openTaskDetail(t.id));
+        group.appendChild(row);
+      });
+    }
+    if (col.id === 'brainstorm' && !Object.values(_tbFilters).some(Boolean)) {
+      const ar = document.createElement('div'); ar.className = 'tb-list-add';
+      ar.innerHTML = `<span style="font-size:15px;font-weight:300">+</span> Add a thought`;
+      ar.onclick = () => { tbSetView('board'); setTimeout(() => tbShowAddForm('brainstorm'), 60); };
+      group.appendChild(ar);
+    }
+    wrap.appendChild(group);
+  });
+}
+
+/* ── VIEW TOGGLE ── */
+function tbSetView(mode) {
+  _tbViewMode = mode;
+  renderTasksView();
+}
+
+/* ── RENAME ── */
+function tbStartRename(colId) {
+  if (_tbRenaming) tbFinishRename(_tbRenaming);
+  _tbRenaming = colId;
+  const cols = tbGetCols();
+  const col = cols.find(c => c.id === colId);
+  const wrap = document.querySelector(`[data-col="${colId}"] .tb-col-title-wrap`);
+  if (!wrap) return;
+  wrap.onclick = null;
+  wrap.innerHTML = `<input class="tb-col-title-input" id="tbRename_${colId}"
+    value="${escHtml(col.label)}"
+    onblur="tbFinishRename('${colId}')"
+    onkeydown="tbRenameKey(event,'${colId}')" maxlength="28">`;
+  const inp = document.getElementById('tbRename_'+colId);
+  if (inp) { inp.focus(); inp.select(); }
+}
+function tbFinishRename(colId) {
+  const inp = document.getElementById('tbRename_'+colId);
+  if (!inp) return;
+  const val = inp.value.trim();
+  if (val) {
+    const cols = tbGetCols();
+    const col = cols.find(c => c.id === colId);
+    if (col) { col.label = val; tbSaveCols(cols); }
+  }
+  _tbRenaming = null;
+  _tbUserCols = null; // bust cache
+  const wrap = document.querySelector(`[data-col="${colId}"] .tb-col-title-wrap`);
+  if (wrap) {
+    const cols = tbGetCols();
+    const col = cols.find(c => c.id === colId);
+    wrap.innerHTML = `<div class="tb-col-title" id="tbColTitle_${colId}">${escHtml(col?.label||val)}</div>`;
+    wrap.onclick = () => tbStartRename(colId);
+  }
+}
+function tbRenameKey(e, colId) {
+  if (e.key === 'Enter') { e.preventDefault(); document.getElementById('tbRename_'+colId)?.blur(); }
+  if (e.key === 'Escape') { _tbRenaming = null; _tbUserCols = null; renderTasksView(); }
+}
+
+/* ── ADD FORM ── */
+function tbShowAddForm(colId) {
+  const btn  = document.getElementById('tbAddBtn_'+colId);
+  const form = document.getElementById('tbAddForm_'+colId);
+  const inp  = document.getElementById('tbAddInput_'+colId);
+  if (btn)  btn.style.display = 'none';
+  if (form) { form.classList.add('open'); }
+  if (inp)  inp.focus();
+}
+function tbHideAddForm(colId) {
+  const btn  = document.getElementById('tbAddBtn_'+colId);
+  const form = document.getElementById('tbAddForm_'+colId);
+  if (btn)  btn.style.display = '';
+  if (form) form.classList.remove('open');
+  const inp = document.getElementById('tbAddInput_'+colId);
+  const due = document.getElementById('tbAddDue_'+colId);
+  if (inp) inp.value = '';
+  if (due) due.value = '';
+}
+function tbAddKey(e, colId) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); tbSaveAdd(colId); }
+  if (e.key === 'Escape') tbHideAddForm(colId);
+}
+function tbSaveAdd(colId) {
+  const inp   = document.getElementById('tbAddInput_'+colId);
+  const title = inp?.value?.trim(); if (!title) return;
+  const area  = document.getElementById('tbAddArea_'+colId)?.value || 'work';
+  const pri   = document.getElementById('tbAddPri_'+colId)?.value  || 'medium';
+  const due   = document.getElementById('tbAddDue_'+colId)?.value  || '';
+  const task  = {
+    id:        generateTaskId(),
+    title,
+    area,     project: area,
+    priority:  pri,
+    dueDate:   due,
+    notes:     '',
+    lane:      tbColToLane(colId),
+    col:       colId,
+    created:   new Date().toISOString().slice(0,10),
+    source:    'manual',
+  };
+  addMyTask(task);
+  tbHideAddForm(colId);
+  renderTasksView();
+  showQwellToast('Task added ✓');
+}
+
+/* ── MOVE MENU ── */
+const tbMoveMenu = document.getElementById('tbMoveMenu');
+function tbOpenMoveMenu(e, taskId) {
+  e.stopPropagation();
+  tbCloseMoveMenu();
+  tbMoveMenu._taskId = taskId;
+  const task = myTasks.find(t => t.id === taskId);
+  const cols = tbGetCols();
+  document.getElementById('tbMoveMenuItems').innerHTML = cols.map(col => `
+    <div class="tb-move-item ${tbGetCol(task)===col.id?'current':''}"
+      onclick="tbMoveTask('${taskId}','${col.id}')">
+      <span style="width:8px;height:8px;border-radius:50%;background:${col.dot};flex-shrink:0;display:inline-block"></span>
+      ${escHtml(col.label)}
+      ${tbGetCol(task)===col.id?'<span style="margin-left:auto;font-size:10px;color:var(--muted)">current</span>':''}
+    </div>`).join('');
+  const btn = e.currentTarget;
+  const rect = btn.getBoundingClientRect();
+  let left = rect.left, top = rect.bottom + 4;
+  if (left + 185 > window.innerWidth - 8) left = window.innerWidth - 193;
+  if (top + 260 > window.innerHeight) top = rect.top - 264;
+  tbMoveMenu.style.left = left+'px'; tbMoveMenu.style.top = top+'px';
+  tbMoveMenu.classList.add('open');
+  setTimeout(() => document.addEventListener('click', tbCloseMoveMenu, { once:true }), 0);
+}
+function tbCloseMoveMenu() { document.getElementById('tbMoveMenu')?.classList.remove('open'); }
+
+/* ── TASK OPS ── */
+function tbMoveTask(taskId, toCol) {
+  const t = myTasks.find(t => t.id === taskId); if (!t) return;
+  tbSetCol(t, toCol);
+  updateMyTask(taskId, {
+    status:       toCol === 'done' ? 'Done' : 'open',
+    completed_at: toCol === 'done' ? new Date().toISOString().slice(0,10) : ''
+  });
+  saveMyTasks(); tbCloseMoveMenu(); renderTasksView();
+  const colName = tbGetCols().find(c => c.id === toCol)?.label || toCol;
+  showQwellToast(`Moved to ${colName} ✓`);
+}
+function tbReorder(draggedId, targetId, before, colId) {
+  const dragged = myTasks.find(t => t.id === draggedId); if (!dragged) return;
+  tbSetCol(dragged, colId);
+  myTasks = myTasks.filter(t => t.id !== draggedId);
+  const ti = myTasks.findIndex(t => t.id === targetId);
+  if (ti === -1) myTasks.unshift(dragged);
+  else myTasks.splice(before ? ti : ti+1, 0, dragged);
+  saveMyTasks(); renderTasksView();
+}
+function tbDelete(taskId) {
+  if (!confirm('Remove this task?')) return;
+  deleteMyTask(taskId);
+  tbCloseMoveMenu(); renderTasksView();
+}
+function tbOpenEdit(taskId) {
+  tbCloseMoveMenu();
+  openTaskDetail(taskId);
+}
+function tbListToggleDone(taskId) {
+  const t = myTasks.find(t => t.id === taskId); if (!t) return;
+  if (tbGetCol(t) === 'done') {
+    tbSetCol(t, 'ready');
+    updateMyTask(taskId, { status:'open', completed_at:'' });
+    showQwellToast('Reopened');
+  } else {
+    tbSetCol(t, 'done');
+    updateMyTask(taskId, { status:'Done', completed_at: new Date().toISOString().slice(0,10) });
+    showQwellToast('Done ✓');
+  }
+  saveMyTasks(); renderTasksView();
+}
+
+/* ── FILTERS ── */
+function tbBuildAreaChips() {
+  const el = document.getElementById('tbFdArea');
+  if (!el || el.children.length) return;
+  TB_AREA_LABELS.forEach(a => {
+    const btn = document.createElement('button');
+    btn.className = 'tb-fd-chip'; btn.id = 'tbFdA_'+a;
+    btn.textContent = tbCap(a);
+    btn.onclick = () => tbToggleFilter('area', a);
+    el.appendChild(btn);
+  });
+}
+function tbToggleFilter(type, val) {
+  _tbFilters[type] = _tbFilters[type] === val ? null : val;
+  renderTasksView();
+}
+function tbClearFilters() { _tbFilters = { area:null, priority:null, due:null }; renderTasksView(); }
+function tbGetFiltered() {
+  return myTasks.filter(t => {
+    if (_tbFilters.area && (t.area||'') !== _tbFilters.area) return false;
+    if (_tbFilters.priority && (t.priority||'') !== _tbFilters.priority) return false;
+    if (_tbFilters.due) {
+      const today = new Date(); today.setHours(0,0,0,0);
+      const eow   = new Date(today); eow.setDate(today.getDate()+7);
+      const due   = t.dueDate || t.due || '';
+      if (_tbFilters.due === 'none')    { if (due) return false; }
+      else if (_tbFilters.due === 'overdue') {
+        if (!due) return false;
+        const d = new Date(due+'T00:00:00'); if (isNaN(d)||d>=today) return false;
+      } else if (_tbFilters.due === 'today') {
+        if (!due) return false;
+        const d = new Date(due+'T00:00:00'); if (isNaN(d)||d.getTime()!==today.getTime()) return false;
+      } else if (_tbFilters.due === 'week') {
+        if (!due) return false;
+        const d = new Date(due+'T00:00:00'); if (isNaN(d)||d<today||d>=eow) return false;
+      }
+    }
+    return true;
+  });
+}
+function tbSyncFilterUI(cols) {
+  tbBuildAreaChips();
+  TB_AREA_LABELS.forEach(a => { const b=document.getElementById('tbFdA_'+a); if(b) b.classList.toggle('active',_tbFilters.area===a); });
+  [{v:'high',id:'tbFdPH'},{v:'medium',id:'tbFdPM'},{v:'low',id:'tbFdPL'}].forEach(({v,id})=>{ const b=document.getElementById(id); if(b) b.classList.toggle('active',_tbFilters.priority===v); });
+  [{v:'overdue',id:'tbFdDO'},{v:'today',id:'tbFdDT'},{v:'week',id:'tbFdDW'},{v:'none',id:'tbFdDN'}].forEach(({v,id})=>{ const b=document.getElementById(id); if(b) b.classList.toggle('active',_tbFilters.due===v); });
+  const any = Object.values(_tbFilters).some(Boolean);
+  const fb = document.getElementById('tbFilterBtn'); if(fb) fb.classList.toggle('active',any);
+  const fc = document.getElementById('tbFdCount'); if(fc) fc.textContent = any ? `${tbGetFiltered().length} shown` : '';
+}
+function tbToggleFilterDd() {
+  const dd  = document.getElementById('tbFilterDd');
+  const btn = document.getElementById('tbFilterBtn');
+  if (!dd||!btn) return;
+  if (dd.classList.contains('open')) { dd.classList.remove('open'); return; }
+  const rect = btn.getBoundingClientRect();
+  let left = rect.right - 240; if (left < 8) left = 8;
+  dd.style.top = (rect.bottom+6)+'px'; dd.style.left = left+'px';
+  dd.classList.add('open');
+  setTimeout(() => document.addEventListener('click', e => {
+    if (!dd.contains(e.target)) dd.classList.remove('open');
+  }, { once:true }), 0);
+}
+
+/* ── HELPERS ── */
+function tbFmtDue(due) {
+  if (!due) return null;
+  const d = new Date(due+'T00:00:00'); if (isNaN(d)) return null;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const diff = Math.round((d-today)/86400000);
+  if (diff < 0)   return { text:'Overdue', overdue:true };
+  if (diff === 0)  return { text:'Today',   overdue:false };
+  if (diff === 1)  return { text:'Tomorrow',overdue:false };
+  if (diff <= 7)   return { text:d.toLocaleDateString('en-GB',{weekday:'short'}), overdue:false };
+  return { text:d.toLocaleDateString('en-GB',{day:'numeric',month:'short'}), overdue:false };
+}
+function tbClockSvg() {
+  return `<svg width="10" height="10" viewBox="0 0 10 10" fill="none" style="flex-shrink:0;margin-right:2px"><circle cx="5" cy="5" r="4.5" stroke="currentColor" stroke-width="1"/><path d="M5 3v2.2l1.4 1.4" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>`;
+}
+function tbCap(s) { return s ? s[0].toUpperCase()+s.slice(1) : ''; }
+
+/* keep renderKanban as a no-op alias so other code doesn't break */
+function renderKanban() { if (document.getElementById('taskArea') && document.querySelector('.tb-shell')) renderTasksView(); }
+function showKanbanBoard() { renderTasksView(); }
 
 function classifyEnergy(task) {
   if (task.lane === 'done') return 'done';
@@ -6087,7 +6863,7 @@ function renderFlowTaskCard(t) {
   const areaColors = {work:'#eef2f7|#3d5a7a',people:'#f8f0f8|#6d3a6d',home:'#f0f8f0|#2d6a4f',admin:'#fdf8f0|#7a5c2a',waiting:'#f5f5f5|#666',later:'#f5f5f5|#888'};
   const [bg, col] = (areaColors[area] || '#eef2f7|#3d5a7a').split('|');
   const isUrgent = t.priority === 'high';
-  const dueLabel = t.dueDate ? formatRelativeDate(t.dueDate) : '';
+  const dueLabel = t.dueDate ? formatDue(t.dueDate) : (t.due ? formatDue(t.due) : '');
   const overdue = t.dueDate && new Date(t.dueDate) < new Date() && t.lane !== 'done';
   const noteChip = t.notes ? `<span style="font-size:10px;background:var(--teal-soft);color:var(--teal-dark);padding:2px 7px;border-radius:6px;font-weight:700">📋 Note</span>` : '';
   return `<div class="task-card" onclick="openTaskDetail('${t.id}')" draggable="true"
@@ -6186,7 +6962,16 @@ function sortBacklogWithArelo() {
 /* ══════════════════════════════════════════
    SIDEBAR NAV — expandable section toggle
 ══════════════════════════════════════════ */
-const _navSectionState = { tasks: true, notes: false };
+function toggleTrustGroup(id) {
+  const el   = document.getElementById(id);
+  const chev = document.getElementById('chev_' + id);
+  if (!el) return;
+  const isOpen = el.style.display !== 'none';
+  el.style.display   = isOpen ? 'none' : '';
+  if (chev) chev.style.transform = isOpen ? 'rotate(-90deg)' : '';
+}
+
+const _navSectionState = { tasks: false, notes: false };
 function toggleNavSection(key) {
   _navSectionState[key] = !_navSectionState[key];
   const open = _navSectionState[key];
@@ -6194,20 +6979,28 @@ function toggleNavSection(key) {
   const chev = document.getElementById('chevron' + key.charAt(0).toUpperCase() + key.slice(1));
   if (sub)  sub.classList.toggle('open', open);
   if (chev) chev.classList.toggle('open', open);
-  if (open) {
-    const navEl = document.getElementById('nav' + key.charAt(0).toUpperCase() + key.slice(1));
-    if (key === 'tasks') {
-      setView('tasks', navEl);
-      document.getElementById('subTodayFlow')?.classList.add('active');
-    } else if (key === 'notes') {
-      setView('notes', navEl);
-    }
+  const navEl = document.getElementById('nav' + key.charAt(0).toUpperCase() + key.slice(1));
+  if (key === 'tasks') {
+    setView('tasks', navEl);
+    document.getElementById('subTodayFlow')?.classList.add('active');
+  } else if (key === 'notes') {
+    setView('notes', navEl);
   }
 }
 
 /* ══════════════════════════════════════════
    ARELO AGENT — orb in sidebar opens companion
 ══════════════════════════════════════════ */
+function toggleAvatarMenu(e) {
+  e.stopPropagation();
+  const btn = document.getElementById('avatarBtn');
+  btn.classList.toggle('menu-open');
+}
+function closeAvatarMenu() {
+  document.getElementById('avatarBtn')?.classList.remove('menu-open');
+}
+document.addEventListener('click', closeAvatarMenu);
+
 function openAreloAgent() {
   const panel = document.getElementById('companionPanel');
   if (!panel) return;
@@ -6642,6 +7435,22 @@ function loadCalEvents() {
 function saveCalEvents() {
   try { localStorage.setItem('arelo_cal_events', JSON.stringify(_calEvents)); } catch(e) {}
 }
+let _gcalFetching = false;
+async function refreshGcalEvents(dateFrom, dateTo) {
+  if (!currentUser?.email || !WEBHOOK_GET_CALENDAR || _gcalFetching) return;
+  _gcalFetching = true;
+  try {
+    const res = await fetch(WEBHOOK_GET_CALENDAR, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ account: currentUser.email, date_from: dateFrom, date_to: dateTo }) });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    const items = data.events || (Array.isArray(data) ? data : []);
+    if (items.length) {
+      _gcalEvents = items.map(e => ({ id: e.id||'gcal_'+Math.random().toString(36).slice(2), title: e.title||e.summary||'(No title)', date: e.date||(e.start&&e.start.date)||(e.start&&e.start.dateTime&&e.start.dateTime.slice(0,10))||'', time: e.time||(e.start&&e.start.dateTime ? new Date(e.start.dateTime).toTimeString().slice(0,5) : ''), allDay: e.allDay!=null?e.allDay:!(e.start&&e.start.dateTime), color:'#2563eb', source:'google' }));
+      renderCalendarView();
+    }
+  } catch(e) { console.warn('GCal fetch failed:', e); }
+  finally { _gcalFetching = false; }
+}
 
 /* All events including task due dates */
 function getAllCalItems() {
@@ -6698,6 +7507,20 @@ function renderCalendarView(area) {
   const now = new Date();
   const y   = _calDate.getFullYear();
   const m   = _calDate.getMonth();
+
+  if (!_gcalFetching) {
+    let fromDate, toDate;
+    if (_calView === 'month') {
+      fromDate = y+'-'+String(m+1).padStart(2,'0')+'-01';
+      toDate   = y+'-'+String(m+1).padStart(2,'0')+'-'+new Date(y,m+1,0).getDate();
+    } else if (_calView === 'week') {
+      const ws = getWeekStart(_calDate), we = new Date(ws); we.setDate(ws.getDate()+6);
+      fromDate = ws.toISOString().slice(0,10); toDate = we.toISOString().slice(0,10);
+    } else {
+      fromDate = toDate = _calDate.toISOString().slice(0,10);
+    }
+    refreshGcalEvents(fromDate, toDate);
+  }
 
   let label = '';
   if (_calView === 'month') {
@@ -7062,9 +7885,28 @@ function notesKey() { return `arelo_${currentUser?.email||'guest'}_notes`; }
 function loadNotes() {
   try { const r = localStorage.getItem(notesKey()); _notes = r ? JSON.parse(r) : []; } catch(e) { _notes = []; }
 }
-function saveNotes() {
+async function loadNotesFromSupabase() {
+  if (!currentUser?.email || !WEBHOOK_GET_NOTES) return;
+  try {
+    const res = await fetch(WEBHOOK_GET_NOTES, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ account: currentUser.email }) });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const remote = await res.json();
+    if (Array.isArray(remote) && remote.length) {
+      _notes = remote.map(n => ({ id: n.note_id||n.id, title: n.title||'', content: n.content||'', area: n.area||'', created: n.created_at||n.created||'', updated: n.updated_at||n.updated||'' }));
+      try { localStorage.setItem(notesKey(), JSON.stringify(_notes)); } catch(e) {}
+      updateNotesSidebar();
+    }
+  } catch(e) { console.warn('Notes remote load failed:', e); }
+}
+function saveNotes(changedNote) {
   try { localStorage.setItem(notesKey(), JSON.stringify(_notes)); } catch(e) {}
   updateNotesSidebar();
+  if (changedNote && currentUser?.email && WEBHOOK_SAVE_NOTE) {
+    fetch(WEBHOOK_SAVE_NOTE, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ note_id: changedNote.id, account: currentUser.email, email: currentUser.email, title: changedNote.title||'', content: changedNote.content||'', area: changedNote.area||'', created_at: changedNote.created||new Date().toISOString(), updated_at: changedNote.updated||new Date().toISOString() })
+    }).catch(e => console.warn('Note sync failed:', e));
+  }
 }
 
 function updateNotesSidebar() {
@@ -7171,7 +8013,8 @@ function saveNoteModal() {
   } else {
     _notes.unshift({ id: 'note_' + Date.now(), title, content, area, created: new Date().toISOString(), updated: new Date().toISOString() });
   }
-  saveNotes();
+  const _saved = _editingNoteId ? _notes.find(n => n.id === _editingNoteId) : _notes[0];
+  saveNotes(_saved);
   document.getElementById('noteModal').style.display = 'none';
   renderNotesView();
   showToast(_editingNoteId ? 'Note updated ✓' : 'Note added ✓');
@@ -8825,11 +9668,11 @@ function toggleCompanionMobile() {
 
 // Restore collapse state from localStorage
 function restoreCompanionState() {
-  const panel = document.getElementById('companionPanel');
-  if (panel) {
-    panel.classList.remove('collapsed');
+  const wasOpen = localStorage.getItem('arelo_companion_collapsed') === '0';
+  if (wasOpen) {
+    const panel = document.getElementById('companionPanel');
+    if (panel) panel.classList.remove('collapsed');
   }
-  localStorage.setItem('arelo_companion_collapsed', '0');
 }
 
 // ── Legacy aliases (kept so any remaining internal callers don't break) ──────
@@ -9218,6 +10061,43 @@ async function _runDashboardTour() {
     }
   }
 }
-</script>
+<!-- Task Board: move menu -->
+<div class="tb-move-menu" id="tbMoveMenu">
+  <div class="tb-move-label">Move to</div>
+  <div id="tbMoveMenuItems"></div>
+  <div class="tb-move-divider"></div>
+  <div class="tb-move-item" onclick="tbOpenEdit(tbMoveMenu._taskId)">✏ Edit task</div>
+  <div class="tb-move-divider"></div>
+  <div class="tb-move-delete" onclick="tbDelete(tbMoveMenu._taskId)">✕ Delete</div>
+</div>
+
+<!-- Task Board: filter dropdown -->
+<div class="tb-filter-dd" id="tbFilterDd">
+  <div class="tb-fd-sec">
+    <span class="tb-fd-label">Area</span>
+    <div class="tb-fd-chips" id="tbFdArea"></div>
+  </div>
+  <div class="tb-fd-sec">
+    <span class="tb-fd-label">Priority</span>
+    <div class="tb-fd-chips">
+      <button class="tb-fd-chip ph" id="tbFdPH" onclick="tbToggleFilter('priority','high')">High</button>
+      <button class="tb-fd-chip pm" id="tbFdPM" onclick="tbToggleFilter('priority','medium')">Medium</button>
+      <button class="tb-fd-chip pl" id="tbFdPL" onclick="tbToggleFilter('priority','low')">Low</button>
+    </div>
+  </div>
+  <div class="tb-fd-sec">
+    <span class="tb-fd-label">Due</span>
+    <div class="tb-fd-chips">
+      <button class="tb-fd-chip do" id="tbFdDO" onclick="tbToggleFilter('due','overdue')">Overdue</button>
+      <button class="tb-fd-chip"    id="tbFdDT" onclick="tbToggleFilter('due','today')">Today</button>
+      <button class="tb-fd-chip"    id="tbFdDW" onclick="tbToggleFilter('due','week')">This week</button>
+      <button class="tb-fd-chip"    id="tbFdDN" onclick="tbToggleFilter('due','none')">No date</button>
+    </div>
+  </div>
+  <div class="tb-fd-foot">
+    <span class="tb-fd-count" id="tbFdCount"></span>
+    <button class="tb-fd-clear" onclick="tbClearFilters()">Clear all</button>
+  </div>
+</div>
 </body>
 </html>
