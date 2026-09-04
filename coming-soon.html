@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coming soon — Arelo</title>
+<meta name="description" content="Arelo isn't open for public signup yet. Join the waiting list to be first in line, and try the interactive demo in the meantime.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><radialGradient id='og' cx='35%' cy='35%' r='65%'><stop offset='0%' stop-color='%23ffffff'/><stop offset='35%' stop-color='%23b8e8e8'/><stop offset='70%' stop-color='%235bbfbf'/><stop offset='100%' stop-color='%232a8080'/></radialGradient></defs><ellipse cx='16' cy='16' rx='14' ry='14' fill='url(%23og)'/></svg>">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Nunito:wght@400;600;700;800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:       #3d5a7a;
+  --navy-dark:  #1e2e3e;
+  --navy-mid:   #2c4260;
+  --teal:       #5bbfbf;
+  --teal-dark:  #3a9090;
+  --teal-glow:  rgba(91,191,191,0.35);
+  --teal-soft:  rgba(91,191,191,0.12);
+  --surface:    rgba(255,255,255,0.05);
+  --surface-up: rgba(255,255,255,0.09);
+  --ink:        #ffffff;
+  --muted:      rgba(255,255,255,0.55);
+  --line:       rgba(255,255,255,0.09);
+  --shadow-xl:  0 24px 64px rgba(10,20,35,0.5);
+  --good:       #5bbf8a;
+  --good-soft:  rgba(91,191,138,0.12);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Atkinson Hyperlegible', sans-serif;
+  background: var(--navy-dark);
+  color: var(--ink);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+.bg {
+  position: fixed; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 70% 60% at 10% 90%, rgba(91,191,191,0.12) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 45% at 90% 5%, rgba(61,90,122,0.55) 0%, transparent 60%),
+    linear-gradient(160deg, #0c1825 0%, #1e2e3e 50%, #0f1c2b 100%);
+}
+nav {
+  position: relative; z-index:1;
+  padding: 20px 40px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-logo { display:flex; align-items:center; gap:12px; text-decoration:none; }
+.nav-orb {
+  width:36px; height:36px;
+  background: radial-gradient(circle at 35% 35%, #fff 0%, #b8e8e8 30%, #5bbfbf 65%, #2a8080 100%);
+  border-radius: 50%;
+  box-shadow: 0 0 20px rgba(91,191,191,0.4);
+  flex-shrink: 0;
+}
+.nav-wordmark { font-family:'Nunito',sans-serif; font-weight:800; font-size:20px; color:#fff; letter-spacing:-.3px; }
+.nav-link {
+  color: var(--muted); text-decoration:none; font-size:15px; padding:8px 16px;
+  border-radius:40px; transition:color .2s, background .2s;
+}
+.nav-link:hover { color:#fff; background:var(--surface); }
+
+.wrap {
+  position:relative; z-index:1;
+  min-height:calc(100vh - 78px);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; padding:60px 24px 100px;
+}
+.eyebrow {
+  display:inline-flex; align-items:center; gap:8px;
+  background: rgba(91,191,191,0.12);
+  border:1px solid rgba(91,191,191,0.25);
+  border-radius:40px; padding:6px 16px 6px 10px;
+  font-size:13px; color:var(--teal); font-weight:700; letter-spacing:.04em;
+  margin-bottom:24px;
+}
+.eyebrow-dot { width:6px; height:6px; background:var(--teal); border-radius:50%; }
+h1 {
+  font-family:'DM Serif Display', serif;
+  font-size: clamp(36px,6vw,60px);
+  line-height:1.1; letter-spacing:-.02em; margin-bottom:20px;
+}
+h1 em { font-style:italic; color:var(--teal); }
+.sub {
+  font-size:17px; color:var(--muted); max-width:520px; line-height:1.65; margin-bottom:40px;
+}
+.card {
+  background:var(--surface); border:1px solid var(--line); border-radius:24px;
+  padding:36px 32px; max-width:440px; width:100%;
+}
+.field { text-align:left; margin-bottom:16px; }
+.field label { display:block; font-size:13px; color:var(--muted); margin-bottom:6px; font-weight:700; }
+.field input {
+  width:100%; padding:12px 16px; border-radius:12px;
+  border:1px solid var(--line); background:rgba(255,255,255,0.04); color:var(--ink);
+  font-family:'Atkinson Hyperlegible', sans-serif; font-size:15px;
+}
+.field input:focus { outline:none; border-color:var(--teal); }
+.submit-btn {
+  width:100%; background:var(--teal); color:var(--navy-dark); border:none; cursor:pointer;
+  font-family:'Nunito',sans-serif; font-weight:800; font-size:16px;
+  padding:14px 0; border-radius:50px; margin-top:8px;
+  box-shadow:0 0 32px rgba(91,191,191,0.35);
+  transition:transform .15s, box-shadow .15s;
+}
+.submit-btn:hover { transform:translateY(-1px); box-shadow:0 0 40px rgba(91,191,191,0.5); }
+.disclaimer { font-size:12.5px; color:var(--muted); margin-top:16px; line-height:1.5; }
+.success {
+  display:none; text-align:center; padding:8px 0;
+}
+.success.show { display:block; }
+.success .check {
+  width:48px; height:48px; border-radius:50%; background:var(--good-soft);
+  color:var(--good); display:flex; align-items:center; justify-content:center;
+  font-size:24px; margin:0 auto 16px;
+}
+.links { margin-top:32px; display:flex; gap:16px; flex-wrap:wrap; justify-content:center; }
+.links a {
+  color:var(--muted); text-decoration:none; font-size:14px; padding:9px 18px;
+  border-radius:40px; border:1px solid var(--line); transition:color .2s, border-color .2s;
+}
+.links a:hover { color:#fff; border-color:rgba(91,191,191,0.4); }
+footer {
+  position:relative; z-index:1; padding:28px 40px; border-top:1px solid var(--line);
+  display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;
+}
+.footer-brand { display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--muted); font-size:14px; }
+.footer-brand .nav-orb { width:24px; height:24px; box-shadow:none; }
+.footer-links { display:flex; gap:24px; }
+.footer-links a { color:var(--muted); text-decoration:none; font-size:13px; }
+.footer-links a:hover { color:#fff; }
+@media(max-width:640px){ nav{padding:16px 20px} footer{flex-direction:column; align-items:flex-start} }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+
+<nav>
+  <a class="nav-logo" href="index.html">
+    <div class="nav-orb"></div>
+    <span class="nav-wordmark">Arelo</span>
+  </a>
+  <a class="nav-link" href="index.html">Back to home</a>
+</nav>
+
+<div class="wrap">
+  <div class="eyebrow"><span class="eyebrow-dot"></span>Not open for public signup yet</div>
+  <h1>Arelo is on its way<br><em>— we're glad you're curious.</em></h1>
+  <p class="sub">We're not open for public signup just yet. Pop your name and email below and we'll let you know the moment that changes — or explore the interactive demo right now to see how Arelo works.</p>
+
+  <div class="card">
+    <form id="waitlistForm" name="coming-soon-waitlist" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+      <input type="hidden" name="form-name" value="coming-soon-waitlist" />
+      <p style="display:none">
+        <label>Don't fill this out if you're human: <input name="bot-field" /></label>
+      </p>
+      <div class="field">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" required autocomplete="name" placeholder="Your name">
+      </div>
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required autocomplete="email" placeholder="you@example.com">
+      </div>
+      <button class="submit-btn" type="submit">Join the waiting list</button>
+      <p class="disclaimer">Joining the waiting list doesn't give you immediate access — we'll email you when Arelo opens up. No spam, unsubscribe any time.</p>
+    </form>
+    <div class="success" id="waitlistSuccess">
+      <div class="check">✓</div>
+      <p style="font-weight:700;margin-bottom:8px">You're on the list.</p>
+      <p class="disclaimer">We'll email you as soon as Arelo is open — that's all this signs you up for.</p>
+    </div>
+  </div>
+
+  <div class="links">
+    <a href="/demo">Try the interactive demo</a>
+    <a href="index.html">Back to home</a>
+  </div>
+</div>
+
+<footer>
+  <a class="footer-brand" href="index.html">
+    <div class="nav-orb"></div>
+    <span>© 2026 Arelo · Built for overwhelmed minds</span>
+  </a>
+  <div class="footer-links">
+    <a href="privacy.html">Privacy</a>
+    <a href="terms.html">Terms</a>
+    <a href="mailto:support@myarelo.ai">Contact</a>
+  </div>
+</footer>
+
+<script>
+// Progressive enhancement: submit via fetch to Netlify Forms so we can show an
+// inline success state instead of a full page reload to Netlify's default
+// success page. Falls back to a normal form POST if fetch fails.
+const form = document.getElementById('waitlistForm');
+form.addEventListener('submit', function (e) {
+  e.preventDefault();
+  const data = new FormData(form);
+  fetch('/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams(data).toString(),
+  })
+    .then(() => {
+      form.style.display = 'none';
+      document.getElementById('waitlistSuccess').classList.add('show');
+    })
+    .catch(() => { form.submit(); });
+});
+</script>
+</body>
+</html>

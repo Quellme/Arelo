@@ -32,6 +32,13 @@ button,input,select{font:inherit}
 .tabstrip button.active{background:#17324d;color:#fff}
 .tabstrip button:hover:not(.active){background:#f3f6f8}
 .topbar .meta{font-size:12.5px;color:#60758a}
+.topbar .meta-group{display:flex;align-items:center;gap:12px}
+.topbar .feedback-link{
+  font-size:12.5px;color:#0f8a7c;text-decoration:none;font-weight:700;
+  padding:7px 14px;border:1px solid #d5e0e9;border-radius:999px;white-space:nowrap;
+  transition:background .15s,border-color .15s;
+}
+.topbar .feedback-link:hover{background:#e3f5f1;border-color:#0f8a7c}
 .panel{display:none;padding:26px 22px 64px}
 .panel.active{display:block}
 [hidden]{display:none!important}
@@ -533,7 +540,10 @@ button,input,select{font:inherit}
       <button data-tab="calendar">Calendar</button>
       <button data-tab="emails">Emails</button>
     </nav>
-    <div class="meta">Tuesday 8 September · demo fixture</div>
+    <div class="meta-group">
+      <div class="meta">Tuesday 8 September · interactive demo, not a live account</div>
+      <a class="feedback-link" href="/feedback" title="Give feedback on this demo">💬 Give feedback</a>
+    </div>
   </header>
 
   <!-- ===================== FOCUS ===================== -->
