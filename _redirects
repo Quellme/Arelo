@@ -2,5 +2,8 @@
 /auth/callback/azure   /arelo_login.html  200
 /arelo_onboarding /arelo_onboarding.html 200
 /dashboard /arelo_dashboard.html 200
+/demo /arelo_dashboard.html 200
+/coming-soon /coming-soon.html 200
+/feedback /feedback.html 200
 /login /arelo_login.html 200
 / /index.html 200
