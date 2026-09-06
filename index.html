@@ -310,6 +310,26 @@ footer {
   .strip { gap:24px; }
   .strip-div { display:none; }
   footer { flex-direction:column; align-items:flex-start; }
+
+  /* keep anchored section headings clear of the fixed nav */
+  #how, #features, #demo { scroll-margin-top:80px; }
+
+  /* tighter section rhythm on mobile */
+  .section { padding-top:60px; padding-bottom:60px; }
+  .cta-section { padding-top:60px; padding-bottom:60px; }
+  .section-sub { font-size:15px; line-height:1.5; margin-bottom:32px; }
+
+  /* smaller, list-like cards */
+  .steps { gap:16px; }
+  .features { gap:12px; }
+  .step-card { padding:20px; }
+  .feat-card { padding:20px; }
+  .step-num { font-size:28px; margin-bottom:8px; }
+  .step-icon { font-size:22px; margin-bottom:8px; }
+  .step-title { margin-bottom:6px; }
+  .feat-icon { width:36px; height:36px; font-size:18px; margin-bottom:10px; }
+  .feat-title { margin-bottom:6px; }
+  .step-desc, .feat-desc { font-size:14px; line-height:1.5; }
 }
 </style>
 </head>
@@ -413,8 +433,8 @@ footer {
   <div class="features">
     <div class="feat-card">
       <div class="feat-icon">📬</div>
-      <div class="feat-title">Smart task extraction</div>
-      <p class="feat-desc">Arelo reads every email and pulls out the actual thing you need to do — not just the subject line. Each one becomes a Pin Arelo keeps track of for you.</p>
+      <div class="feat-title">Understands what needs holding</div>
+      <p class="feat-desc">An email, a message, something you mention — Arelo recognises what's worth holding onto, not just what's in the subject line. Each one becomes a Pin Arelo keeps track of for you.</p>
     </div>
     <div class="feat-card">
       <div class="feat-icon">🗂️</div>
