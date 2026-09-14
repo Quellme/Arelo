@@ -31,7 +31,6 @@ button,input,select{font:inherit}
   position:sticky;top:0;align-self:flex-start;height:100vh;overflow-y:auto;
 }
 .topbar .brand{font-family:Georgia,"Times New Roman",serif;font-size:19px;font-weight:700;color:#fff;padding:0 8px}
-.topbar .brand span{color:#7fd8c9}
 .tabstrip{display:flex;flex-direction:column;gap:3px;flex-wrap:nowrap}
 .tabstrip button{
   display:flex;align-items:center;gap:11px;
@@ -118,13 +117,45 @@ button,input,select{font:inherit}
   opacity:0;transition:opacity .6s ease,top .8s ease,left .8s ease;
 }
 .arrival-orb.phase-in{opacity:1}
-/* Settle position is set inline from a live measurement of the real topbar (see
-   settleOrbThenFade) so it never collides with tab/meta text at any breakpoint;
+/* Settle position is set inline from a live measurement of the real sidebar (see
+   settleOrbThenFade) so it never collides with nav labels/disclosure at any breakpoint;
    this is a same-viewport fallback only, in case that measurement isn't available. */
 .arrival-orb.phase-settle{top:26px;left:calc(100% - 49px)}
-/* ARELO-331 (comment 14668): ambient/resting state — the orb stays on screen beside the brand mark for the life of the demo; no fade-out, no removal. */
-.arrival-orb.phase-rest{animation:arrivalOrbAmbient 4.2s ease-in-out infinite}
+/* ARELO-331 (comment 14668): ambient/resting state — the orb stays on screen for the life of the
+   demo; no fade-out, no removal. ARELO-332/347 follow-up: once resting, the orb becomes Arelo's
+   persistent universal input portal — clickable to open the composer — rather than purely
+   decorative; it is not interactive during the arrival handoff itself (phase-in/phase-settle
+   keep pointer-events:none so it never intercepts a click meant for the page underneath). */
+.arrival-orb.phase-rest{animation:arrivalOrbAmbient 4.2s ease-in-out infinite;pointer-events:auto;cursor:pointer}
+.arrival-orb.phase-rest:hover{box-shadow:0 0 30px rgba(15,138,124,.6),0 0 0 6px rgba(15,138,124,.12)}
 @keyframes arrivalOrbAmbient{0%,100%{transform:scale(1);box-shadow:0 0 24px rgba(15,138,124,.45)}50%{transform:scale(1.08);box-shadow:0 0 30px rgba(15,138,124,.58)}}
+/* Mobile resting place: floating above the bottom nav, never obscuring navigation or content. */
+@media(max-width:680px){
+  .arrival-orb.phase-rest{top:auto!important;left:auto!important;right:16px;bottom:calc(64px + env(safe-area-inset-bottom))}
+}
+/* ARELO-332/347 — Orb composer: Arelo's one universal input portal, opened over whichever
+   surface the user is on. Same modal conventions as the Notes editor (calm, consumer-product
+   feel, not a picker between destinations). */
+.orb-composer-backdrop{position:fixed;inset:0;background:rgba(23,50,77,.42);z-index:1100;display:flex;align-items:flex-start;justify-content:center;padding:8vh 16px}
+.orb-composer{background:#fff;border-radius:18px;padding:24px 26px;width:min(560px,100%);box-shadow:0 24px 60px rgba(23,50,77,.28)}
+.orb-composer-head{display:flex;gap:14px;align-items:flex-start;margin:0 0 16px}
+.orb-composer-dot{width:34px;height:34px;flex:0 0 34px;border-radius:50%;margin-top:2px;background:radial-gradient(circle at 35% 35%,#fff 0%,#bfe9e2 30%,#0f8a7c 70%,#0b6459 100%);box-shadow:0 0 14px rgba(15,138,124,.4)}
+.orb-composer-head h2{font-family:Georgia,"Times New Roman",serif;font-weight:400;margin:0 0 4px;font-size:21px;color:#17324d}
+.orb-composer-head p{margin:0;font-size:13.5px;color:#5b7186;line-height:1.45}
+.orb-composer textarea{width:100%;min-height:110px;border:1px solid #e1e8ef;border-radius:10px;padding:11px 12px;font:inherit;font-size:14px;line-height:1.55;color:#17324d;resize:vertical;margin:0 0 14px}
+.orb-composer-examples{margin:0 0 18px}
+.orb-composer-examples>span{display:block;font-family:"Nunito",Arial,sans-serif;font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#5b7186;margin:0 0 8px}
+.orb-composer-example-row{display:flex;gap:7px;flex-wrap:wrap}
+.orb-composer-example-row button{font-family:"Nunito",Arial,sans-serif;font-size:12px;font-weight:800;background:#EEF9F7;border:1px solid #CFECE7;color:#3E9088;border-radius:999px;padding:6px 13px;cursor:pointer}
+.orb-composer-example-row button:hover{background:#CFECE7}
+.orb-composer-actions{display:flex;justify-content:flex-end;gap:10px}
+.orb-composer-cancel{font-family:"Nunito",Arial,sans-serif;font-size:13px;font-weight:800;background:#fff;border:1px solid #e1e8ef;color:#5b7186;border-radius:999px;padding:9px 18px;cursor:pointer}
+.orb-composer-send{font-family:"Nunito",Arial,sans-serif;font-size:13px;font-weight:800;background:#17324d;border:1px solid #17324d;color:#fff;border-radius:999px;padding:9px 18px;cursor:pointer}
+.orb-composer-send:disabled{opacity:.45;cursor:default}
+/* Brief landing highlight on whatever surface the Orb's scripted interpretation updated —
+   reuses the same visual language as the existing source-highlight pattern (goToSource). */
+.orb-landed{animation:orbLandedFlash 1.8s ease}
+@keyframes orbLandedFlash{0%{background-color:#EEF9F7}70%{background-color:#EEF9F7}100%{background-color:transparent}}
 /* Post-handoff cue (ARELO-331 amendment): permission/context, not an interstitial — never
    intercepts a click, never blocks interaction, and disappears on its own. */
 .arrival-explore-cue{
@@ -196,7 +227,6 @@ button,input,select{font:inherit}
   border-right:1px solid rgba(255,255,255,.08);
 }
 .arrival-final-brand{font-family:Georgia,"Times New Roman",serif;font-size:19px;font-weight:700;color:#fff;padding:0 8px}
-.arrival-final-brand span{color:#7fd8c9}
 .arrival-final-tabs{display:flex;flex-direction:column;gap:3px}
 .arrival-final-tabs span{padding:10px 12px;border-radius:10px;font-weight:700;font-size:13.5px;color:#b9c7d6;text-align:left}
 .arrival-final-tabs span.on{background:rgba(255,255,255,.14);color:#fff}
@@ -923,6 +953,35 @@ button,input,select{font:inherit}
 <div id="arrivalDisclosure" class="arrival-disclosure">Interactive demo · not a live account</div>
 <div id="arrivalOrb" class="arrival-orb" aria-hidden="true"></div>
 <div id="arrivalExploreCue" class="arrival-explore-cue" aria-hidden="true">Explore Gemma's Arelo</div>
+<!-- ARELO-332/347 — the Orb's composer: Arelo's one universal input portal. Global overlay (not
+     scoped to any single panel) so it opens over whichever surface the user is currently on. The
+     demo is deterministic (no live AI), so this offers a small, clearly-labelled set of scripted
+     example inputs rather than pretending arbitrary free text gets genuinely understood; typing
+     something close to one of the three examples still matches the same scripted outcome. -->
+<div class="orb-composer-backdrop" id="orbComposerBackdrop" hidden>
+  <div class="orb-composer" role="dialog" aria-label="Give something to Arelo">
+    <div class="orb-composer-head">
+      <div class="orb-composer-dot" aria-hidden="true"></div>
+      <div>
+        <h2>Give something to Arelo</h2>
+        <p>Paste an email, brain-dump a thought, or add something you don’t want to hold in your head.</p>
+      </div>
+    </div>
+    <textarea id="orbComposerInput" placeholder="Type or paste anything…" rows="5"></textarea>
+    <div class="orb-composer-examples">
+      <span>Try one of these scripted examples:</span>
+      <div class="orb-composer-example-row">
+        <button type="button" data-orb-example="braindump">A brain-dump about the calculator</button>
+        <button type="button" data-orb-example="email">Paste a school email</button>
+        <button type="button" data-orb-example="ambiguous">Something ambiguous</button>
+      </div>
+    </div>
+    <div class="orb-composer-actions">
+      <button type="button" class="orb-composer-cancel" id="orbComposerCancel">Cancel</button>
+      <button type="button" class="orb-composer-send" id="orbComposerSend">Give it to Arelo</button>
+    </div>
+  </div>
+</div>
 <!-- ARELO-331 correction (Product Office review, comment 14608): the chaos -> organised visual
      is now the real ARELO-275 authored artefact ("Arelo Hero - Your chaos, organised8.html"),
      ported faithfully — same 14 real Gemma evidence images (assets/arrival/, extracted from the
@@ -943,9 +1002,9 @@ button,input,select{font:inherit}
   <div class="arrival-caption" id="arrivalCaption">Your chaos — organised.</div>
   <div class="arrival-final" id="arrivalFinal" aria-hidden="true">
     <div class="arrival-final-topbar">
-      <div class="arrival-final-brand">Arelo <span>· Gemma's week</span></div>
+      <div class="arrival-final-brand">Arelo</div>
       <div class="arrival-final-tabs"><span class="on">Focus</span><span>Review</span><span>Pins</span><span>Calendar</span><span>Emails</span></div>
-      <div class="arrival-final-meta">Tuesday 8 September · interactive demo, not a live account</div>
+      <div class="arrival-final-meta" id="arrivalFinalMeta">Tuesday 8 September · interactive demo, not a live account</div>
     </div>
     <div class="arrival-final-body">
       <div class="arrival-final-head"><h2>Focus</h2><p>The day, already understood.</p></div>
@@ -967,6 +1026,89 @@ button,input,select{font:inherit}
   <button type="button" class="arrival-skip" id="arrivalSkip">Skip intro →</button>
 </div>
 <script>
+/* =========================================================================
+   DEMO DATE ANCHOR (date-relativity correction, 14 Sep) — the whole Gemma fixture
+   was originally authored around a fixed "today" of Tuesday 8 September. Rather than
+   leaving that literal to go stale, every visible fixture date is now derived from
+   ONE shared anchor computed from the visitor's real local date at load time.
+   Shifting every fixture date by the same day-count offset preserves the fixture's
+   internal day-to-day relationships (Monday's meeting is still the day before
+   "today", Sophie's party is still 11 days after "today", the Italy trip is still
+   about 6-7 weeks out) while "today" itself always equals the visitor's actual
+   today, including its real weekday — so nothing looks stale no matter when the
+   demo is opened. This is a date-consistency correction over the approved fixture,
+   not a rewrite of it: which Pins/events exist, their relationships and state
+   machine are all unchanged — only the calendar numbers/weekdays displayed move. */
+var DEMO_REAL_TODAY = new Date();
+var DEMO_FIXTURE_ANCHOR = new Date(2026, 8, 8); // fixture's authored "today": Tue 8 September
+// Round to the nearest whole week (not the raw day difference) so every fixture weekday still
+// lands on a real matching weekday — Monday's meetings stay under a real Monday, Robotics Club
+// stays on a real Tuesday, Boot Camp stays Mon/Thu, etc. A pure day-count shift would scramble
+// these onto arbitrary real weekdays (e.g. Monday's content appearing under "Sunday"), which
+// reads as broken even though the date math would be "consistent". The trade-off: the shifted
+// "today" lands on the nearest real occurrence of the fixture's anchor weekday (within 3 days of
+// the visitor's actual today) rather than an exact calendar-day match — still always fresh/near,
+// never stale, and the whole week's content stays internally coherent.
+var DEMO_RAW_OFFSET_DAYS = Math.round(
+  (new Date(DEMO_REAL_TODAY.getFullYear(), DEMO_REAL_TODAY.getMonth(), DEMO_REAL_TODAY.getDate()) - DEMO_FIXTURE_ANCHOR)
+  / 86400000
+);
+var DEMO_OFFSET_DAYS = Math.round(DEMO_RAW_OFFSET_DAYS / 7) * 7;
+var DEMO_MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+var DEMO_WEEKDAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+var DEMO_MONTH_RE = '(January|Jan|February|Feb|March|Mar|April|Apr|May|June|Jun|July|Jul|August|Aug|September|Sep|October|Oct|November|Nov|December|Dec)';
+function demoMonthIndex(name){
+  var map = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
+  return map[name.slice(0,3).toLowerCase()];
+}
+// Shift a fixture-authored (day-of-month, month-name) pair by the shared offset and return the
+// real calendar date it now lands on — day, month name, and the CORRECTLY COMPUTED weekday for
+// that real date (never the fixture's original weekday label, which may no longer be accurate
+// once shifted).
+function demoShiftDate(day, monthName){
+  var d = new Date(DEMO_FIXTURE_ANCHOR.getFullYear(), demoMonthIndex(monthName), day);
+  d.setDate(d.getDate() + DEMO_OFFSET_DAYS);
+  return { day: d.getDate(), month: DEMO_MONTHS[d.getMonth()], weekday: DEMO_WEEKDAYS[d.getDay()], date: d };
+}
+// Render-date: takes any fixture-authored copy string and rewrites every date mention within it
+// (weekday+day+month, bare day+month, or "Early/Mid/Late <month>") to the correctly shifted real
+// date, preserving the original abbreviation style. Any other text (times, context, punctuation)
+// is left untouched. Safe to call on strings with zero, one, or several date mentions — this is
+// the single place date-shifting logic lives, so every surface (Focus/Calendar/Pins/Journey/
+// Emails/Review) that passes its fixture copy through rd() moves together from one anchor.
+function rd(s){
+  if(typeof s !== 'string') return s;
+  var reDay = new RegExp('\\b((?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)[a-z]*\\s+)?(\\d{1,2})(\\s+)'+DEMO_MONTH_RE+'\\b', 'g');
+  s = s.replace(reDay, function(full, wdPart, day, sp2, mon){
+    var shifted = demoShiftDate(parseInt(day,10), mon);
+    var monOut = mon.length<=3 ? shifted.month.slice(0,3) : shifted.month;
+    var out = shifted.day+sp2+monOut;
+    if(wdPart){
+      var wd = wdPart.trim();
+      var wdOut = wd.length<=3 ? shifted.weekday.slice(0,3) : shifted.weekday;
+      out = wdOut+' '+out;
+    }
+    return out;
+  });
+  var reVague = new RegExp('\\b(Early|Mid|Late)\\s+'+DEMO_MONTH_RE+'\\b', 'g');
+  s = s.replace(reVague, function(full, qualifier, mon){
+    var refDay = qualifier==='Early' ? 5 : (qualifier==='Mid' ? 15 : 25);
+    var shifted = demoShiftDate(refDay, mon);
+    var monOut = mon.length<=3 ? shifted.month.slice(0,3) : shifted.month;
+    return qualifier+' '+monOut;
+  });
+  return s;
+}
+// Populate the two static "today" meta lines (arrival mock + real sidebar) as early as possible
+// — before the arrival animation runs — so there is no flash of the fixture's original literal
+// "Tuesday 8 September" text at any point, including a fast Skip or reduced-motion load.
+(function(){
+  var todayLabel = rd('Tuesday 8 September');
+  ['arrivalFinalMeta','topbarMeta'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.textContent = todayLabel + ' · interactive demo, not a live account';
+  });
+})();
 /* ---------------------------------------------------------------------------------------------
    Real ARELO-275 composition data (ARELO-331 correction, comment 14608) — ported verbatim from
    the approved artefact's own React source (arelo-hero-standalone.jsx / animations-v3.jsx,
@@ -1192,23 +1334,17 @@ function __arrivalInit(){
 
   function settleOrbThenFade(){
     if(!orb) return;
-    // Settle just past the real brand mark, measured live off the actual topbar, so the
-    // orb never collides with tab/meta text at any breakpoint rather than a guessed spot.
-    // ARELO-332: the topbar is now a 220px sidebar on desktop, so also clamp against the
-    // sidebar's own right edge — otherwise brand.right + 22 can spill the orb past the rail
-    // and over the main content column.
-    var brand = document.querySelector('.topbar .brand');
+    // ARELO-332/347: the orb's deliberate resting place is the right edge of the sidebar itself
+    // — reading as a persistent companion pinned to the whole product, not tucked beside the
+    // brand text. Vertically centred on the sidebar with room from the tabstrip labels above and
+    // the feedback/disclosure area below. Mobile ignores this (fixed CSS position instead, see
+    // .arrival-orb.phase-rest media query) — skip the desktop measurement there.
     var rail = document.querySelector('.topbar');
-    if(brand){
-      var r = brand.getBoundingClientRect();
-      if(r.width || r.height){
-        var maxX = window.innerWidth - 30;
-        if(rail){
-          var railRect = rail.getBoundingClientRect();
-          if(railRect.width) maxX = Math.min(maxX, railRect.right - 30);
-        }
-        var cx = Math.min(r.right + 22, maxX);
-        var cy = r.top + r.height / 2;
+    if(rail && window.innerWidth > 680){
+      var railRect = rail.getBoundingClientRect();
+      if(railRect.width){
+        var cx = railRect.right - 33;
+        var cy = railRect.top + railRect.height / 2;
         orb.style.top = cy + 'px';
         orb.style.left = cx + 'px';
       }
@@ -1344,7 +1480,7 @@ if(document.readyState === 'loading'){
 </script>
 <div class="shell" id="app">
   <header class="topbar">
-    <div class="brand">Arelo <span>· Gemma's week</span></div>
+    <div class="brand">Arelo</div>
     <nav class="tabstrip" id="tabstrip">
       <button data-tab="focus" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="7.2"/><circle cx="12" cy="12" r="2.6" fill="currentColor" stroke="none"/></svg><span>Focus</span></button>
       <button data-tab="review"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h11M4 12h16M4 18h9"/><path d="M17 16l2 2 3-3.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Review</span></button>
@@ -1355,7 +1491,7 @@ if(document.readyState === 'loading'){
       <button data-tab="notes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 4h9l3 3v13H6z" stroke-linejoin="round"/><path d="M9 10h6M9 14h6M9 18h3"/></svg><span>Notes</span></button>
     </nav>
     <div class="meta-group">
-      <div class="meta">Tuesday 8 September · interactive demo, not a live account</div>
+      <div class="meta" id="topbarMeta">Tuesday 8 September · interactive demo, not a live account</div>
       <a class="feedback-link" href="/feedback" title="Give feedback on this demo">💬 Give feedback</a>
     </div>
   </header>
@@ -1549,6 +1685,13 @@ if(document.readyState === 'loading'){
 // initial state references it as the seed value for state.standaloneNotes. `cat` reuses the
 // same Family/Work/Life category system already approved for Pins (see `cats`/`catStyle()`
 // below) — Notes do not get their own category taxonomy or colour palette.
+// The real sidebar's #topbarMeta div is defined later in the document than the first script
+// block (after the arrival overlay markup), so it didn't exist yet when that block's population
+// IIFE ran — populate it here instead, now that the whole shell exists.
+(function(){
+  var el = document.getElementById('topbarMeta');
+  if(el) el.textContent = rd('Tuesday 8 September') + ' · interactive demo, not a live account';
+})();
 const STANDALONE_NOTES_SEED = [
   { id:'note-shopping', title:'Shopping list', cat:'Life', body:'Milk\nEggs\nDog food\nBin bags\nCoffee\nKitchen roll', linked:null },
   { id:'note-gym', title:'Gym log', cat:'Life', body:'Squats — 40kg x 8, 8, 6\nBench press — 30kg x 10, 8, 8\nDeadlift — 50kg x 5, 5, 5\nNext session: try 42.5kg on squats', linked:null },
@@ -1588,7 +1731,9 @@ const state = {
   standaloneNotes: STANDALONE_NOTES_SEED.slice(), // ARELO-345 amendment: user-authored notes that don't require a Pin/Journey
   _notesSearch:'',        // My Notes search box (matches title/body)
   _notesAreaFilter:'all', // My Notes area dropdown filter
-  _noteModal:null         // { id: existing note id | null, title, area, body, linkTo } while the note editor is open
+  _noteModal:null,        // { id: existing note id | null, title, area, body, linkTo } while the note editor is open
+  orbAmbiguousItems: [],  // ARELO-332/347: items submitted via the Orb that Arelo can't confidently place — surfaced in Review, never auto-resolved
+  _orbComposerOpen: false // whether the Orb's "Give something to Arelo" composer is open
 };
 
 const NORTHSTAR_STEPS = [
@@ -1623,18 +1768,18 @@ const ITALY_JOURNEY_NOTES = [
 
 /* ---- Evidence (Emails tab + provenance) ---- */
 const EVIDENCE = {
-  sophie:   {type:'e-invite', from:"Sophie's mum", date:'Thu 3 Sep', subject:"You're invited! Sophie is turning 7 🎈", body:"Sophie is turning 7! Join us at Party Central on Sunday 19 September, 2:30pm. Let us know if Mia can come by Friday 11 September."},
-  pta:      {type:'email', from:'PTA Committee', date:'Sun 6 Sep', subject:'PTA Committee — agenda for 10 September', body:"Please find the agenda for our committee meeting on Thursday 10 September at 7:00pm. Room booking is confirmed, refreshments as usual, treasurer's report attached. Gemma, could you bring the raffle-prize update? Minutes from last month are attached for reference."},
-  robotics: {type:'email', from:'Oakfield School Clubs', date:'Mon 7 Sep', subject:'Robotics Club — day change', body:'Please note that Robotics Club is moving from Wednesday to Tuesday from next week. The time remains 4:00–5:00pm.'},
-  northstar:{type:'email', from:'Northstar (client)', date:'Thu 3 Sep', subject:'Revised proposal needed', body:'Could you send us a revised proposal with updated pricing and implementation dates by Friday 11 September?'},
-  esin:     {type:'email', from:'Esin', date:'Mon 7 Sep', subject:'Re: Northstar pricing', body:"On it — I'll get you the new numbers this week."},
-  calculator:{type:'photo', from:'Photographed note', date:'Fri 4 Sep', subject:'URGENT — Buy a calculator for Mia', body:'(A photo of a handwritten Post-it, left on the kitchen counter.)'},
-  lemons:   {type:'conversation', from:'You, to Arelo', date:'Sat 5 Sep', subject:'Lemon cake for the bake sale', body:'"I don’t have any lemons and I’m making lemon cake for the bake sale."'},
-  brownies: {type:'email', from:'Brownies Leader', date:'Sat 5 Sep', subject:'No Brownies next week', body:"Just a note that Brownies won't be running next Tuesday — back to normal the week after."},
-  robconsent:{type:'email', from:'Oakfield School Clubs', date:'Wed 26 Aug', subject:'Robotics Club — consent required', body:'Please complete the consent form before your child’s next session.'},
-  noise1:   {type:'email', from:'Company newsletter', date:'Mon 7 Sep', subject:'This week at a glance', body:'Sales all-hands recap, new expenses portal, canteen menu change. Nothing needed from you.'},
-  noise2:   {type:'email', from:'Priya (colleague)', date:'Fri 4 Sep', subject:'Re: Expenses — approved', body:"All sorted, approved this morning. Thanks!"},
-  northstarprep:{type:'conversation', from:'You, to Arelo', date:'Tue 1 Sep', subject:'Prep for Northstar client presentation', body:'"I want to hold onto some thoughts for the Northstar presentation while they’re fresh."'},
+  sophie:   {type:'e-invite', from:"Sophie's mum", date:rd('Thu 3 Sep'), subject:"You're invited! Sophie is turning 7 🎈", body:rd("Sophie is turning 7! Join us at Party Central on Sunday 19 September, 2:30pm. Let us know if Mia can come by Friday 11 September.")},
+  pta:      {type:'email', from:'PTA Committee', date:rd('Sun 6 Sep'), subject:'PTA Committee — agenda for 10 September', body:rd("Please find the agenda for our committee meeting on Thursday 10 September at 7:00pm. Room booking is confirmed, refreshments as usual, treasurer's report attached. Gemma, could you bring the raffle-prize update? Minutes from last month are attached for reference.")},
+  robotics: {type:'email', from:'Oakfield School Clubs', date:rd('Mon 7 Sep'), subject:'Robotics Club — day change', body:'Please note that Robotics Club is moving from Wednesday to Tuesday from next week. The time remains 4:00–5:00pm.'},
+  northstar:{type:'email', from:'Northstar (client)', date:rd('Thu 3 Sep'), subject:'Revised proposal needed', body:rd('Could you send us a revised proposal with updated pricing and implementation dates by Friday 11 September?')},
+  esin:     {type:'email', from:'Esin', date:rd('Mon 7 Sep'), subject:'Re: Northstar pricing', body:"On it — I'll get you the new numbers this week."},
+  calculator:{type:'photo', from:'Photographed note', date:rd('Fri 4 Sep'), subject:'URGENT — Buy a calculator for Mia', body:'(A photo of a handwritten Post-it, left on the kitchen counter.)'},
+  lemons:   {type:'conversation', from:'You, to Arelo', date:rd('Sat 5 Sep'), subject:'Lemon cake for the bake sale', body:'"I don’t have any lemons and I’m making lemon cake for the bake sale."'},
+  brownies: {type:'email', from:'Brownies Leader', date:rd('Sat 5 Sep'), subject:'No Brownies next week', body:"Just a note that Brownies won't be running next Tuesday — back to normal the week after."},
+  robconsent:{type:'email', from:'Oakfield School Clubs', date:rd('Wed 26 Aug'), subject:'Robotics Club — consent required', body:'Please complete the consent form before your child’s next session.'},
+  noise1:   {type:'email', from:'Company newsletter', date:rd('Mon 7 Sep'), subject:'This week at a glance', body:'Sales all-hands recap, new expenses portal, canteen menu change. Nothing needed from you.'},
+  noise2:   {type:'email', from:'Priya (colleague)', date:rd('Fri 4 Sep'), subject:'Re: Expenses — approved', body:"All sorted, approved this morning. Thanks!"},
+  northstarprep:{type:'conversation', from:'You, to Arelo', date:rd('Tue 1 Sep'), subject:'Prep for Northstar client presentation', body:'"I want to hold onto some thoughts for the Northstar presentation while they’re fresh."'},
 
   /* ---- Italy family holiday evidence (ARELO-346/347 refinement, PO 14 Sep) — the primary
      Journey's provenance. italyghic is a conversation (Gemma flagged it to Arelo herself), so it
@@ -1642,21 +1787,21 @@ const EVIDENCE = {
      booking-confirmation emails, dated from when they were actually booked (mid-August) rather
      than "the last week" the Emails tab otherwise covers, so they're kept out of that list too —
      they still surface with full provenance via the Pin drawer and the Journey's Sources list. ---- */
-  italyghic:{type:'conversation', from:'You, to Arelo', date:'Sat 5 Sep', subject:'Sorting GHIC before Italy', body:'"All four of our GHIC cards expired in the spring — we should sort renewals before the Italy trip."'},
-  italyvilla:{type:'email', from:'Casa Belvedere (villa rental)', date:'Tue 18 Aug', subject:'Booking confirmed — Casa Belvedere, 24 Oct–4 Nov', body:'Thanks for booking! Deposit received — the remaining balance is due 3 weeks before arrival.'},
-  italycrossing:{type:'email', from:'Eurotunnel', date:'Wed 19 Aug', subject:'Booking confirmation — Folkestone to Calais', body:'Your crossing is confirmed for the morning of Saturday 24 October. Check in from 90 minutes before departure.'},
+  italyghic:{type:'conversation', from:'You, to Arelo', date:rd('Sat 5 Sep'), subject:'Sorting GHIC before Italy', body:'"All four of our GHIC cards expired in the spring — we should sort renewals before the Italy trip."'},
+  italyvilla:{type:'email', from:'Casa Belvedere (villa rental)', date:rd('Tue 18 Aug'), subject:rd('Booking confirmed — Casa Belvedere, 24 Oct–4 Nov'), body:'Thanks for booking! Deposit received — the remaining balance is due 3 weeks before arrival.'},
+  italycrossing:{type:'email', from:'Eurotunnel', date:rd('Wed 19 Aug'), subject:'Booking confirmation — Folkestone to Calais', body:rd('Your crossing is confirmed for the morning of Saturday 24 October. Check in from 90 minutes before departure.')},
 
   /* ---- Delivery evidence: three separate transactional emails Arelo folds into one quiet
      Focus line ("Three parcels are on their way today"). None of these creates a Pin. ---- */
-  'delivery-amazon': {type:'email', from:'Amazon', date:'Tue 8 Sep', subject:'Your order is out for delivery', body:'Your parcel (order #112-4483920-7761143) is out for delivery today. Track your package for live updates.'},
-  'delivery-inpost': {type:'email', from:'InPost', date:'Tue 8 Sep', subject:'Your parcel is arriving today', body:'Your delivery is on its way to Oakfield Road Locker (Locker bank 3, locker 14). We’ll text a collection code once it’s dropped off — expected before 6pm today.'},
-  'delivery-evri':   {type:'email', from:'Evri', date:'Tue 8 Sep', subject:'Your parcel is on its way', body:'Expected today between 14:00–16:00. If you’re not in, we’ll leave it in a safe place where possible.'},
+  'delivery-amazon': {type:'email', from:'Amazon', date:rd('Tue 8 Sep'), subject:'Your order is out for delivery', body:'Your parcel (order #112-4483920-7761143) is out for delivery today. Track your package for live updates.'},
+  'delivery-inpost': {type:'email', from:'InPost', date:rd('Tue 8 Sep'), subject:'Your parcel is arriving today', body:'Your delivery is on its way to Oakfield Road Locker (Locker bank 3, locker 14). We’ll text a collection code once it’s dropped off — expected before 6pm today.'},
+  'delivery-evri':   {type:'email', from:'Evri', date:rd('Tue 8 Sep'), subject:'Your parcel is on its way', body:'Expected today between 14:00–16:00. If you’re not in, we’ll leave it in a safe place where possible.'},
 
   /* ---- Money evidence: three transactional/billing emails Arelo folds into one quiet
      Focus line ("Money looks settled"). None of these creates a Pin — they read as handled. ---- */
-  'money-youfibre': {type:'email', from:'YouFibre', date:'Mon 7 Sep', subject:'Payment received — thank you', body:'We’ve successfully collected your Direct Debit payment of £29.00 for this month’s broadband. No action needed.'},
-  'money-amex':     {type:'email', from:'American Express', date:'Sun 6 Sep', subject:'Your payment is due soon', body:'Your next statement payment is due in 2 days. Your Direct Debit is already set up, so this will be collected automatically — nothing to do.'},
-  'money-scottishpower': {type:'email', from:'Scottish Power', date:'Sun 6 Sep', subject:'Your upcoming Direct Debit', body:'Your next payment of £84.16 will be collected next week as usual by Direct Debit. No action needed.'}
+  'money-youfibre': {type:'email', from:'YouFibre', date:rd('Mon 7 Sep'), subject:'Payment received — thank you', body:'We’ve successfully collected your Direct Debit payment of £29.00 for this month’s broadband. No action needed.'},
+  'money-amex':     {type:'email', from:'American Express', date:rd('Sun 6 Sep'), subject:'Your payment is due soon', body:'Your next statement payment is due in 2 days. Your Direct Debit is already set up, so this will be collected automatically — nothing to do.'},
+  'money-scottishpower': {type:'email', from:'Scottish Power', date:rd('Sun 6 Sep'), subject:'Your upcoming Direct Debit', body:'Your next payment of £84.16 will be collected next week as usual by Direct Debit. No action needed.'}
 };
 
 function connectedPins(evId){
@@ -1774,7 +1919,7 @@ function buildPins(){
     remind:ov('robconsent','remind','Every day until it’s signed — it’s overdue'), need:ov('robconsent','need','Before the next session'), source:'robconsent', overdue:!state.robConsentDone});
   P.push({id:'calculator', t:ov('calculator','t','Buy Mia a calculator'), cat:'Family', time:'This week', lifecycle: state.calculatorDone?'Done':'Open', attention:'Active', progress: state.calculatorDone?'Done':'Needs you', size:'small',
     summary:'From the URGENT Post-it note — no deadline given.', na:ov('calculator','na','Pick one up next time you’re near a shop'),
-    remind:ov('calculator','remind','Sat 12 September — Arelo’s own proposal, no deadline was given'), need:ov('calculator','need','Not specified'), source:'calculator'});
+    remind:ov('calculator','remind',rd('Sat 12 September — Arelo’s own proposal, no deadline was given')), need:ov('calculator','need','Not specified'), source:'calculator'});
   P.push({id:'lemons', t:ov('lemons','t','Get lemons for the bake-sale cake'), cat:'Family', time:'This week', lifecycle:'Open', attention:'Active', progress:'Needs you', size:'small',
     summary:'For the lemon cake you mentioned to Arelo.', na:ov('lemons','na','Add to next shop'),
     remind:ov('lemons','remind','Before your next shop'), need:ov('lemons','need','Before you bake'), source:'lemons'});
@@ -1783,17 +1928,17 @@ function buildPins(){
   P.push({id:'northstar-presprep', t:ov('northstar-presprep','t','Prep for Northstar client presentation'), cat:'Work', time:'This week', lifecycle:'Open', attention:'Active', progress:'Needs you', size:'medium',
     summary:'Notes you captured a week ago, while they were fresh — worth a skim before you finalise.',
     na:ov('northstar-presprep','na','Finish presentation prep'),
-    remind:ov('northstar-presprep','remind','Thu 10 September — the afternoon before'),
-    need:ov('northstar-presprep','need','Fri 11 September — the Northstar client presentation'),
+    remind:ov('northstar-presprep','remind',rd('Thu 10 September — the afternoon before')),
+    need:ov('northstar-presprep','need',rd('Fri 11 September — the Northstar client presentation')),
     source:'northstarprep', notes: ov('northstar-presprep','notes', NORTHSTAR_PRESPREP_NOTES)});
   P.push({id:'marcus-pipeline-followup', t:ov('marcus-pipeline-followup','t','Send Marcus the updated pipeline numbers'), cat:'Work', time:'This week', lifecycle:'Open', attention:'Active', progress:'Needs you', size:'small',
     summary:'Follow-up from Monday’s 1:1 — he wants these before he meets his own manager.',
     na:ov('marcus-pipeline-followup','na','Send the updated pipeline numbers'),
-    remind:ov('marcus-pipeline-followup','remind','Wed 9 September'), need:ov('marcus-pipeline-followup','need','Before Thursday’s 1:1'), source:null});
+    remind:ov('marcus-pipeline-followup','remind',rd('Wed 9 September')), need:ov('marcus-pipeline-followup','need','Before Thursday’s 1:1'), source:null});
   P.push({id:'forecast-prep', t:ov('forecast-prep','t','Pull last quarter’s numbers for forecast review'), cat:'Work', time:'This week', lifecycle:'Open', attention:'Active', progress:'Needs you', size:'small',
     summary:'Marcus asked everyone to come with clean trailing numbers this time.',
     na:ov('forecast-prep','na','Export and sanity-check the trailing numbers'),
-    remind:ov('forecast-prep','remind','Thu 10 September'), need:ov('forecast-prep','need','Before Friday’s forecast review'), source:null});
+    remind:ov('forecast-prep','remind',rd('Thu 10 September')), need:ov('forecast-prep','need','Before Friday’s forecast review'), source:null});
 
   // ---- Boot Camp: ONE recurring Life Pin — never duplicated, never marked permanently Done.
   // Pin = the standing responsibility to book. Calendar = the sessions actually booked (see
@@ -1826,18 +1971,18 @@ function buildPins(){
   // real Most Useful Movement rather than turning into a task list. ----
   P.push({id:'italy-ghic', t:ov('italy-ghic','t','Renew the family’s GHIC cards for Italy'), cat:'Family', time:'This week', lifecycle:'Open', attention:'Active', progress:'Needs you', size:'medium',
     summary:'All four cards expired in the spring — the renewal can take a couple of weeks to arrive.', na:ov('italy-ghic','na','Apply for renewed GHIC cards online'),
-    remind:ov('italy-ghic','remind','This week — allow time for it to arrive before you leave'), need:ov('italy-ghic','need','Before you leave on 24 October'), source:'italyghic'});
+    remind:ov('italy-ghic','remind','This week — allow time for it to arrive before you leave'), need:ov('italy-ghic','need',rd('Before you leave on 24 October')), source:'italyghic'});
   P.push({id:'italy-villa', t:ov('italy-villa','t','Pay the villa balance'), cat:'Family', time:'Later', lifecycle:'Open', attention:'Active', progress:'Waiting', size:'medium',
     summary:'The deposit’s already paid — the balance isn’t due until 3 weeks before you travel.', na:'—',
-    remind:ov('italy-villa','remind','Early October — Arelo will remind you nearer the balance due date'), need:ov('italy-villa','need','3 weeks before travel'), source:'italyvilla'});
+    remind:ov('italy-villa','remind',rd('Early October — Arelo will remind you nearer the balance due date')), need:ov('italy-villa','need','3 weeks before travel'), source:'italyvilla'});
   P.push({id:'italy-crossing', t:'Eurotunnel crossing to Calais', cat:'Family', time:'Done', lifecycle:'Done', attention:'Quiet', progress:'Done', size:'small',
-    summary:'Booked for the morning of Saturday 24 October.', na:'—', remind:'—', need:'Booked', source:'italycrossing'});
+    summary:rd('Booked for the morning of Saturday 24 October.'), na:'—', remind:'—', need:'Booked', source:'italycrossing'});
   P.push({id:'italy-insurance', t:ov('italy-insurance','t','Buy travel insurance for the trip'), cat:'Family', time:'Later', lifecycle:'Open', attention:'Active', progress:'Waiting', size:'small',
     summary:'Worth comparing policies once the GHIC applications are in.', na:ov('italy-insurance','na','Compare and buy a family policy'),
-    remind:ov('italy-insurance','remind','Early October'), need:ov('italy-insurance','need','Before you travel'), source:null});
+    remind:ov('italy-insurance','remind',rd('Early October')), need:ov('italy-insurance','need','Before you travel'), source:null});
   P.push({id:'italy-kennels', t:ov('italy-kennels','t','Book the dog into kennels'), cat:'Family', time:'Later', lifecycle:'Open', attention:'Active', progress:'Waiting', size:'small',
-    summary:'Worth booking ahead — good kennels nearby tend to fill up over half-term.', na:ov('italy-kennels','na','Book kennels for 24 Oct – 4 Nov'),
-    remind:ov('italy-kennels','remind','Early October'), need:ov('italy-kennels','need','Before you travel'), source:null});
+    summary:'Worth booking ahead — good kennels nearby tend to fill up over half-term.', na:ov('italy-kennels','na',rd('Book kennels for 24 Oct – 4 Nov')),
+    remind:ov('italy-kennels','remind',rd('Early October')), need:ov('italy-kennels','need','Before you travel'), source:null});
 
   if(state.northstar.created){
     // This week, not Now — the enrichment table placed an example under Now, but that isn't this
@@ -1848,34 +1993,34 @@ function buildPins(){
       summary: state.northstar.done? 'Sent — resolved.' : NORTHSTAR_STEPS[state.northstar.nextAction],
       na: ov('northstar','na', state.northstar.done? '—' : NORTHSTAR_STEPS[state.northstar.nextAction]),
       remind: ov('northstar','remind', state.northstar.nextAction===0? 'When Esin replies with pricing' : 'Tomorrow morning'),
-      need:ov('northstar','need','Client asked for Friday 11 September'), source:'northstar'});
+      need:ov('northstar','need',rd('Client asked for Friday 11 September')), source:'northstar'});
   }
 
   if(state.sophie.rsvp && !state.sophie.rsvpDeclined){
     P.push({id:'sophie-rsvp', t:ov('sophie-rsvp','t',"RSVP to Sophie's party"), cat:'Family', time:'Done', lifecycle:'Done', attention:'Quiet', progress:'Done', size:'small',
-      summary:'You said yes.', na:'—', remind:'—', need:ov('sophie-rsvp','need','Was due Fri 11 Sep'), source:'sophie'});
+      summary:'You said yes.', na:'—', remind:'—', need:ov('sophie-rsvp','need',rd('Was due Fri 11 Sep')), source:'sophie'});
   } else if(!state.sophie.rsvp && !state.sophie.rsvpDeclined){
     P.push({id:'sophie-rsvp', t:ov('sophie-rsvp','t',"RSVP to Sophie's party"), cat:'Family', time:'This week', lifecycle:'Open', attention:'Active', progress:'Needs you', size:'small',
       summary:'Sophie is turning 7 — reply needed before the party fills up.', na:ov('sophie-rsvp','na','Reply yes or no'),
-      remind: ov('sophie-rsvp','remind', (state.reminderNudges['sophie-rsvp']||0) < 0 ? 'Sun 7 September (moved earlier, at your request)' : 'Wed 9 September'),
-      need:ov('sophie-rsvp','need','Friday 11 September'), source:'sophie'});
+      remind: ov('sophie-rsvp','remind', (state.reminderNudges['sophie-rsvp']||0) < 0 ? rd('Sun 7 September (moved earlier, at your request)') : rd('Wed 9 September')),
+      need:ov('sophie-rsvp','need',rd('Friday 11 September')), source:'sophie'});
   }
   if(state.sophie.present){
     P.push({id:'sophie-present', t:ov('sophie-present','t','Get Sophie a present/card'), cat:'Family', time:'This week', lifecycle:'Open', attention:'Active', progress:'Active', size:'medium',
       summary:'Something small for a 7-year-old’s party.', na:ov('sophie-present','na','Choose a present'),
-      remind: ov('sophie-present','remind', (state.reminderNudges['sophie-present']||0) < 0 ? 'Mon 14 September (moved earlier, at your request)' : 'Wed 16 September'),
-      need:ov('sophie-present','need','Party is Sunday 19 September'), source:'sophie'});
+      remind: ov('sophie-present','remind', (state.reminderNudges['sophie-present']||0) < 0 ? rd('Mon 14 September (moved earlier, at your request)') : rd('Wed 16 September')),
+      need:ov('sophie-present','need',rd('Party is Sunday 19 September')), source:'sophie'});
   }
   if(state.sophie.rota){
     P.push({id:'sophie-rota', t:ov('sophie-rota','t','Sort the party rota'), cat:'Family', time:'This week', lifecycle:'Open', attention:'Active', progress:'Active', size:'medium',
       summary:'Who’s dropping off and collecting Mia.', na:ov('sophie-rota','na','Confirm pickup/drop-off cover'),
-      remind:ov('sophie-rota','remind','Thu 17 September'), need:ov('sophie-rota','need','Before Sunday 19 September'), source:'sophie'});
+      remind:ov('sophie-rota','remind',rd('Thu 17 September')), need:ov('sophie-rota','need',rd('Before Sunday 19 September')), source:'sophie'});
   }
 
   if(state.pta.raffle){
     P.push({id:'pta-raffle', t:ov('pta-raffle','t','Bring the raffle-prize update to the PTA meeting'), cat:'Family', time:'This week', lifecycle:'Open', attention:'Active', progress:'Needs you', size:'small',
       summary:'The one genuine responsibility in an otherwise informational agenda.', na:ov('pta-raffle','na','Check what you need to report'),
-      remind:ov('pta-raffle','remind','Wed 9 September'), need:ov('pta-raffle','need','PTA Committee Meeting · Thu 10 September · 7pm'), source:'pta'});
+      remind:ov('pta-raffle','remind',rd('Wed 9 September')), need:ov('pta-raffle','need',rd('PTA Committee Meeting · Thu 10 September · 7pm')), source:'pta'});
   }
 
   // ---- Life enrichment round 2 (PO table, 4 Sep) — Next week / Later / Sleeping / Done populated
@@ -1895,7 +2040,7 @@ function buildPins(){
   // Ordinary dog-related admin (PO comment 14342) — proportionate: one small standing Pin, not a project.
   P.push({id:'dog-food', t:ov('dog-food','t','Order more dog food before it runs out'), cat:'Life', time:'This week', lifecycle:'Open', attention:'Active', progress:'Needs you', size:'small',
     summary:'Down to the last couple of days’ worth.', na:ov('dog-food','na','Order the usual bag online'),
-    remind:ov('dog-food','remind','Thu 10 September'), need:ov('dog-food','need','Before the weekend'), source:null});
+    remind:ov('dog-food','remind',rd('Thu 10 September')), need:ov('dog-food','need','Before the weekend'), source:null});
 
   // ---- Next week ----
   P.push({id:'school-trip-payment', t:'Confirm school trip payment', cat:'Family', time:'Next week', lifecycle:'Open', attention:'Active', progress:'Needs you', size:'small',
@@ -1968,34 +2113,48 @@ function buildPins(){
    RENDER: FOCUS
    ========================================================================= */
 /* ARELO-335 — Focus "Keeping within reach" is the immediate horizon (tomorrow, optionally the
-   day after), never a second Pins inventory. The demo's fixed "today" is Tuesday 8 September —
-   the same literal date already used for the arrival hand-off meta and the day-thermometer
-   (search "Tuesday 8 September"), so this reuses that anchor rather than inventing a new one.
-   A Pin's own `remind` text is the only place a specific calendar date is stated (e.g. "Wed 9
-   September", "Thu 10 September — the afternoon before"); `need` is often a relative deadline
-   ("Before Thursday's 1:1") rather than a date, so `remind` is the correct field to read a Pin's
-   date from. Pins with no explicit weekday+day-of-month in `remind` (the vast majority — "Next
-   week", "Later", vague relative text) simply have no near-horizon date and are correctly held
-   in Pins only. */
-var DEMO_TODAY_DAY = 8; // September — Tuesday, matches the literal date used elsewhere in this file
+   day after), never a second Pins inventory. "Today" is the shared demo date anchor (see
+   DEMO_REAL_TODAY above), so this always reflects the visitor's real today rather than a fixed
+   literal. A Pin's own `remind` text is the only place a specific calendar date is stated (e.g.
+   rd("Wed 9 September"), rd("Thu 10 September — the afternoon before")); `need` is often a relative
+   deadline ("Before Thursday's 1:1") rather than a date, so `remind` is the correct field to read
+   a Pin's date from. Pins with no explicit weekday+day-of-month in `remind` (the vast majority —
+   "Next week", "Later", vague relative text) simply have no near-horizon date and are correctly
+   held in Pins only. */
 var WEEKDAY_FULL = {Mon:'Monday',Tue:'Tuesday',Wed:'Wednesday',Thu:'Thursday',Fri:'Friday',Sat:'Saturday',Sun:'Sunday'};
 function pinRemindDate(p){
-  const m = /^(Mon|Tue|Wed|Thu|Fri|Sat|Sun)\w*\s+(\d{1,2})\s+September\b/.exec(p.remind || '');
+  const re = new RegExp('^(Mon|Tue|Wed|Thu|Fri|Sat|Sun)\\w*\\s+(\\d{1,2})\\s+'+DEMO_MONTH_RE+'\\b');
+  const m = re.exec(p.remind || '');
   if(!m) return null;
-  return { day: parseInt(m[2], 10), weekday: WEEKDAY_FULL[m[1]] || m[1] };
+  // p.remind is already shifted (via rd()) by the time buildPins() sets it, so the month named
+  // here is already the correct real month for this date — parse it directly rather than
+  // assuming September, so this keeps working correctly as the shared anchor drifts over time.
+  // Year: pick whichever of this-year/next-year lands closest to today, so this stays correct
+  // near any month boundary, not just December/January.
+  const monthIdx = demoMonthIndex(m[3]);
+  const day = parseInt(m[2], 10);
+  const y = DEMO_REAL_TODAY.getFullYear();
+  const candidate = new Date(y, monthIdx, day);
+  const candidateNext = new Date(y+1, monthIdx, day);
+  const date = Math.abs(candidateNext - DEMO_REAL_TODAY) < Math.abs(candidate - DEMO_REAL_TODAY) ? candidateNext : candidate;
+  return { day, weekday: WEEKDAY_FULL[m[1]] || m[1], date };
 }
 // Given the full "still open, not sleeping, not today" Pins list, returns only tomorrow's and
 // (when it genuinely has something) the day-after's Pins, grouped for display — never padded
-// with anything further out. This is presentation/selection only: Pin data, dates, categories
-// and completion behaviour are untouched.
+// with anything further out. Compares full calendar dates (not raw day-of-month numbers) so this
+// stays correct across month boundaries as the shared date anchor moves over time. This is
+// presentation/selection only: Pin data, dates, categories and completion behaviour are untouched.
 function nearHorizonGroups(restPins){
-  const tomorrowDay = DEMO_TODAY_DAY + 1, dayAfterDay = DEMO_TODAY_DAY + 2;
+  const today0 = demoShiftDate(8,'September').date; // the fixture's own "today", consistent with the rest of the anchor system
+  const tomorrow = new Date(today0); tomorrow.setDate(tomorrow.getDate()+1);
+  const dayAfter = new Date(today0); dayAfter.setDate(dayAfter.getDate()+2);
+  const sameDay = (a,b) => a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
   const dated = restPins.map(p=>({p, d:pinRemindDate(p)})).filter(x=>x.d);
-  const tomorrow = dated.filter(x=>x.d.day===tomorrowDay).map(x=>x.p);
-  const dayAfter = dated.filter(x=>x.d.day===dayAfterDay).map(x=>x.p);
+  const tomorrowPins = dated.filter(x=>sameDay(x.d.date, tomorrow)).map(x=>x.p);
+  const dayAfterPins = dated.filter(x=>sameDay(x.d.date, dayAfter)).map(x=>x.p);
   const groups = [];
-  if(tomorrow.length) groups.push({ label:'Tomorrow', pins:tomorrow });
-  if(dayAfter.length) groups.push({ label: (dated.find(x=>x.d.day===dayAfterDay)||{}).d.weekday || 'The following day', pins:dayAfter });
+  if(tomorrowPins.length) groups.push({ label:'Tomorrow', pins:tomorrowPins });
+  if(dayAfterPins.length) groups.push({ label: (dated.find(x=>sameDay(x.d.date, dayAfter))||{}).d.weekday || 'The following day', pins:dayAfterPins });
   return groups;
 }
 
@@ -2138,7 +2297,7 @@ function dayEvents(){
    ========================================================================= */
 function renderCalendar(){
   const days = [
-    {label:'Monday 7 September', events: [
+    {label:rd('Monday 7 September'), events: [
       {time:'08:45', label:'Sales team stand-up', cls:'work'},
       {time:'09:30', label:'Customer call — Everline Ltd', cls:'work'},
       {time:'10:30', label:'Pipeline review with Priya', cls:'work'},
@@ -2147,15 +2306,15 @@ function renderCalendar(){
       {time:'16:00', label:'Account review — Kestrel Group', cls:'work'},
       {time:'18:30', label:'Boot Camp', cls:'life'}
     ]},
-    {label:'Tuesday 8 September', today:true, events: dayEvents().map(e=>({time:e.time,label:e.label,cls:e.cls}))},
-    {label:'Wednesday 9 September', events: [
+    {label:rd('Tuesday 8 September'), today:true, events: dayEvents().map(e=>({time:e.time,label:e.label,cls:e.cls}))},
+    {label:rd('Wednesday 9 September'), events: [
       {time:'09:30', label:'Sales team check-in', cls:'work'},
       {time:'11:00', label:'Forecast review', cls:'work'},
       {time:'12:30', label:'Dog groomer appointment', cls:'life'},
       {time:'14:00', label:'Focus/admin block', cls:'work'},
       ...(state.robotics.moved? [] : [{time:'16:00',label:'Robotics club (Mia)',cls:'club'}])
     ]},
-    {label:'Thursday 10 September', events: [
+    {label:rd('Thursday 10 September'), events: [
       {time:'09:15', label:'Sales team check-in', cls:'work'},
       {time:'10:00', label:'Customer call — Aster Home', cls:'work'},
       {time:'11:30', label:'1:1 with Marcus', cls:'work'},
@@ -2164,18 +2323,18 @@ function renderCalendar(){
       {time:'18:30', label:'Boot Camp', cls:'life'},
       ...(state.pta.meeting ? [{time:'19:00',label:'PTA committee meeting',cls:'family'}] : [])
     ]},
-    {label:'Friday 11 September', events: [
+    {label:rd('Friday 11 September'), events: [
       {time:'09:15', label:'Sales team check-in', cls:'work'},
       {time:'10:00', label:'Weekly forecast review', cls:'work'},
       {time:'11:30', label:'Customer call — Everline Ltd', cls:'work'},
       {time:'14:00', label:'Northstar client presentation', cls:'work'},
       {time:'16:00', label:'Internal project meeting — CRM migration', cls:'work'}
     ]},
-    {label:'Saturday 12 September', events: [
+    {label:rd('Saturday 12 September'), events: [
       {time:'19:30', label:'Date night — dinner and a film', cls:'social'}
     ]},
-    {label:'Sunday 19 September', events: state.sophie.calendar ? [{time:'14:30',label:'Sophie’s 7th birthday party — Party Central',cls:'family'}] : []},
-    {label:'Tuesday 15 September', events: [
+    {label:rd('Sunday 19 September'), events: state.sophie.calendar ? [{time:'14:30',label:'Sophie’s 7th birthday party — Party Central',cls:'family'}] : []},
+    {label:rd('Tuesday 15 September'), events: [
       {time:'09:15', label:'Sales team check-in', cls:'work'},
       {time:'11:00', label:'Pipeline review with Priya', cls:'work'},
       ...(state.robotics.moved ? [{time:'16:00',label:'Robotics club (Mia)',cls:'club'}] : []),
@@ -2239,6 +2398,19 @@ function reviewCards(){
     cards.push({id:'northstar', ev:'northstar', resolved:true, resolvedNote:'Pinned as an open work responsibility.'});
   }
 
+  // 5. Orb-submitted ambiguous items (ARELO-332/347) — Arelo doesn't confidently know where these
+  // belong, so they wait here for a genuine judgement call, exactly like everything else in
+  // Review. Never auto-resolved, never silently turned into a Pin.
+  state.orbAmbiguousItems.forEach(item=>{
+    if(!item.resolution){
+      cards.push({id:item.id, ev:item.id, cat:'Life', kicker:'You gave Arelo this via the Orb',
+        hint:'Not clear enough to place on its own — worth a quick look', resolved:false, render: renderOrbAmbiguousCard.bind(null,item)});
+    } else {
+      cards.push({id:item.id, ev:item.id, resolved:true,
+        resolvedNote: item.resolution==='pin' ? 'Pinned as a responsibility.' : 'Marked as nothing needed.'});
+    }
+  });
+
   return cards;
 }
 
@@ -2268,8 +2440,8 @@ function renderSophieCard(c){
   // separate from the calendar event itself (calendar-marked, "Add to calendar" only, no Edit) —
   // the party date isn't a responsibility Arelo is proposing, it's just a date on the calendar.
   const s = state.sophie;
-  const rsvpRemind = ov('sophie-rsvp','remind', (state.reminderNudges['sophie-rsvp']||0) < 0 ? 'Sun 7 September (moved earlier)' : 'Wed 9 September');
-  const presentRemind = ov('sophie-present','remind', (state.reminderNudges['sophie-present']||0) < 0 ? 'Mon 14 September (moved earlier)' : 'Wed 16 September');
+  const rsvpRemind = ov('sophie-rsvp','remind', (state.reminderNudges['sophie-rsvp']||0) < 0 ? rd('Sun 7 September (moved earlier)') : rd('Wed 9 September'));
+  const presentRemind = ov('sophie-present','remind', (state.reminderNudges['sophie-present']||0) < 0 ? rd('Mon 14 September (moved earlier)') : rd('Wed 16 September'));
   return `
   <div class="bulk-row">
     <button class="action-btn" data-act="sophie-pinall">Pin all</button>
@@ -2277,11 +2449,11 @@ function renderSophieCard(c){
     <button class="action-btn secondary" data-act="sophie-removeall">Remove all</button>
   </div>
   ${addPinForm('sophie')}
-  ${sophieRow('RSVP to Sophie’s party','Reply needed by Friday 11 September', s.rsvp||s.rsvpDeclined, 'sophie-rsvp', s.rsvpDeclined, rsvpRemind, 'Friday 11 September', 'Reply yes or no')}
-  ${sophieRow('Get Sophie a present or card','Want a reminder in good time to buy or order one?', s.present, 'sophie-present', state._sophiePresentDeclined, presentRemind, 'Sunday 19 September (the party)', 'Choose a present')}
-  ${sophieRow('Sort the party rota','Who’s dropping off / collecting Mia', s.rota, 'sophie-rota', false, ov('sophie-rota','remind','Thu 17 September'), ov('sophie-rota','need','Before Sunday 19 September'), 'Confirm pickup/drop-off cover')}
+  ${sophieRow('RSVP to Sophie’s party',rd('Reply needed by Friday 11 September'), s.rsvp||s.rsvpDeclined, 'sophie-rsvp', s.rsvpDeclined, rsvpRemind, rd('Friday 11 September'), 'Reply yes or no')}
+  ${sophieRow('Get Sophie a present or card','Want a reminder in good time to buy or order one?', s.present, 'sophie-present', state._sophiePresentDeclined, presentRemind, rd('Sunday 19 September (the party)'), 'Choose a present')}
+  ${sophieRow('Sort the party rota','Who’s dropping off / collecting Mia', s.rota, 'sophie-rota', false, ov('sophie-rota','remind',rd('Thu 17 September')), ov('sophie-rota','need',rd('Before Sunday 19 September')), 'Confirm pickup/drop-off cover')}
   <div class="understanding is-calendar">
-    <div class="understanding-main"><div class="understanding-title">${calMark()}Sophie's party</div><div class="understanding-meta">Sunday 19 September · 2:30pm · Party Central</div></div>
+    <div class="understanding-main"><div class="understanding-title">${calMark()}Sophie's party</div><div class="understanding-meta">${rd('Sunday 19 September')} · 2:30pm · Party Central</div></div>
     <button class="action-btn${s.calendar?' done':''}" data-act="sophie-cal">${s.calendar?'✓ Added':'Add to calendar'}</button>
   </div>
   <div class="arelo-context">The party itself is just a date. These are the things Arelo thinks are worth holding around it.</div>
@@ -2346,13 +2518,13 @@ function renderPtaCard(){
     <div class="understanding-main">
       <div class="understanding-title">${pinMark()}${raffleT}</div>
       <div class="understanding-meta">Next action: ${ov('pta-raffle','na','Check what you need to report')}</div>
-      ${datesLine(ov('pta-raffle','remind','Wed 9 September'), ov('pta-raffle','need','PTA Committee Meeting · Thu 10 September · 7pm'))}
+      ${datesLine(ov('pta-raffle','remind',rd('Wed 9 September')), ov('pta-raffle','need',rd('PTA Committee Meeting · Thu 10 September · 7pm')))}
     </div>
     <div class="row-controls">${editBtn('pta-raffle')}<button class="action-btn${state.pta.raffle?' done':''}" data-act="pta-raffle">${state.pta.raffle?'✓ Pinned':'Pin it'}</button></div>
-    ${editForm('pta-raffle', {t:raffleT, na: ov('pta-raffle','na','Check what you need to report'), remind: ov('pta-raffle','remind','Wed 9 September'), need: ov('pta-raffle','need','PTA Committee Meeting · Thu 10 September · 7pm')})}
+    ${editForm('pta-raffle', {t:raffleT, na: ov('pta-raffle','na','Check what you need to report'), remind: ov('pta-raffle','remind',rd('Wed 9 September')), need: ov('pta-raffle','need',rd('PTA Committee Meeting · Thu 10 September · 7pm'))})}
   </div>
   <div class="understanding is-calendar">
-    <div class="understanding-main"><div class="understanding-title">${calMark()}PTA Committee Meeting</div><div class="understanding-meta">Thu 10 September · 7pm</div></div>
+    <div class="understanding-main"><div class="understanding-title">${calMark()}PTA Committee Meeting</div><div class="understanding-meta">${rd('Thu 10 September')} · 7pm</div></div>
     <button class="action-btn${state.pta.meeting?' done':''}" data-act="pta-meeting">${state.pta.meeting?'✓ Added':'Add to calendar'}</button>
   </div>
   <div class="arelo-context">The rest of the agenda is background for the meeting. Nothing else needs holding.</div>`;
@@ -2362,7 +2534,7 @@ function renderNorthstarCard(){
   const id='northstar';
   const t = ov(id,'t','Send revised Northstar proposal');
   const remind = ov(id,'remind','When Esin replies with pricing');
-  const need = ov(id,'need','Client asked for Friday 11 September');
+  const need = ov(id,'need',rd('Client asked for Friday 11 September'));
   return `<div class="understanding">
     <div class="understanding-main">
       <div class="understanding-title">${pinMark()}${t}</div>
@@ -2373,6 +2545,21 @@ function renderNorthstarCard(){
   </div>
   <div class="bulk-row"><button class="action-btn secondary" data-addpin-toggle="northstar">+ Add Pin</button></div>
   ${addPinForm('northstar')}`;
+}
+// ARELO-332/347 — genuinely ambiguous Orb input: Arelo surfaces it for a judgement call rather
+// than guessing. Same "Pin it" pattern as every other Review card; "Not needed" dismisses without
+// creating anything, exactly like declining any other proposed Pin elsewhere in Review.
+function renderOrbAmbiguousCard(item){
+  return `<div class="understanding">
+    <div class="understanding-main">
+      <div class="understanding-title">${pinMark()}${esc(item.text)}</div>
+      <div class="understanding-meta">Arelo isn\u2019t confident this is something to track \u2014 your call.</div>
+    </div>
+    <div class="row-controls">
+      <button class="action-btn secondary" data-orb-ambig-dismiss="${item.id}">Not needed</button>
+      <button class="action-btn" data-orb-ambig-pin="${item.id}">Pin it</button>
+    </div>
+  </div>`;
 }
 
 function renderReview(){
@@ -2424,6 +2611,12 @@ function renderReview(){
    Where a Pin genuinely exists, the expanded row still points at the real connected Pin
    (via connectedPins) rather than repeating anything here as a pseudo-Pin. */
 function emailClassification(id, rc){
+  if(id.indexOf('orb-ambig-')===0){
+    const c = rc[id];
+    return c.resolved
+      ? {tag: c.resolvedNote.indexOf('Pinned')===0 ? 'Pin created' : 'Marked as nothing needed', kind:'pin', understood:'Something you gave Arelo via the Orb that wasn\u2019t clear enough to place on its own.'}
+      : {tag:'Submitted via the Orb · needs your judgement', kind:'review', understood:'Something you gave Arelo via the Orb that wasn\u2019t clear enough to place on its own.'};
+  }
   const c = rc[id];
   switch(id){
     case 'sophie': return c.resolved
@@ -2729,9 +2922,9 @@ function italyJourneyModel(){
 
   // Already part of the story — settled context, visually received rather than a checklist.
   const settled = [
-    'Eurotunnel crossing booked for Saturday 24 October',
+    rd('Eurotunnel crossing booked for Saturday 24 October'),
     'Villa deposit paid — balance due 3 weeks before travel',
-    'Half-term travel dates confirmed (24 October – 4 November)'
+    rd('Half-term travel dates confirmed (24 October – 4 November)')
   ];
 
   // Coming later — accepted Pins with a genuine future horizon, never every related Pin (that
@@ -2742,7 +2935,7 @@ function italyJourneyModel(){
   const sourceIds = ['italyghic','italyvilla','italycrossing'].filter(id=>!!EVIDENCE[id]);
 
   return {
-    eyebrow:'JOURNEY · FAMILY', title:'Italy road trip', orientSuffix:'half-term · 24 Oct – 4 Nov',
+    eyebrow:'JOURNEY · FAMILY', title:'Italy road trip', orientSuffix:rd('half-term · 24 Oct – 4 Nov'),
     story, orientation, movement, holding, settled, laterPins, sourceIds
   };
 }
@@ -2792,7 +2985,7 @@ function northstarJourneyModel(){
   const sourceIds = ['northstarprep','northstar','esin'].filter(id=>!!EVIDENCE[id]);
 
   return {
-    eyebrow:'JOURNEY · WORK', title:'Northstar proposal', orientSuffix:'client asked for Friday 11 September',
+    eyebrow:'JOURNEY · WORK', title:'Northstar proposal', orientSuffix:rd('client asked for Friday 11 September'),
     story, orientation, movement, holding, settled, laterPins:[], sourceIds, prep, proposal
   };
 }
@@ -3271,6 +3464,25 @@ document.getElementById('app').addEventListener('click', e=>{
   const gotoJourney = e.target.closest('[data-gotojourney]');
   if(gotoJourney){ state._activeJourney = gotoJourney.dataset.gotojourney; state._journeySourcesOpen = false; renderJourney(); switchTab('journey'); return; }
 
+  // ---- Orb-submitted ambiguous items (ARELO-332/347): a genuine judgement call, same pattern
+  // as resolving any other Review card — never auto-resolved by the Orb itself. ----
+  const orbAmbigPin = e.target.closest('[data-orb-ambig-pin]');
+  if(orbAmbigPin){
+    const id = orbAmbigPin.dataset.orbAmbigPin;
+    const item = state.orbAmbiguousItems.find(x=>x.id===id);
+    if(item){
+      item.resolution = 'pin';
+      addCustomPin('orb-ambig', EVIDENCE[id].body);
+    }
+    renderReview(); renderPins(); renderFocus(); return;
+  }
+  const orbAmbigDismiss = e.target.closest('[data-orb-ambig-dismiss]');
+  if(orbAmbigDismiss){
+    const item = state.orbAmbiguousItems.find(x=>x.id===orbAmbigDismiss.dataset.orbAmbigDismiss);
+    if(item) item.resolution = 'dismissed';
+    renderReview(); return;
+  }
+
   // ---- Pins ----
   // Checked ahead of data-openpin: the chip sits inside the card's own button (so it stays part
   // of the same compact row rather than needing a separate layout slot), so this has to win
@@ -3445,6 +3657,97 @@ document.getElementById('resetColours').addEventListener('click', ()=>{
   state._colourPopoverFor = null;
   renderColourPicker(); renderPins(); renderReview();
 });
+
+/* =========================================================================
+   ORB COMPOSER (ARELO-332/347) — Arelo's one universal input portal. Lives outside
+   #app (it's global chrome, like the Orb itself), so it gets its own listeners
+   rather than the #app-scoped delegated handler used for everything else.
+   ========================================================================= */
+const ORB_EXAMPLES = {
+  braindump: 'Actually, any basic four-function calculator is fine for Mia \u2014 doesn\u2019t need to be scientific. Her teacher said cases aren\u2019t required either.',
+  email: 'Subject: Y6 Residential Trip \u2014 deposit reminder\n\nDear parents, please pay the \u00a350 deposit by Friday to confirm your child\u2019s place on the Y6 residential trip. Payment via the school app.',
+  ambiguous: 'Not sure if we still need the extra key cut for Jacob, or if he already sorted it himself.'
+};
+function openOrbComposer(){
+  state._orbComposerOpen = true;
+  document.getElementById('orbComposerBackdrop').hidden = false;
+  document.getElementById('orbComposerInput').value = '';
+  document.getElementById('orbComposerInput').focus();
+}
+function closeOrbComposer(){
+  state._orbComposerOpen = false;
+  document.getElementById('orbComposerBackdrop').hidden = true;
+}
+// Briefly flash-highlight whatever surface the scripted interpretation just updated, so the
+// user can see where Arelo put the information without a disconnected explanation screen.
+function flashLanded(selector){
+  requestAnimationFrame(()=>{
+    const el = document.querySelector(selector);
+    if(!el) return;
+    el.classList.remove('orb-landed'); void el.offsetWidth; el.classList.add('orb-landed');
+    el.scrollIntoView({behavior:'smooth', block:'center'});
+  });
+}
+// Deterministic scripted-scenario detection (never pretends arbitrary live inference exists):
+// the three example chips fill exact-matching text, and free-typed input is matched by keyword
+// against the same two specific, recognisable scenarios; anything else — including a genuinely
+// free-typed thought that doesn't match — correctly falls through to the ambiguous/Review path,
+// since that is the honest outcome for input the demo can't confidently place on its own.
+function runOrbScenario(text){
+  const t = text.trim();
+  if(!t) return;
+  const lower = t.toLowerCase();
+  if(lower.indexOf('calculator') !== -1){
+    // Brain-dump that updates an EXISTING Pin (not a duplicate): attached as a linked Note.
+    const noteId = 'note-orb-'+Date.now();
+    state.standaloneNotes.push({ id:noteId, title:'Note for Gemma', cat:'Family', body:t,
+      linked:{kind:'pin', id:'calculator', label:'Buy Mia a calculator'} });
+    closeOrbComposer();
+    switchTab('notes');
+    renderNotes();
+    flashLanded(`[data-note-edit="${noteId}"]`);
+  } else if(lower.indexOf('subject:') !== -1 || lower.indexOf('deposit') !== -1 || lower.indexOf('residential') !== -1){
+    // Pasted email that creates the appropriate new responsibility — same mechanism Review
+    // already uses for user-accepted Pins, not a new object type.
+    const subjectMatch = /subject:\s*(.+)/i.exec(t);
+    const title = subjectMatch ? subjectMatch[1].split('\n')[0].trim() : 'Pay Y6 residential trip deposit';
+    addCustomPin('orb-email', title.replace(/\s*\u2014\s*deposit reminder$/i, ' \u2014 pay deposit'));
+    closeOrbComposer();
+    switchTab('pins');
+    renderPins();
+    flashLanded('.pin[data-openpin^="custom-orb-email-"]');
+  } else {
+    // Genuinely ambiguous — Arelo surfaces it for a judgement call rather than guessing.
+    const id = 'orb-ambig-'+Date.now();
+    EVIDENCE[id] = {type:'conversation', from:'You, to Arelo', date: rd('Tuesday 8 September'), subject:'Something to look at', body:t};
+    state.orbAmbiguousItems.push({id, text:t, resolution:null});
+    closeOrbComposer();
+    switchTab('review');
+    state._reviewOpen = id;
+    renderReview();
+    flashLanded(`[data-card="${id}"]`);
+  }
+}
+document.getElementById('arrivalOrb').addEventListener('click', openOrbComposer);
+document.getElementById('orbComposerCancel').addEventListener('click', closeOrbComposer);
+document.getElementById('orbComposerBackdrop').addEventListener('click', e=>{
+  if(e.target.id === 'orbComposerBackdrop') closeOrbComposer();
+});
+document.querySelectorAll('[data-orb-example]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.getElementById('orbComposerInput').value = ORB_EXAMPLES[btn.dataset.orbExample];
+    document.getElementById('orbComposerInput').focus();
+  });
+});
+document.getElementById('orbComposerSend').addEventListener('click', ()=>{
+  runOrbScenario(document.getElementById('orbComposerInput').value);
+});
+document.addEventListener('keydown', e=>{
+  if(e.key === 'Escape' && state._orbComposerOpen) closeOrbComposer();
+});
+// Pin-it / Not-needed resolution for Orb-submitted ambiguous items lives inside #app (rendered
+// as part of the Review panel), so it's wired on the existing delegated listener there instead —
+// see the data-orb-ambig-pin / data-orb-ambig-dismiss handlers above.
 
 renderAll();
 </script>
