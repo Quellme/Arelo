@@ -152,6 +152,11 @@ button,input,select{font:inherit}
 .orb-composer-cancel{font-family:"Nunito",Arial,sans-serif;font-size:13px;font-weight:800;background:#fff;border:1px solid #e1e8ef;color:#5b7186;border-radius:999px;padding:9px 18px;cursor:pointer}
 .orb-composer-send{font-family:"Nunito",Arial,sans-serif;font-size:13px;font-weight:800;background:#17324d;border:1px solid #17324d;color:#fff;border-radius:999px;padding:9px 18px;cursor:pointer}
 .orb-composer-send:disabled{opacity:.45;cursor:default}
+.orb-preview-explain{margin:0 0 16px;font-size:13.5px;color:#5b7186;line-height:1.5}
+.orb-preview-items{display:flex;flex-direction:column;gap:8px;margin:0 0 18px}
+.orb-preview-item{display:flex;gap:10px;align-items:flex-start;padding:11px 13px;background:#f7fafc;border:1px solid #e1e8ef;border-radius:12px}
+.orb-preview-item-tag{flex:0 0 auto;font-family:"Nunito",Arial,sans-serif;font-size:10.5px;font-weight:800;letter-spacing:.03em;color:#3E9088;background:#EEF9F7;border:1px solid #CFECE7;border-radius:999px;padding:3px 10px;white-space:nowrap;margin-top:1px}
+.orb-preview-item-detail{font-size:13.5px;color:#17324d;line-height:1.4}
 /* Brief landing highlight on whatever surface the Orb's scripted interpretation updated —
    reuses the same visual language as the existing source-highlight pattern (goToSource). */
 .orb-landed{animation:orbLandedFlash 1.8s ease}
@@ -957,10 +962,15 @@ button,input,select{font:inherit}
      scoped to any single panel) so it opens over whichever surface the user is currently on. The
      demo is deterministic (no live AI), so this offers a small, clearly-labelled set of scripted
      example inputs rather than pretending arbitrary free text gets genuinely understood; typing
-     something close to one of the three examples still matches the same scripted outcome. -->
+     something close to one of the three examples still matches the same scripted outcome.
+     Two-stage flow (PO correction, 14 Sep): submitting never mutates demo state directly — Arelo
+     first shows how it would break the input down (using only existing Arelo concepts: an
+     existing Pin updated, a new Pin suggested, a Note retained, Calendar context, or Needs
+     Review), and only the explicit final confirmation actually updates the demo surfaces. This
+     is what makes the Orb read as Arelo understanding something for you, not a generic text box. -->
 <div class="orb-composer-backdrop" id="orbComposerBackdrop" hidden>
   <div class="orb-composer" role="dialog" aria-label="Give something to Arelo">
-    <div class="orb-composer-head">
+    <div class="orb-composer-head" id="orbComposerHead">
       <div class="orb-composer-dot" aria-hidden="true"></div>
       <div>
         <h2>Give something to Arelo</h2>
@@ -968,17 +978,29 @@ button,input,select{font:inherit}
       </div>
     </div>
     <textarea id="orbComposerInput" placeholder="Type or paste anything…" rows="5"></textarea>
-    <div class="orb-composer-examples">
+    <div class="orb-composer-examples" id="orbComposerExamples">
       <span>Try one of these scripted examples:</span>
       <div class="orb-composer-example-row">
         <button type="button" data-orb-example="braindump">A brain-dump about the calculator</button>
+        <button type="button" data-orb-example="miaparty">A brain-dump about Mia’s party</button>
         <button type="button" data-orb-example="email">Paste a school email</button>
         <button type="button" data-orb-example="ambiguous">Something ambiguous</button>
       </div>
     </div>
-    <div class="orb-composer-actions">
+    <div class="orb-composer-actions" id="orbComposerActions">
       <button type="button" class="orb-composer-cancel" id="orbComposerCancel">Cancel</button>
-      <button type="button" class="orb-composer-send" id="orbComposerSend">Give it to Arelo</button>
+      <button type="button" class="orb-composer-send" id="orbComposerSend">Show me how this would be added to Arelo</button>
+    </div>
+    <!-- Interpretation preview — hidden until the user submits, populated deterministically per
+         scripted scenario in buildOrbPreview(). Nothing in the demo has changed yet at this
+         point. -->
+    <div class="orb-preview" id="orbPreview" hidden>
+      <p class="orb-preview-explain">Arelo will show you how it would make sense of this and where it would go before adding it to your Arelo.</p>
+      <div class="orb-preview-items" id="orbPreviewItems"></div>
+      <div class="orb-composer-actions">
+        <button type="button" class="orb-composer-cancel" id="orbPreviewBack">Back</button>
+        <button type="button" class="orb-composer-send" id="orbPreviewConfirm">Add this example to my Arelo</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1726,14 +1748,15 @@ const state = {
   _drawerNotesDraft:null,
   _colourPopoverFor:null, // category name ('Family'|'Work'|'Life') whose colour popover is open, or null
   _colourPaletteTab:'arelo', // 'arelo' (calm branded defaults) | 'broad' (wider hue range) — which tab the open popover shows
-  _activeJourney:'italy', // 'italy' (primary, richer) | 'northstar' (secondary/example) — which Journey the Journey tab shows
+  _activeJourney:'italy', // 'italy' (primary, richer) | 'miaparty' (early-stage planning) | 'northstar' (secondary/example) — which Journey the Journey tab shows
   _notesOpen:{},          // note-group id -> bool, progressive disclosure on the Notes page (collapsed by default)
   standaloneNotes: STANDALONE_NOTES_SEED.slice(), // ARELO-345 amendment: user-authored notes that don't require a Pin/Journey
   _notesSearch:'',        // My Notes search box (matches title/body)
   _notesAreaFilter:'all', // My Notes area dropdown filter
   _noteModal:null,        // { id: existing note id | null, title, area, body, linkTo } while the note editor is open
   orbAmbiguousItems: [],  // ARELO-332/347: items submitted via the Orb that Arelo can't confidently place — surfaced in Review, never auto-resolved
-  _orbComposerOpen: false // whether the Orb's "Give something to Arelo" composer is open
+  _orbComposerOpen: false, // whether the Orb's "Give something to Arelo" composer is open
+  _orbPending: null       // the previewed-but-not-yet-applied interpretation, set by showOrbPreview()/buildOrbPreview()
 };
 
 const NORTHSTAR_STEPS = [
@@ -1775,6 +1798,7 @@ const EVIDENCE = {
   esin:     {type:'email', from:'Esin', date:rd('Mon 7 Sep'), subject:'Re: Northstar pricing', body:"On it — I'll get you the new numbers this week."},
   calculator:{type:'photo', from:'Photographed note', date:rd('Fri 4 Sep'), subject:'URGENT — Buy a calculator for Mia', body:'(A photo of a handwritten Post-it, left on the kitchen counter.)'},
   lemons:   {type:'conversation', from:'You, to Arelo', date:rd('Sat 5 Sep'), subject:'Lemon cake for the bake sale', body:'"I don’t have any lemons and I’m making lemon cake for the bake sale."'},
+  miapartychat:{type:'conversation', from:'You, to Arelo', date:rd('Sun 6 Sep'), subject:'Mia\u2019s birthday party', body:'"Mia keeps talking about having a party with a few girls from school but I haven\u2019t decided if we should do something at home or book somewhere."'},
   brownies: {type:'email', from:'Brownies Leader', date:rd('Sat 5 Sep'), subject:'No Brownies next week', body:"Just a note that Brownies won't be running next Tuesday — back to normal the week after."},
   robconsent:{type:'email', from:'Oakfield School Clubs', date:rd('Wed 26 Aug'), subject:'Robotics Club — consent required', body:'Please complete the consent form before your child’s next session.'},
   noise1:   {type:'email', from:'Company newsletter', date:rd('Mon 7 Sep'), subject:'This week at a glance', body:'Sales all-hands recap, new expenses portal, canteen menu change. Nothing needed from you.'},
@@ -1923,6 +1947,14 @@ function buildPins(){
   P.push({id:'lemons', t:ov('lemons','t','Get lemons for the bake-sale cake'), cat:'Family', time:'This week', lifecycle:'Open', attention:'Active', progress:'Needs you', size:'small',
     summary:'For the lemon cake you mentioned to Arelo.', na:ov('lemons','na','Add to next shop'),
     remind:ov('lemons','remind','Before your next shop'), need:ov('lemons','need','Before you bake'), source:'lemons'});
+
+  // Mia's birthday party — deliberately early-stage: one genuine Pin (the actual next
+  // conversation), not a task list manufactured to fill out party-planning sections. Venue,
+  // invitations and cake are all still open questions, not yet accepted Pins.
+  P.push({id:'mia-party-ideas', t:ov('mia-party-ideas','t','Talk to Mia about party ideas'), cat:'Family', time:'This week', lifecycle:'Open', attention:'Active', progress:'Needs you', size:'medium',
+    summary:'Mia wants to invite a few school friends, and a Saturday afternoon might work best — nothing about the venue is decided yet.',
+    na:ov('mia-party-ideas','na','Find out what kind of party Mia wants'),
+    remind:ov('mia-party-ideas','remind','This week'), need:ov('mia-party-ideas','need','Not specified'), source:'miapartychat'});
 
   // ---- Work Pins tied to the fuller calendar: a small number, with real human context ----
   P.push({id:'northstar-presprep', t:ov('northstar-presprep','t','Prep for Northstar client presentation'), cat:'Work', time:'This week', lifecycle:'Open', attention:'Active', progress:'Needs you', size:'medium',
@@ -2989,8 +3021,48 @@ function northstarJourneyModel(){
     story, orientation, movement, holding, settled, laterPins:[], sourceIds, prep, proposal
   };
 }
+function miaPartyJourneyModel(){
+  const pins = buildPins();
+  const talk = pins.find(p=>p.id==='mia-party-ideas');
+
+  const story = 'Mia wants a birthday party with a few school friends. Nothing is booked yet \u2014 Gemma is still working out what kind of party Mia wants, where to have it, and who to invite.';
+  const orientation = '1 needs you';
+
+  // Most useful movement — the one genuine next step: having the actual conversation with Mia.
+  // Nothing else is folded in — venue/invitations/cake are all still open questions, not Pins
+  // (ARELO-290 comment 14019: a single interpreted movement, not a ranking of possible next steps).
+  const movement = { title: 'Decide what kind of party Mia wants', meta: 'Talk to Mia about what she\u2019d actually like before anything else moves.', pins:[talk].filter(Boolean) };
+
+  // Arelo is holding — the same Pin's own context, narrated as reassurance rather than a second
+  // list of tasks (ARELO-290 comment 14019: Pin-backed only, no separate monitoring object).
+  const holding = { body: 'Mia wants to invite a few school friends, and a Saturday afternoon might work best \u2014 no venue has been chosen yet, so Arelo isn\u2019t pushing further until you are.' };
+
+  // Already part of the story — deliberately minimal: just the date and the initial idea, since
+  // almost nothing else is settled yet at this early stage.
+  const settled = [
+    rd('Mia\u2019s birthday is Saturday 29 September'),
+    'The idea that she wants a party is already agreed'
+  ];
+
+  // Coming later — genuinely omitted. Venue, invitations and cake are still open questions, not
+  // yet accepted Pins with a real future horizon; manufacturing them here would be exactly the
+  // "explode early planning into a task list" behaviour this Journey exists to demonstrate Arelo
+  // does not do (ARELO-290: "must remain natural when a section has no content").
+  const laterPins = [];
+
+  // Sources behind this story — genuine provenance already in EVIDENCE, never a fabricated count.
+  const sourceIds = ['miapartychat'].filter(id=>!!EVIDENCE[id]);
+
+  return {
+    eyebrow:'JOURNEY · FAMILY', title:'Mia\u2019s birthday party', orientSuffix:'Planning \u00b7 around 3 weeks away',
+    story, orientation, movement, holding, settled, laterPins, sourceIds
+  };
+}
 function journeyModel(key){
-  return (key||state._activeJourney)==='northstar' ? northstarJourneyModel() : italyJourneyModel();
+  const k = key||state._activeJourney;
+  if(k==='northstar') return northstarJourneyModel();
+  if(k==='miaparty') return miaPartyJourneyModel();
+  return italyJourneyModel();
 }
 function renderJourney(){
   const active = state._activeJourney || 'italy';
@@ -3002,6 +3074,7 @@ function renderJourney(){
   const switchHtml = `
     <div class="jr-switch" role="tablist" aria-label="Journeys">
       <button type="button" class="jr-switch-btn${active==='italy'?' is-active':''}" role="tab" aria-selected="${active==='italy'}" data-journey="italy">Italy road trip</button>
+      <button type="button" class="jr-switch-btn${active==='miaparty'?' is-active':''}" role="tab" aria-selected="${active==='miaparty'}" data-journey="miaparty">Mia\u2019s birthday party</button>
       <button type="button" class="jr-switch-btn${active==='northstar'?' is-active':''}" role="tab" aria-selected="${active==='northstar'}" data-journey="northstar">Northstar proposal</button>
     </div>`;
 
@@ -3013,7 +3086,7 @@ function renderJourney(){
         <h1 class="jr-title">${m.title}</h1>
         <div class="jr-meta">${m.orientSuffix}</div>
       </div>
-      <div>
+      <div class="jr-story">
         <div class="jr-story-label">The story so far</div>
         <p>${m.story}</p>
         <div class="jr-orient">${m.orientation}</div>
@@ -3116,7 +3189,7 @@ function notesModel(){
 // only (never Arelo suggestions, never a newly-invented target).
 function noteLinkOptions(){
   const pins = buildPins().filter(p=>p.lifecycle==='Open').map(p=>({kind:'pin', id:p.id, label:p.t}));
-  const journeys = [{kind:'journey', id:'italy', label:'Italy road trip'}, {kind:'journey', id:'northstar', label:'Northstar proposal'}];
+  const journeys = [{kind:'journey', id:'italy', label:'Italy road trip'}, {kind:'journey', id:'miaparty', label:'Mia\u2019s birthday party'}, {kind:'journey', id:'northstar', label:'Northstar proposal'}];
   return [...journeys, ...pins];
 }
 function renderNotes(){
@@ -3659,23 +3732,42 @@ document.getElementById('resetColours').addEventListener('click', ()=>{
 });
 
 /* =========================================================================
-   ORB COMPOSER (ARELO-332/347) — Arelo's one universal input portal. Lives outside
-   #app (it's global chrome, like the Orb itself), so it gets its own listeners
-   rather than the #app-scoped delegated handler used for everything else.
+   ORB COMPOSER (ARELO-332/347, two-stage PO correction 14 Sep) — Arelo's one
+   universal input portal. Lives outside #app (it's global chrome, like the Orb
+   itself), so it gets its own listeners rather than the #app-scoped delegated
+   handler used for everything else.
+
+   Two stages, never skipped: (1) compose — free text or a scripted example; (2)
+   preview — a deterministic breakdown of what WOULD happen, using only existing
+   Arelo concepts (Existing Pin updated / New Pin suggested / Note retained /
+   Calendar context / Needs Review). Nothing in the demo changes until the user
+   explicitly confirms the preview. This is what makes the Orb read as Arelo
+   understanding something for you, rather than a generic input field.
    ========================================================================= */
 const ORB_EXAMPLES = {
   braindump: 'Actually, any basic four-function calculator is fine for Mia \u2014 doesn\u2019t need to be scientific. Her teacher said cases aren\u2019t required either.',
+  miaparty: 'Mia keeps talking about having a party with a few girls from school but I haven\u2019t decided if we should do something at home or book somewhere.',
   email: 'Subject: Y6 Residential Trip \u2014 deposit reminder\n\nDear parents, please pay the \u00a350 deposit by Friday to confirm your child\u2019s place on the Y6 residential trip. Payment via the school app.',
   ambiguous: 'Not sure if we still need the extra key cut for Jacob, or if he already sorted it himself.'
 };
+function showOrbCompose(){
+  document.getElementById('orbComposerHead').hidden = false;
+  document.getElementById('orbComposerInput').hidden = false;
+  document.getElementById('orbComposerExamples').hidden = false;
+  document.getElementById('orbComposerActions').hidden = false;
+  document.getElementById('orbPreview').hidden = true;
+}
 function openOrbComposer(){
   state._orbComposerOpen = true;
+  state._orbPending = null;
   document.getElementById('orbComposerBackdrop').hidden = false;
   document.getElementById('orbComposerInput').value = '';
+  showOrbCompose();
   document.getElementById('orbComposerInput').focus();
 }
 function closeOrbComposer(){
   state._orbComposerOpen = false;
+  state._orbPending = null;
   document.getElementById('orbComposerBackdrop').hidden = true;
 }
 // Briefly flash-highlight whatever surface the scripted interpretation just updated, so the
@@ -3692,35 +3784,85 @@ function flashLanded(selector){
 // the three example chips fill exact-matching text, and free-typed input is matched by keyword
 // against the same two specific, recognisable scenarios; anything else — including a genuinely
 // free-typed thought that doesn't match — correctly falls through to the ambiguous/Review path,
-// since that is the honest outcome for input the demo can't confidently place on its own.
-function runOrbScenario(text){
+// since that is the honest outcome for input the demo can't confidently place on its own. This
+// only BUILDS a description of what would happen — it never touches demo state itself.
+function buildOrbPreview(text){
   const t = text.trim();
-  if(!t) return;
   const lower = t.toLowerCase();
   if(lower.indexOf('calculator') !== -1){
-    // Brain-dump that updates an EXISTING Pin (not a duplicate): attached as a linked Note.
+    return { kind:'braindump', text:t, items:[
+      {tag:'Existing Pin updated', detail:'Buy Mia a calculator \u2014 nothing new is created, this stays the same responsibility.'},
+      {tag:'Note retained', detail:'\u201c'+t+'\u201d \u2014 kept as your own note, linked back to that Pin.'}
+    ]};
+  }
+  if(lower.indexOf('party') !== -1 || lower.indexOf('birthday') !== -1){
+    return { kind:'miaparty', text:t, items:[
+      {tag:'Existing Pin updated', detail:'Talk to Mia about party ideas \u2014 this is still early planning, so nothing new is created.'},
+      {tag:'Note retained', detail:'\u201c'+t+'\u201d \u2014 kept as planning context on the Mia\u2019s birthday party Journey.'}
+    ]};
+  }
+  if(lower.indexOf('subject:') !== -1 || lower.indexOf('deposit') !== -1 || lower.indexOf('residential') !== -1){
+    const subjectMatch = /subject:\s*(.+)/i.exec(t);
+    const rawTitle = subjectMatch ? subjectMatch[1].split('\n')[0].trim() : 'Pay Y6 residential trip deposit';
+    const title = rawTitle.replace(/\s*\u2014\s*deposit reminder$/i, ' \u2014 pay deposit');
+    return { kind:'email', text:t, title, items:[
+      {tag:'New Pin suggested', detail:title},
+      {tag:'Calendar context', detail:'A deadline is mentioned in the email \u2014 Arelo notes it against this Pin rather than creating a separate calendar event.'}
+    ]};
+  }
+  return { kind:'ambiguous', text:t, items:[
+    {tag:'Needs Review', detail:'Arelo isn\u2019t confident enough to place this on its own \u2014 it will wait in Review for your judgement, not be guessed at.'}
+  ]};
+}
+function renderOrbPreviewItems(pending){
+  document.getElementById('orbPreviewItems').innerHTML = pending.items.map(it=>
+    `<div class="orb-preview-item"><span class="orb-preview-item-tag">${it.tag}</span><span class="orb-preview-item-detail">${it.detail}</span></div>`
+  ).join('');
+}
+function showOrbPreview(){
+  const text = document.getElementById('orbComposerInput').value;
+  if(!text.trim()) return;
+  state._orbPending = buildOrbPreview(text);
+  renderOrbPreviewItems(state._orbPending);
+  document.getElementById('orbComposerHead').hidden = true;
+  document.getElementById('orbComposerInput').hidden = true;
+  document.getElementById('orbComposerExamples').hidden = true;
+  document.getElementById('orbComposerActions').hidden = true;
+  document.getElementById('orbPreview').hidden = false;
+}
+// The only place any of the three scenarios actually mutates demo state — reads the pending
+// interpretation already shown to the user in the preview, exactly as previewed.
+function confirmOrbPending(){
+  const pending = state._orbPending;
+  if(!pending) return;
+  if(pending.kind === 'braindump'){
     const noteId = 'note-orb-'+Date.now();
-    state.standaloneNotes.push({ id:noteId, title:'Note for Gemma', cat:'Family', body:t,
+    state.standaloneNotes.push({ id:noteId, title:'Note for Gemma', cat:'Family', body:pending.text,
       linked:{kind:'pin', id:'calculator', label:'Buy Mia a calculator'} });
     closeOrbComposer();
     switchTab('notes');
     renderNotes();
     flashLanded(`[data-note-edit="${noteId}"]`);
-  } else if(lower.indexOf('subject:') !== -1 || lower.indexOf('deposit') !== -1 || lower.indexOf('residential') !== -1){
-    // Pasted email that creates the appropriate new responsibility — same mechanism Review
-    // already uses for user-accepted Pins, not a new object type.
-    const subjectMatch = /subject:\s*(.+)/i.exec(t);
-    const title = subjectMatch ? subjectMatch[1].split('\n')[0].trim() : 'Pay Y6 residential trip deposit';
-    addCustomPin('orb-email', title.replace(/\s*\u2014\s*deposit reminder$/i, ' \u2014 pay deposit'));
+  } else if(pending.kind === 'email'){
+    addCustomPin('orb-email', pending.title);
     closeOrbComposer();
     switchTab('pins');
     renderPins();
     flashLanded('.pin[data-openpin^="custom-orb-email-"]');
+  } else if(pending.kind === 'miaparty'){
+    const noteId = 'note-orb-'+Date.now();
+    state.standaloneNotes.push({ id:noteId, title:'Note for Gemma', cat:'Family', body:pending.text,
+      linked:{kind:'journey', id:'miaparty', label:'Mia\u2019s birthday party'} });
+    closeOrbComposer();
+    state._activeJourney = 'miaparty';
+    switchTab('journey');
+    renderJourney();
+    renderNotes();
+    flashLanded('.jr-switch-btn[data-journey="miaparty"]');
   } else {
-    // Genuinely ambiguous — Arelo surfaces it for a judgement call rather than guessing.
     const id = 'orb-ambig-'+Date.now();
-    EVIDENCE[id] = {type:'conversation', from:'You, to Arelo', date: rd('Tuesday 8 September'), subject:'Something to look at', body:t};
-    state.orbAmbiguousItems.push({id, text:t, resolution:null});
+    EVIDENCE[id] = {type:'conversation', from:'You, to Arelo', date: rd('Tuesday 8 September'), subject:'Something to look at', body:pending.text};
+    state.orbAmbiguousItems.push({id, text:pending.text, resolution:null});
     closeOrbComposer();
     switchTab('review');
     state._reviewOpen = id;
@@ -3739,9 +3881,9 @@ document.querySelectorAll('[data-orb-example]').forEach(btn=>{
     document.getElementById('orbComposerInput').focus();
   });
 });
-document.getElementById('orbComposerSend').addEventListener('click', ()=>{
-  runOrbScenario(document.getElementById('orbComposerInput').value);
-});
+document.getElementById('orbComposerSend').addEventListener('click', showOrbPreview);
+document.getElementById('orbPreviewBack').addEventListener('click', ()=>{ state._orbPending = null; showOrbCompose(); });
+document.getElementById('orbPreviewConfirm').addEventListener('click', confirmOrbPending);
 document.addEventListener('keydown', e=>{
   if(e.key === 'Escape' && state._orbComposerOpen) closeOrbComposer();
 });
