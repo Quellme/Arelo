@@ -902,6 +902,9 @@ button,input,select{font:inherit}
 .nt-modal h2{font:400 22px/1.2 "DM Serif Display",Georgia,serif;margin:0 0 14px;color:var(--nt-ink)}
 .nt-modal-title-input{width:100%;border:1px solid var(--nt-line);border-radius:10px;padding:9px 12px;font:inherit;font-size:15px;font-weight:700;color:var(--nt-ink);margin:0 0 12px}
 .nt-area-pills{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 12px}
+.nt-format-bar{display:flex;gap:6px;margin:0 0 8px}
+.nt-format-btn{width:30px;height:30px;border:1px solid var(--nt-line);background:#fff;color:var(--nt-ink);border-radius:8px;cursor:pointer;font-size:13px;display:grid;place-items:center}
+.nt-format-btn:hover{border-color:var(--nt-muted)}
 .nt-area-pill{font-family:"Nunito",Arial,sans-serif;font-size:12px;font-weight:800;background:#fff;border:1px solid var(--nt-line);color:var(--nt-muted);border-radius:999px;padding:6px 13px;cursor:pointer}
 .nt-area-pill.is-active{background:var(--nt-teal-soft);border-color:var(--nt-teal-line);color:var(--nt-teal)}
 .nt-modal-body-input{width:100%;min-height:140px;border:1px solid var(--nt-line);border-radius:10px;padding:11px 12px;font:inherit;font-size:14px;line-height:1.55;color:var(--nt-ink);resize:vertical;margin:0 0 12px}
@@ -2562,7 +2565,7 @@ function renderPins(){
           <div class="pin-title">${p.t}</div>
           <div class="pin-summary">${p.summary}</div>
           <div class="pin-detail">Next: ${p.na}</div>
-          <div class="meta"><span style="font-weight:800;color:${s.text}">${p.cat}</span><span class="badge">${p.lifecycle==='Done'?'Done':(p.attention==='Sleeping'?'Sleeping':p.progress)}</span>${p.notes&&p.notes.length? `<span class="notes-flag">📝 ${p.notes.length} notes</span>`:''}${act? `<span class="pin-source-chip" data-gotosource="${act.id}">${act.label} ↗</span>`:''}</div>
+          <div class="meta"><span style="font-weight:800;color:${s.text}">${p.cat}</span><span class="badge">${p.lifecycle==='Done'?'Done':(p.attention==='Sleeping'?'Sleeping':p.progress)}</span>${p.notes&&p.notes.length? `<span class="notes-flag">📝 Notes</span>`:''}${act? `<span class="pin-source-chip" data-gotosource="${act.id}">${act.label} ↗</span>`:''}</div>
         </button>`;}).join('') : '<div class="empty-col">Nothing here.</div>'}</div></section>`;
   }).join('');
   document.getElementById('pinsTitle').textContent = state.pinsLens==='time'?'Around now':'Across your life';
@@ -2910,20 +2913,27 @@ function renderJourney(){
 }
 
 /* =========================================================================
-   RENDER: NOTES (ARELO-345 PO amendment, 14 Sep) — Notes are a valid user-authored
-   object/surface on their own, not merely Pin/Journey annotation. This page now shows:
+   RENDER: NOTES (ARELO-345 PO amendment, 14 Sep; count correction 14 Sep) — Notes are a valid
+   user-authored object/surface on their own, not merely Pin/Journey annotation. This page shows:
    (1) standalone notes — session-only client state, create/edit/delete, optionally
        linkable to an existing Pin or Journey (never the reverse: linking never turns a
        Note into a responsibility, and nothing here creates a Pin automatically);
    (2) linked notes — the existing Pin/Journey-attached context (p.notes / ITALY_JOURNEY_NOTES),
-       unchanged data sources, kept as its own labelled group so provenance stays clear.
+       unchanged data sources, kept as its own labelled group so provenance stays clear. Each
+       linked group is exactly ONE authored/retained note (see notesModel's noteCount) — its
+       content may span several bullet points, but that's one note's content, not N notes; the
+       displayed count must never equal the bullet-array length.
    ========================================================================= */
 function notesModel(){
+  // Each Pin/Journey here has exactly one genuine authored/retained note — its content happens to
+  // be captured as a short list of points, but that's one note's content, not N separate notes.
+  // noteCount is explicit (not notes.length) so the displayed count stays truthful even though the
+  // underlying array holds multiple lines of that single note's body.
   const pinGroups = buildPins()
     .filter(p=>Array.isArray(p.notes) && p.notes.length)
-    .map(p=>({ kind:'pin', id:p.id, title:p.t, cat:p.cat, notes:p.notes, provenance:pinSourceLabel(p), sourceAction:pinSourceAction(p) }));
+    .map(p=>({ kind:'pin', id:p.id, title:p.t, cat:p.cat, notes:p.notes, noteCount:1, provenance:pinSourceLabel(p), sourceAction:pinSourceAction(p) }));
   const journeyGroups = [
-    { kind:'journey', id:'italy', title:'Italy road trip', cat:'Family', notes:ITALY_JOURNEY_NOTES, provenance:'Arelo bot (conversation)', sourceAction:null }
+    { kind:'journey', id:'italy', title:'Italy road trip', cat:'Family', notes:ITALY_JOURNEY_NOTES, noteCount:1, provenance:'Arelo bot (conversation)', sourceAction:null }
   ];
   return { linkedGroups:[...pinGroups, ...journeyGroups], standalone: state.standaloneNotes };
 }
@@ -2982,7 +2992,7 @@ function renderNotes(){
             <span class="nt-cat-chip" style="background:${s.bg};color:${s.text}">${g.cat}</span>
           </span>
           <span class="nt-group-meta">
-            <span class="nt-group-count">${g.notes.length} note${g.notes.length===1?'':'s'}</span>
+            <span class="nt-group-count">${g.noteCount} note${g.noteCount===1?'':'s'}</span>
             <svg viewBox="0 0 24 24" class="nt-group-chev" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </span>
         </button>
@@ -3056,6 +3066,11 @@ function renderNoteModal(m){
         <h2>Arelo</h2>
         <input type="text" class="nt-modal-title-input" id="noteModalTitle" placeholder="Note title" value="${(m.title||'').replace(/"/g,'&quot;')}">
         <div class="nt-area-pills">${NOTE_AREAS.map(a=>`<button type="button" class="nt-area-pill${m.area===a?' is-active':''}" data-note-area="${a}">${a}</button>`).join('')}</div>
+        <div class="nt-format-bar">
+          <button type="button" class="nt-format-btn" data-note-format="bold" title="Bold" aria-label="Bold"><strong>B</strong></button>
+          <button type="button" class="nt-format-btn" data-note-format="italic" title="Italic" aria-label="Italic"><em>I</em></button>
+          <button type="button" class="nt-format-btn" data-note-format="bullet" title="Bullet list" aria-label="Bullet list">&bull;</button>
+        </div>
         <textarea class="nt-modal-body-input" id="noteModalBody" placeholder="Write it down…">${m.body||''}</textarea>
         <div class="nt-link-row">
           <label>Link to (optional)</label>
@@ -3233,6 +3248,26 @@ document.getElementById('app').addEventListener('click', e=>{
     if(bEl) state._noteModal.body = bEl.value;
     state._noteModal.area = noteAreaPill.dataset.noteArea;
     renderNotes();
+    return;
+  }
+  // Formatting buttons act directly on the textarea's current selection — no re-render, so
+  // in-progress typing is never lost (same lesson as the area-pill fix above).
+  const noteFormatBtn = e.target.closest('[data-note-format]');
+  if(noteFormatBtn){
+    const ta = document.getElementById('noteModalBody'); if(!ta) return;
+    const kind = noteFormatBtn.dataset.noteFormat;
+    const start = ta.selectionStart, end = ta.selectionEnd;
+    const selected = ta.value.slice(start, end);
+    let insert;
+    if(kind==='bullet'){
+      insert = selected ? selected.split('\n').map(l=>'• '+l).join('\n') : '• ';
+    } else {
+      const wrap = kind==='bold' ? '**' : '_';
+      insert = wrap + (selected||(kind==='bold'?'bold text':'italic text')) + wrap;
+    }
+    ta.value = ta.value.slice(0,start) + insert + ta.value.slice(end);
+    ta.focus();
+    ta.selectionStart = start; ta.selectionEnd = start+insert.length;
     return;
   }
   const noteModalCancel = e.target.closest('#noteModalCancel');
