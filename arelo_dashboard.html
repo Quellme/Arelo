@@ -757,45 +757,76 @@ button,input,select{font:inherit}
   --jr-warm:#8a5a00; --jr-warm-soft:#faf0d8; --jr-warm-line:#f0dfb0;
   --jr-teal:#3E9088; --jr-teal-soft:#EEF9F7; --jr-teal-line:#CFECE7;
   background:#fff; color:var(--jr-ink);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 }
-.jr-page{max-width:640px;margin:0 auto;padding:8px 4px 40px}
-.jr-switch{display:flex;gap:8px;margin:0 0 20px;flex-wrap:wrap}
+.jr-page{max-width:880px;margin:0 auto;padding:6px 4px 60px}
+/* Journey switcher is demo navigation only — sits above/outside the editorial chapters,
+   deliberately not part of the ARELO-290 chapter grammar it selects between. */
+.jr-switch{display:flex;gap:8px;margin:0 0 28px;flex-wrap:wrap}
 .jr-switch-btn{font-family:"Nunito",Arial,sans-serif;font-size:11.5px;font-weight:800;letter-spacing:.03em;background:#fff;border:1px solid var(--jr-line);color:var(--jr-muted);border-radius:999px;padding:6px 14px;cursor:pointer}
 .jr-switch-btn:hover:not(.is-active){border-color:var(--jr-muted);color:var(--jr-ink)}
 .jr-switch-btn.is-active{background:var(--jr-ink);border-color:var(--jr-ink);color:#fff}
-.jr-eyebrow{font-family:"Nunito",Arial,sans-serif;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--jr-muted)}
-.jr-title{font:400 34px/1.15 "DM Serif Display",Georgia,serif;margin:6px 0 8px;letter-spacing:-.02em}
-.jr-orient{color:var(--jr-muted);font-size:14px;margin:0 0 30px}
-.jr-section{margin:0 0 30px}
-.jr-section-label{font-family:"Nunito",Arial,sans-serif;font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--jr-muted);margin:0 0 10px}
-.jr-story p{font-size:16.5px;line-height:1.6;margin:0;color:var(--jr-ink)}
-.jr-movement{background:var(--jr-warm-soft);border:1px solid var(--jr-warm-line);border-left:4px solid var(--jr-warm);border-radius:12px;padding:16px 18px}
-.jr-movement .jr-section-label{color:var(--jr-warm)}
-.jr-movement h3{font:400 19px/1.3 "DM Serif Display",Georgia,serif;margin:0 0 6px;color:var(--jr-ink)}
-.jr-movement p{margin:0 0 12px;font-size:14px;color:var(--jr-muted)}
-.jr-holding{background:var(--jr-teal-soft);border:1px solid var(--jr-teal-line);border-left:4px solid var(--jr-teal);border-radius:12px;padding:16px 18px}
-.jr-holding .jr-section-label{color:var(--jr-teal)}
-.jr-holding h3{font:400 18px/1.3 "DM Serif Display",Georgia,serif;margin:0 0 6px;color:var(--jr-ink)}
-.jr-holding p{margin:0;font-size:14px;color:var(--jr-muted)}
-.jr-pin-list{display:flex;flex-direction:column;gap:6px;margin-top:2px}
-.jr-pin-chip{display:flex;align-items:center;gap:8px;text-align:left;background:#fff;border:1px solid var(--jr-line);border-radius:9px;padding:8px 11px;cursor:pointer;font:inherit;color:var(--jr-ink);font-size:13.5px;font-weight:700}
-.jr-pin-chip:hover{border-color:var(--jr-muted)}
-.jr-pin-chip .jr-pin-next{font-weight:400;color:var(--jr-muted);font-size:12.5px}
-.jr-later{font-size:14px;color:var(--jr-ink)}
-.jr-later-row{display:flex;align-items:center;gap:10px;width:100%;padding:7px 0;border:0;border-top:1px solid var(--jr-line);background:none;font:inherit;color:inherit;text-align:left;cursor:pointer}
-.jr-later-row:first-child{border-top:0}
-.jr-later-row:hover{color:var(--jr-teal)}
-.jr-later-when{flex:0 0 92px;color:var(--jr-muted);font-size:12.5px;font-weight:700}
-.jr-settled{color:var(--jr-muted);font-size:13.5px;line-height:1.7}
-.jr-settled .dot{margin:0 8px;color:var(--jr-line)}
-.jr-sources{border-top:1px solid var(--jr-line);padding-top:14px}
-.jr-sources-toggle{background:none;border:0;padding:0;font:inherit;font-size:13px;font-weight:800;color:var(--jr-muted);cursor:pointer;display:flex;align-items:center;gap:6px}
-.jr-sources-toggle svg{width:14px;height:14px;transition:transform .15s ease}
+/* Editorial opening — split intro: identity/orientation left, interpreted story right. */
+.jr-intro{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,.95fr);gap:34px;align-items:end;padding-bottom:26px;border-bottom:1px solid var(--jr-line)}
+.jr-eyebrow{font-family:"Nunito",Arial,sans-serif;font-size:12px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:var(--jr-teal)}
+.jr-title{font-family:Georgia,"Times New Roman",serif;font-weight:400;font-size:clamp(32px,4.2vw,48px);line-height:1;margin:8px 0 9px;letter-spacing:-.01em}
+.jr-meta{color:var(--jr-muted);font-size:14px}
+.jr-story-label{font-family:"Nunito",Arial,sans-serif;font-size:12px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:var(--jr-teal)}
+.jr-story p{font-family:Georgia,"Times New Roman",serif;font-weight:400;margin:6px 0 0;font-size:clamp(19px,2vw,24px);line-height:1.38;color:var(--jr-ink)}
+.jr-orient{margin-top:10px;color:var(--jr-muted);font-size:13.5px}
+/* Chapters — narrow semantic label column, main content column, rules over cards. */
+.jr-chapter{display:grid;grid-template-columns:140px minmax(0,1fr);gap:20px;padding:26px 0;border-bottom:1px solid var(--jr-line)}
+.jr-chapter-title{padding-top:4px;font-family:"Nunito",Arial,sans-serif;font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;color:var(--jr-muted)}
+/* Most useful movement — warm editorial emphasis, one chapter not a dashboard card. */
+.jr-movement{background:var(--jr-warm-soft);border-radius:22px;padding:22px 22px 8px}
+.jr-movement .jr-inner-label{font-family:"Nunito",Arial,sans-serif;font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;color:var(--jr-warm);margin:0 0 8px}
+.jr-movement h2{font-family:Georgia,"Times New Roman",serif;font-weight:400;margin:0 0 8px;font-size:28px;color:var(--jr-ink)}
+.jr-movement p{margin:0 0 16px;color:#7a5a24;line-height:1.5;font-size:15px}
+.jr-pin-row{display:grid;grid-template-columns:22px 1fr auto;gap:12px;align-items:center;padding:13px 0;border:0;border-top:1px solid rgba(138,90,0,.16);width:100%;text-align:left;cursor:pointer;font:inherit;color:inherit;background:none}
+.jr-pin-row:first-of-type{border-top:0}
+.jr-pin-dot{width:16px;height:16px;border:2px solid var(--jr-warm);border-radius:50%}
+.jr-pin-row strong{display:block;font-weight:700;font-size:14.5px}
+.jr-pin-row small{display:block;color:var(--jr-muted);margin-top:2px;font-size:12.5px;font-weight:400}
+.jr-pin-arrow{font-size:18px;color:#8a6a3a}
+/* Arelo is holding — cool teal emphasis, matched proportions to movement. */
+.jr-holding{background:var(--jr-teal-soft);border-radius:22px;padding:22px}
+.jr-holding .jr-inner-label{font-family:"Nunito",Arial,sans-serif;font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;color:var(--jr-teal);margin:0 0 8px}
+.jr-holding h3{font-family:Georgia,"Times New Roman",serif;font-weight:400;margin:0 0 10px;font-size:24px;color:var(--jr-ink)}
+.jr-holding p{margin:0 0 8px;line-height:1.5;font-size:15px;color:#2d5852}
+.jr-holding .jr-quiet{color:#4a7a74;font-size:13px}
+/* Plain chapters — coming later / already part of the story: typography, not boxes. */
+.jr-chapter.plain .jr-content h3{margin:0 0 10px;font-family:Georgia,"Times New Roman",serif;font-weight:400;font-size:24px;color:var(--jr-ink)}
+.jr-row{display:grid;grid-template-columns:100px 1fr;gap:16px;padding:9px 0;width:100%;text-align:left;background:none;border:0;font:inherit;color:inherit;cursor:pointer}
+.jr-row:hover{color:var(--jr-teal)}
+.jr-row-when{color:var(--jr-muted);font-size:13.5px}
+/* Already part of the story — receded, quieter typography, rows not a checklist card. */
+.jr-chapter.settled{opacity:.85}
+.jr-chapter.settled .jr-chapter-title{color:#9aa8b7}
+.jr-chapter.settled .jr-content h3{color:#8c9aaa;font-size:20px}
+.jr-settled-row{padding:6px 0;color:var(--jr-muted);font-size:13.5px}
+/* Sources — progressive disclosure, visually subordinate at the bottom. */
+.jr-sources{padding:22px 0 0 160px}
+.jr-sources-toggle{border:0;background:none;padding:0;font:inherit;font-size:12.5px;font-weight:800;color:var(--jr-muted);cursor:pointer;display:flex;align-items:center;gap:6px}
+.jr-sources-toggle svg{width:13px;height:13px;transition:transform .15s ease}
 .jr-sources-toggle[aria-expanded="true"] svg{transform:rotate(180deg)}
-.jr-sources-list{margin-top:10px;display:flex;flex-direction:column;gap:8px}
-.jr-source-row{font-size:13px;color:var(--jr-muted);display:flex;justify-content:space-between;gap:10px;border-bottom:1px dashed var(--jr-line);padding-bottom:6px}
+.jr-sources-list{display:none;margin-top:14px;padding:14px 16px;background:#f7fafc;border:1px solid var(--jr-line);border-radius:14px;color:var(--jr-muted)}
+.jr-sources-list.open{display:block}
+.jr-source-row{font-size:12.5px;display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-top:1px dashed var(--jr-line)}
+.jr-source-row:first-child{border-top:0}
 .jr-source-row strong{color:var(--jr-ink);font-weight:700}
-@media(max-width:560px){ .jr-title{font-size:28px} }
+@media(max-width:680px){
+  .jr-intro{grid-template-columns:1fr;gap:18px}
+  .jr-title{font-size:32px}
+  .jr-story p{font-size:19px}
+  .jr-chapter{grid-template-columns:1fr;gap:8px;padding:22px 0}
+  .jr-chapter-title{padding:0}
+  .jr-movement,.jr-holding{padding:18px 16px 6px;border-radius:18px}
+  .jr-holding{padding-bottom:18px}
+  .jr-movement h2{font-size:24px}
+  .jr-holding h3,.jr-chapter.plain .jr-content h3{font-size:21px}
+  .jr-sources{padding:20px 0 0}
+  .jr-row{grid-template-columns:80px 1fr}
+}
 
 /* =========================================================================
    ARELO-347 — NOTES. Aggregates the notes already attached to existing Pins
@@ -807,15 +838,34 @@ button,input,select{font:inherit}
   --nt-teal:#3E9088; --nt-teal-soft:#EEF9F7; --nt-teal-line:#CFECE7;
   background:#fff; color:var(--nt-ink);
 }
-.nt-page{max-width:680px;margin:0 auto;padding:8px 4px 40px}
-.nt-page h1{font:400 31px/1.05 "DM Serif Display",Georgia,serif;letter-spacing:-.03em;margin:0 0 6px;color:var(--nt-teal)}
-.nt-intro{color:var(--nt-muted);font-size:14px;margin:0 0 22px}
+.nt-page{max-width:900px;margin:0 auto;padding:8px 4px 40px}
+.nt-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin:0 0 6px;flex-wrap:wrap}
+.nt-page h1{font:400 31px/1.05 "DM Serif Display",Georgia,serif;letter-spacing:-.03em;margin:0;color:var(--nt-ink)}
+.nt-intro{color:var(--nt-muted);font-size:14px;margin:4px 0 22px}
+.nt-new-btn{font-family:"Nunito",Arial,sans-serif;font-size:12.5px;font-weight:800;background:var(--nt-ink);color:#fff;border:0;border-radius:999px;padding:9px 16px;cursor:pointer;white-space:nowrap}
+.nt-toolbar{display:flex;gap:10px;margin:0 0 22px;flex-wrap:wrap}
+.nt-search{flex:1 1 240px;min-width:0;border:1px solid var(--nt-line);border-radius:999px;padding:9px 15px;font:inherit;font-size:13.5px;color:var(--nt-ink)}
+.nt-search::placeholder{color:#95a5b8}
+.nt-area-select{border:1px solid var(--nt-line);border-radius:999px;padding:9px 15px;font:inherit;font-size:13px;color:var(--nt-ink);background:#fff}
 .nt-cat-chip{font-family:"Nunito",Arial,sans-serif;font-size:10px;font-weight:800;padding:2px 9px;border-radius:999px;white-space:nowrap}
 .nt-empty{color:var(--nt-muted);font-size:14px;padding:8px 0 24px}
+.nt-section-label{font-family:"Nunito",Arial,sans-serif;font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--nt-muted);margin:0 0 12px}
 
-/* ---- Note groups: collapsed by default, a short preview + count + provenance identity, expand
-   to reveal the full notes — the progressive-disclosure surface itself is the primary thing on
-   this page (ARELO-347 refinement, PO 14 Sep). ---- */
+/* Standalone user-authored notes — card grid, matching the authenticated app's My Notes surface
+   (ARELO-345 PO amendment, 14 Sep): a Note is a valid object on its own, not merely Pin/Journey
+   annotation. Editable/deletable client-side, session-only (same pattern as other demo edits). */
+.nt-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0 0 30px}
+.nt-card{border:1px solid var(--nt-line);border-radius:14px;padding:14px 16px;background:#fff;cursor:pointer;text-align:left;font:inherit;color:inherit;width:100%}
+.nt-card:hover{border-color:var(--nt-muted)}
+.nt-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.nt-card-title{font-size:15px;font-weight:800;color:var(--nt-ink)}
+.nt-card-del{border:0;background:none;color:#95a5b8;cursor:pointer;padding:2px;flex:0 0 auto}
+.nt-card-del:hover{color:#c0392b}
+.nt-card-foot{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
+.nt-linked-chip{font-family:"Nunito",Arial,sans-serif;font-size:10.5px;font-weight:800;color:var(--nt-teal);background:var(--nt-teal-soft);border:1px solid var(--nt-teal-line);border-radius:999px;padding:2px 9px}
+
+/* Linked notes — existing Pin/Journey-attached context, kept as its own labelled group so the
+   distinction from standalone notes (and each note's provenance) stays clear. */
 .nt-groups{display:flex;flex-direction:column;gap:10px;margin:0 0 28px}
 .nt-group{border:1px solid var(--nt-line);border-radius:14px;padding:2px 18px;transition:border-color .15s ease}
 .nt-group.open{border-color:var(--nt-teal-line)}
@@ -834,8 +884,7 @@ button,input,select{font:inherit}
 .nt-provenance{font-size:12px;color:var(--nt-muted);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .nt-source-link{background:none;border:1px solid var(--nt-teal-line);color:var(--nt-teal);border-radius:999px;padding:2px 10px;font:inherit;font-size:11.5px;font-weight:800;cursor:pointer}
 
-/* ---- Explainer: collapsed behind its own toggle so the note groups above stay the primary
-   surface on this page, not this box (ARELO-347 refinement). ---- */
+/* Explainer: collapsed behind its own toggle so the notes above stay the primary surface. */
 .nt-explainer{border-top:1px solid var(--nt-line);padding-top:14px}
 .nt-explainer-toggle{width:100%;background:none;border:0;padding:0;font:inherit;font-size:12.5px;font-weight:800;color:var(--nt-muted);cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px}
 .nt-explainer-toggle svg{width:13px;height:13px;transition:transform .15s ease;flex:0 0 auto}
@@ -845,9 +894,27 @@ button,input,select{font:inherit}
 .nt-explainer-body p:last-child{margin-bottom:0}
 .nt-explainer-body .nt-quote{font-style:italic;color:var(--nt-muted)}
 .nt-explainer-body .nt-disclosure{font-size:11px;color:var(--nt-muted);border-top:1px dashed var(--nt-teal-line);padding-top:10px;margin-top:10px}
-/* Narrow viewports: the collapsed one-line header (parent badge + title + category chip + count
-   + chevron) has too many fixed-width elements to fit one row without crushing the title down to
-   a few letters — let it wrap onto a second line instead of truncating the title away. */
+
+/* Note editor modal — create/edit a standalone note, matching the authenticated app's pattern:
+   title, area selector, body, optional link to an existing Pin/Journey. */
+.nt-modal-backdrop{position:fixed;inset:0;background:rgba(23,50,77,.42);z-index:200;display:flex;align-items:flex-start;justify-content:center;padding:8vh 16px}
+.nt-modal{background:#fff;border-radius:18px;padding:24px 26px;width:min(560px,100%);box-shadow:0 24px 60px rgba(23,50,77,.28)}
+.nt-modal h2{font:400 22px/1.2 "DM Serif Display",Georgia,serif;margin:0 0 14px;color:var(--nt-ink)}
+.nt-modal-title-input{width:100%;border:1px solid var(--nt-line);border-radius:10px;padding:9px 12px;font:inherit;font-size:15px;font-weight:700;color:var(--nt-ink);margin:0 0 12px}
+.nt-area-pills{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 12px}
+.nt-area-pill{font-family:"Nunito",Arial,sans-serif;font-size:12px;font-weight:800;background:#fff;border:1px solid var(--nt-line);color:var(--nt-muted);border-radius:999px;padding:6px 13px;cursor:pointer}
+.nt-area-pill.is-active{background:var(--nt-teal-soft);border-color:var(--nt-teal-line);color:var(--nt-teal)}
+.nt-modal-body-input{width:100%;min-height:140px;border:1px solid var(--nt-line);border-radius:10px;padding:11px 12px;font:inherit;font-size:14px;line-height:1.55;color:var(--nt-ink);resize:vertical;margin:0 0 12px}
+.nt-link-row{margin:0 0 18px}
+.nt-link-row label{display:block;font-family:"Nunito",Arial,sans-serif;font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--nt-muted);margin:0 0 6px}
+.nt-link-select{width:100%;border:1px solid var(--nt-line);border-radius:10px;padding:9px 12px;font:inherit;font-size:13.5px;color:var(--nt-ink);background:#fff}
+.nt-modal-actions{display:flex;justify-content:flex-end;gap:10px}
+.nt-modal-cancel{font-family:"Nunito",Arial,sans-serif;font-size:13px;font-weight:800;background:#fff;border:1px solid var(--nt-line);color:var(--nt-muted);border-radius:999px;padding:9px 18px;cursor:pointer}
+.nt-modal-save{font-family:"Nunito",Arial,sans-serif;font-size:13px;font-weight:800;background:var(--nt-teal);border:1px solid var(--nt-teal);color:#fff;border-radius:999px;padding:9px 18px;cursor:pointer}
+
+@media(max-width:680px){
+  .nt-grid{grid-template-columns:1fr}
+}
 @media(max-width:480px){
   .nt-group-head{flex-wrap:wrap;row-gap:6px}
   .nt-group-main{flex:1 1 100%;min-width:0}
@@ -1485,6 +1552,14 @@ if(document.readyState === 'loading'){
 /* =========================================================================
    CANONICAL GEMMA STATE — one object driving Focus, Calendar, Review, Pins, Emails
    ========================================================================= */
+// Standalone user-authored notes (ARELO-345 PO amendment, 14 Sep): a Note is a valid object on
+// its own — it does not require a Pin or Journey to exist. Declared before `state` since the
+// initial state references it as the seed value for state.standaloneNotes.
+const STANDALONE_NOTES_SEED = [
+  { id:'note-shopping', title:'Shopping list', area:'Home', body:'Milk, eggs, dog food, bin bags, more coffee.', linked:null },
+  { id:'note-swimkit', title:'Mia\u2019s swimming kit', area:'Family', body:'Goggles keep going missing \u2014 worth buying a spare pair and labelling them.', linked:null },
+  { id:'note-groomer', title:'Dog groomer numbers', area:'Home', body:'Two local groomers worth comparing before booking the next appointment.', linked:null }
+];
 const state = {
   clash: null,           // null | 'cover' | 'leave'
   robotics: { moved:false, clashChecked:null, extraPin:false }, // clashChecked: null|'fine'|'sort'
@@ -1515,7 +1590,11 @@ const state = {
   _colourPaletteTab:'arelo', // 'arelo' (calm branded defaults) | 'broad' (wider hue range) — which tab the open popover shows
   _activeJourney:'italy', // 'italy' (primary, richer) | 'northstar' (secondary/example) — which Journey the Journey tab shows
   _notesOpen:{},          // note-group id -> bool, progressive disclosure on the Notes page (collapsed by default)
-  _notesExplainerOpen:false // "How a note finds its place" — collapsed by default so the real Notes surface is primary
+  _notesExplainerOpen:false, // "How a note finds its place" — collapsed by default so the real Notes surface is primary
+  standaloneNotes: STANDALONE_NOTES_SEED.slice(), // ARELO-345 amendment: user-authored notes that don't require a Pin/Journey
+  _notesSearch:'',        // My Notes search box (matches title/body)
+  _notesAreaFilter:'all', // My Notes area dropdown filter
+  _noteModal:null         // { id: existing note id | null, title, area, body, linkTo } while the note editor is open
 };
 
 const NORTHSTAR_STEPS = [
@@ -2740,39 +2819,69 @@ function renderJourney(){
   const m = journeyModel(active);
   const el = document.getElementById('journeyBody'); if(!el) return;
 
-  const pinChip = p => `<button type="button" class="jr-pin-chip" data-gotopin="${p.id}">${p.t}<span class="jr-pin-next">— ${p.na}</span></button>`;
-
+  // Demo navigation only (choosing which Gemma Journey to view) — deliberately rendered
+  // outside the ARELO-290 editorial chapter grammar below, not a replacement for it.
   const switchHtml = `
     <div class="jr-switch" role="tablist" aria-label="Journeys">
       <button type="button" class="jr-switch-btn${active==='italy'?' is-active':''}" role="tab" aria-selected="${active==='italy'}" data-journey="italy">Italy road trip</button>
       <button type="button" class="jr-switch-btn${active==='northstar'?' is-active':''}" role="tab" aria-selected="${active==='northstar'}" data-journey="northstar">Northstar proposal</button>
     </div>`;
 
+  // Editorial opening — split intro: identity/orientation (left) + interpreted story (right).
+  const introHtml = `
+    <div class="jr-intro">
+      <div>
+        <div class="jr-eyebrow">${m.eyebrow}</div>
+        <h1 class="jr-title">${m.title}</h1>
+        <div class="jr-meta">${m.orientSuffix}</div>
+      </div>
+      <div>
+        <div class="jr-story-label">The story so far</div>
+        <p>${m.story}</p>
+        <div class="jr-orient">${m.orientation}</div>
+      </div>
+    </div>`;
+
+  const pinRow = p => `<button type="button" class="jr-pin-row" data-gotopin="${p.id}"><span class="jr-pin-dot"></span><span><strong>${p.t}</strong><small>${p.na}</small></span><span class="jr-pin-arrow">›</span></button>`;
+
   const movementHtml = m.movement ? `
-    <div class="jr-section jr-movement">
-      <div class="jr-section-label">Most useful movement in this Journey</div>
-      <h3>${m.movement.title}</h3>
-      <p>${m.movement.meta}</p>
-      <div class="jr-pin-list">${m.movement.pins.map(pinChip).join('')}</div>
+    <div class="jr-chapter">
+      <div class="jr-chapter-title">What moves the story</div>
+      <div class="jr-movement">
+        <div class="jr-inner-label">Most useful movement in this Journey</div>
+        <h2>${m.movement.title}</h2>
+        <p>${m.movement.meta}</p>
+        ${m.movement.pins.map(pinRow).join('')}
+      </div>
     </div>` : '';
 
   const holdingHtml = m.holding ? `
-    <div class="jr-section jr-holding">
-      <div class="jr-section-label">Arelo is holding</div>
-      <h3>The background details are covered</h3>
-      <p>${m.holding.body}</p>
-    </div>` : '';
-
-  const settledHtml = m.settled.length ? `
-    <div class="jr-section">
-      <div class="jr-section-label">Already part of the story</div>
-      <div class="jr-settled">${m.settled.map(s=>`<span>${s}</span>`).join('<span class="dot">·</span>')}</div>
+    <div class="jr-chapter">
+      <div class="jr-chapter-title">What Arelo is holding</div>
+      <div class="jr-holding">
+        <div class="jr-inner-label">Arelo is holding</div>
+        <h3>The background details are covered</h3>
+        <p>${m.holding.body}</p>
+        <div class="jr-quiet">Nothing needed from you unless something changes.</div>
+      </div>
     </div>` : '';
 
   const laterHtml = (m.laterPins && m.laterPins.length) ? `
-    <div class="jr-section">
-      <div class="jr-section-label">Coming later</div>
-      <div class="jr-later">${m.laterPins.map(p=>`<button type="button" class="jr-later-row" data-gotopin="${p.id}"><span class="jr-later-when">${p.time}</span><span>${p.t}</span></button>`).join('')}</div>
+    <div class="jr-chapter plain">
+      <div class="jr-chapter-title">Coming later</div>
+      <div class="jr-content">
+        <h3>Safe to leave here for now</h3>
+        ${m.laterPins.map(p=>`<button type="button" class="jr-row" data-gotopin="${p.id}"><span class="jr-row-when">${p.time}</span><span>${p.t}</span></button>`).join('')}
+      </div>
+    </div>` : '';
+
+  const settledHtml = m.settled.length ? `
+    <div class="jr-chapter plain settled">
+      <div class="jr-chapter-title">Already part of the story</div>
+      <div class="jr-content">
+        <h3>Settled and remembered</h3>
+        ${m.settled.map(s=>`<div class="jr-settled-row">${s}</div>`).join('')}
+      </div>
     </div>` : '';
 
   const sourcesOpen = !!state._journeySourcesOpen;
@@ -2786,35 +2895,28 @@ function renderJourney(){
         Sources behind this story · ${m.sourceIds.length}
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
-      ${sourcesOpen? `<div class="jr-sources-list">${sourceRows}</div>` : ''}
+      <div class="jr-sources-list${sourcesOpen?' open':''}">${sourceRows}</div>
     </div>` : '';
 
   el.innerHTML = `
     ${switchHtml}
-    <div class="jr-eyebrow">${m.eyebrow}</div>
-    <h1 class="jr-title">${m.title}</h1>
-    <p class="jr-orient">${m.orientation} · ${m.orientSuffix}</p>
-    <div class="jr-section jr-story">
-      <div class="jr-section-label">The story so far</div>
-      <p>${m.story}</p>
-    </div>
+    ${introHtml}
     ${movementHtml}
     ${holdingHtml}
-    ${settledHtml}
     ${laterHtml}
+    ${settledHtml}
     ${sourcesHtml}
   `;
 }
 
 /* =========================================================================
-   RENDER: NOTES (ARELO-347 / ARELO-345 decision, refined per PO 14 Sep) —
-   aggregates notes already attached to existing Pins (the same p.notes field the
-   Pins drawer shows) and to the Italy Journey (ITALY_JOURNEY_NOTES, per the
-   ARELO-345 decision's "associated with existing Pins/Journeys"), as a
-   progressive-disclosure list of compact, collapsed-by-default note groups. Not a
-   new object model: a note group is presentation over existing Pin/Journey/evidence
-   data, never a floating item — and it never becomes an independent responsibility
-   of its own (it has no lifecycle, no progress, nothing Review would ever surface).
+   RENDER: NOTES (ARELO-345 PO amendment, 14 Sep) — Notes are a valid user-authored
+   object/surface on their own, not merely Pin/Journey annotation. This page now shows:
+   (1) standalone notes — session-only client state, create/edit/delete, optionally
+       linkable to an existing Pin or Journey (never the reverse: linking never turns a
+       Note into a responsibility, and nothing here creates a Pin automatically);
+   (2) linked notes — the existing Pin/Journey-attached context (p.notes / ITALY_JOURNEY_NOTES),
+       unchanged data sources, kept as its own labelled group so provenance stays clear.
    ========================================================================= */
 function notesModel(){
   const pinGroups = buildPins()
@@ -2823,13 +2925,48 @@ function notesModel(){
   const journeyGroups = [
     { kind:'journey', id:'italy', title:'Italy road trip', cat:'Family', notes:ITALY_JOURNEY_NOTES, provenance:'Arelo bot (conversation)', sourceAction:null }
   ];
-  // Journey groups alongside Pin groups, in a stable, readable order — Pins first (closer to
-  // "around now"), then the Journey-level group.
-  return [...pinGroups, ...journeyGroups];
+  return { linkedGroups:[...pinGroups, ...journeyGroups], standalone: state.standaloneNotes };
+}
+// Options offered in the note editor's "Link to" select — existing accepted Pins and Journeys
+// only (never Arelo suggestions, never a newly-invented target).
+function noteLinkOptions(){
+  const pins = buildPins().filter(p=>p.lifecycle==='Open').map(p=>({kind:'pin', id:p.id, label:p.t}));
+  const journeys = [{kind:'journey', id:'italy', label:'Italy road trip'}, {kind:'journey', id:'northstar', label:'Northstar proposal'}];
+  return [...journeys, ...pins];
 }
 function renderNotes(){
-  const groups = notesModel();
+  const { linkedGroups, standalone } = notesModel();
   const el = document.getElementById('notesBody'); if(!el) return;
+
+  const areas = Array.from(new Set(standalone.map(n=>n.area))).sort();
+  const q = state._notesSearch.trim().toLowerCase();
+  const filtered = standalone.filter(n=>{
+    const matchesArea = state._notesAreaFilter==='all' || n.area===state._notesAreaFilter;
+    const text = (n.title+' '+n.body).toLowerCase();
+    return matchesArea && (!q || text.includes(q));
+  });
+
+  const noteCard = n => {
+    const linkLabel = n.linked ? (n.linked.kind==='journey' ? `Linked to ${n.linked.label}` : `Linked to ${n.linked.label}`) : '';
+    const linkAttr = n.linked ? (n.linked.kind==='journey' ? `data-gotojourney="${n.linked.id}"` : `data-gotopin="${n.linked.id}"`) : '';
+    return `
+      <div class="nt-card" data-note-edit="${n.id}">
+        <div class="nt-card-head">
+          <span class="nt-card-title">${n.title||'Untitled note'}</span>
+          <button type="button" class="nt-card-del" data-note-del="${n.id}" title="Delete note" aria-label="Delete note">
+            <svg viewBox="0 0 24 24" width="16" height="16"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m-8 0 1 13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1l1-13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+        <div class="nt-card-foot">
+          <span class="nt-cat-chip" style="background:#eef2f6;color:#5b7186">${(n.area||'').toUpperCase()}</span>
+          ${n.linked ? `<button type="button" class="nt-linked-chip" ${linkAttr} data-note-link-jump="1">${linkLabel} ↗</button>` : ''}
+        </div>
+      </div>`;
+  };
+
+  const gridHtml = filtered.length
+    ? `<div class="nt-grid">${filtered.map(noteCard).join('')}</div>`
+    : `<div class="nt-empty">${standalone.length? 'No notes match your search.' : 'No standalone notes yet — use “New note” to add one.'}</div>`;
 
   const groupCard = g => {
     const open = !!state._notesOpen[g.id];
@@ -2860,10 +2997,9 @@ function renderNotes(){
         </div>`}
       </div>`;
   };
-
-  const listHtml = groups.length
-    ? groups.map(groupCard).join('')
-    : `<div class="nt-empty">Nothing here yet — Notes appear once a Pin or Journey has context attached to it.</div>`;
+  const linkedHtml = linkedGroups.length
+    ? `<div class="nt-section-label">Linked to your Pins &amp; Journeys</div><div class="nt-groups">${linkedGroups.map(groupCard).join('')}</div>`
+    : '';
 
   const explainerOpen = !!state._notesExplainerOpen;
   const workedEv = EVIDENCE['northstarprep'];
@@ -2876,17 +3012,64 @@ function renderNotes(){
       ${explainerOpen? `
       <div class="nt-explainer-body">
         <p class="nt-quote">“${workedEv.body.replace(/^"|"$/g,'')}”</p>
-        <p>Arelo recognised this as context for the presentation prep already pinned for Friday’s client meeting — not a new responsibility — and attached it as notes on that existing Pin rather than creating a second one.</p>
-        <p class="nt-disclosure">This demo doesn’t run a live understanding model — this is a fixed example showing how a raw note gets routed to an existing Pin, a Journey, or Review, never left floating on its own.</p>
+        <p>A note doesn’t need a Pin or Journey to be worth keeping — Arelo only links one when there’s a genuine connection, like this raw thought about the presentation prep already pinned for Friday’s client meeting. Linking never turns the note itself into a new responsibility.</p>
+        <p class="nt-disclosure">This demo doesn’t run a live understanding model — these are fixed examples showing both a standalone note and one Arelo has linked to an existing Pin.</p>
       </div>` : ''}
     </div>`;
 
+  const modalHtml = state._noteModal ? renderNoteModal(state._noteModal) : '';
+
   el.innerHTML = `
-    <h1>Notes</h1>
-    <p class="nt-intro">Context you’ve added to what Arelo is already holding — every note stays attached to the Pin or Journey it belongs to.</p>
-    <div class="nt-groups">${listHtml}</div>
+    <div class="nt-top">
+      <div>
+        <h1>My Notes</h1>
+        <p class="nt-intro">A quiet place for things before they become tasks.</p>
+      </div>
+      <button type="button" class="nt-new-btn" id="notesNewBtn">+ New note</button>
+    </div>
+    <div class="nt-toolbar">
+      <input type="text" class="nt-search" id="notesSearch" placeholder="Search notes…" value="${state._notesSearch.replace(/"/g,'&quot;')}">
+      <select class="nt-area-select" id="notesAreaFilter">
+        <option value="all"${state._notesAreaFilter==='all'?' selected':''}>All areas</option>
+        ${areas.map(a=>`<option value="${a}"${state._notesAreaFilter===a?' selected':''}>${a}</option>`).join('')}
+      </select>
+    </div>
+    ${gridHtml}
+    ${linkedHtml}
     ${explainerHtml}
+    ${modalHtml}
   `;
+
+  const searchEl = document.getElementById('notesSearch');
+  if(searchEl){ searchEl.addEventListener('input', e=>{ state._notesSearch = e.target.value; renderNotes(); }); searchEl.focus(); searchEl.selectionStart = searchEl.selectionEnd = searchEl.value.length; }
+  const areaEl = document.getElementById('notesAreaFilter');
+  if(areaEl){ areaEl.addEventListener('change', e=>{ state._notesAreaFilter = e.target.value; renderNotes(); }); }
+  const modalTitleEl = document.getElementById('noteModalTitle');
+  if(modalTitleEl){ modalTitleEl.focus(); }
+}
+const NOTE_AREAS = ['Home','Family','Work','Admin','Later'];
+function renderNoteModal(m){
+  const linkOpts = noteLinkOptions();
+  return `
+    <div class="nt-modal-backdrop" id="noteModalBackdrop">
+      <div class="nt-modal" role="dialog" aria-label="${m.id? 'Edit note':'New note'}">
+        <h2>Arelo</h2>
+        <input type="text" class="nt-modal-title-input" id="noteModalTitle" placeholder="Note title" value="${(m.title||'').replace(/"/g,'&quot;')}">
+        <div class="nt-area-pills">${NOTE_AREAS.map(a=>`<button type="button" class="nt-area-pill${m.area===a?' is-active':''}" data-note-area="${a}">${a}</button>`).join('')}</div>
+        <textarea class="nt-modal-body-input" id="noteModalBody" placeholder="Write it down…">${m.body||''}</textarea>
+        <div class="nt-link-row">
+          <label>Link to (optional)</label>
+          <select class="nt-link-select" id="noteModalLink">
+            <option value=""${!m.linkTo?' selected':''}>Not linked</option>
+            ${linkOpts.map(o=>`<option value="${o.kind}:${o.id}"${(m.linkTo && m.linkTo.kind===o.kind && m.linkTo.id===o.id)?' selected':''}>${o.label}</option>`).join('')}
+          </select>
+        </div>
+        <div class="nt-modal-actions">
+          <button type="button" class="nt-modal-cancel" id="noteModalCancel">Cancel</button>
+          <button type="button" class="nt-modal-save" id="noteModalSave">Save</button>
+        </div>
+      </div>
+    </div>`;
 }
 
 /* =========================================================================
@@ -3038,6 +3221,45 @@ document.getElementById('app').addEventListener('click', e=>{
   if(noteToggle){ const id = noteToggle.dataset.notetoggle; state._notesOpen[id] = !state._notesOpen[id]; renderNotes(); return; }
   const notesExplainerToggle = e.target.closest('#notesExplainerToggle');
   if(notesExplainerToggle){ state._notesExplainerOpen = !state._notesExplainerOpen; renderNotes(); return; }
+  // ---- Notes: standalone note create/edit/delete (ARELO-345 PO amendment) ----
+  const noteDel = e.target.closest('[data-note-del]');
+  if(noteDel){ const id = noteDel.dataset.noteDel; state.standaloneNotes = state.standaloneNotes.filter(n=>n.id!==id); renderNotes(); return; }
+  const notesNewBtn = e.target.closest('#notesNewBtn');
+  if(notesNewBtn){ state._noteModal = { id:null, title:'', area:'Home', body:'', linkTo:null }; renderNotes(); return; }
+  const noteAreaPill = e.target.closest('[data-note-area]');
+  if(noteAreaPill && state._noteModal){
+    const tEl = document.getElementById('noteModalTitle'), bEl = document.getElementById('noteModalBody');
+    if(tEl) state._noteModal.title = tEl.value;
+    if(bEl) state._noteModal.body = bEl.value;
+    state._noteModal.area = noteAreaPill.dataset.noteArea;
+    renderNotes();
+    return;
+  }
+  const noteModalCancel = e.target.closest('#noteModalCancel');
+  if(noteModalCancel){ state._noteModal = null; renderNotes(); return; }
+  const noteModalBackdrop = e.target.id==='noteModalBackdrop';
+  if(noteModalBackdrop){ state._noteModal = null; renderNotes(); return; }
+  const noteModalSave = e.target.closest('#noteModalSave');
+  if(noteModalSave){
+    const titleEl = document.getElementById('noteModalTitle');
+    const bodyEl = document.getElementById('noteModalBody');
+    const linkEl = document.getElementById('noteModalLink');
+    const title = titleEl.value.trim();
+    const body = bodyEl.value.trim();
+    let linkTo = null;
+    if(linkEl.value){ const [kind,id] = linkEl.value.split(':'); const opt = noteLinkOptions().find(o=>o.kind===kind && o.id===id); if(opt) linkTo = {kind:opt.kind, id:opt.id, label:opt.label}; }
+    if(title || body){
+      if(state._noteModal.id){
+        const existing = state.standaloneNotes.find(n=>n.id===state._noteModal.id);
+        if(existing){ existing.title=title; existing.area=state._noteModal.area; existing.body=body; existing.linked=linkTo; }
+      } else {
+        state.standaloneNotes.push({ id:'note-'+Date.now(), title, area:state._noteModal.area, body, linked:linkTo });
+      }
+    }
+    state._noteModal = null;
+    renderNotes();
+    return;
+  }
   // A Journey referenced from Notes' parent identity — jump to the Journey tab showing that
   // specific Journey (same "go to the real destination" pattern as goToPin/goToSource).
   const gotoJourney = e.target.closest('[data-gotojourney]');
@@ -3054,6 +3276,15 @@ document.getElementById('app').addEventListener('click', e=>{
   // "go to the real destination" pattern as goToSource) rather than opening it while hidden.
   const gotoPin = e.target.closest('[data-gotopin]');
   if(gotoPin){ goToPin(gotoPin.dataset.gotopin); return; }
+  // A standalone note card itself (not its delete button or linked-chip, both already handled
+  // above) — open the editor pre-filled. Checked after gotoPin/gotoJourney so a linked-chip
+  // click navigates rather than opening the editor.
+  const noteEdit = e.target.closest('[data-note-edit]');
+  if(noteEdit){
+    const n = state.standaloneNotes.find(x=>x.id===noteEdit.dataset.noteEdit);
+    if(n){ state._noteModal = { id:n.id, title:n.title, area:n.area, body:n.body, linkTo:n.linked }; renderNotes(); }
+    return;
+  }
   const openPin = e.target.closest('[data-openpin]');
   if(openPin){ openPinDrawer(openPin.dataset.openpin); return; }
   const nudgeBtn = e.target.closest('[data-nudge]');
