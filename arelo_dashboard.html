@@ -884,17 +884,6 @@ button,input,select{font:inherit}
 .nt-provenance{font-size:12px;color:var(--nt-muted);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .nt-source-link{background:none;border:1px solid var(--nt-teal-line);color:var(--nt-teal);border-radius:999px;padding:2px 10px;font:inherit;font-size:11.5px;font-weight:800;cursor:pointer}
 
-/* Explainer: collapsed behind its own toggle so the notes above stay the primary surface. */
-.nt-explainer{border-top:1px solid var(--nt-line);padding-top:14px}
-.nt-explainer-toggle{width:100%;background:none;border:0;padding:0;font:inherit;font-size:12.5px;font-weight:800;color:var(--nt-muted);cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px}
-.nt-explainer-toggle svg{width:13px;height:13px;transition:transform .15s ease;flex:0 0 auto}
-.nt-explainer-toggle[aria-expanded="true"] svg{transform:rotate(180deg)}
-.nt-explainer-body{margin-top:14px;background:var(--nt-teal-soft);border:1px solid var(--nt-teal-line);border-radius:14px;padding:16px 18px}
-.nt-explainer-body p{margin:0 0 10px;font-size:13px;line-height:1.6;color:var(--nt-ink)}
-.nt-explainer-body p:last-child{margin-bottom:0}
-.nt-explainer-body .nt-quote{font-style:italic;color:var(--nt-muted)}
-.nt-explainer-body .nt-disclosure{font-size:11px;color:var(--nt-muted);border-top:1px dashed var(--nt-teal-line);padding-top:10px;margin-top:10px}
-
 /* Note editor modal — create/edit a standalone note, matching the authenticated app's pattern:
    title, area selector, body, optional link to an existing Pin/Journey. */
 .nt-modal-backdrop{position:fixed;inset:0;background:rgba(23,50,77,.42);z-index:200;display:flex;align-items:flex-start;justify-content:center;padding:8vh 16px}
@@ -1559,9 +1548,10 @@ if(document.readyState === 'loading'){
 // its own — it does not require a Pin or Journey to exist. Declared before `state` since the
 // initial state references it as the seed value for state.standaloneNotes.
 const STANDALONE_NOTES_SEED = [
-  { id:'note-shopping', title:'Shopping list', area:'Home', body:'Milk, eggs, dog food, bin bags, more coffee.', linked:null },
-  { id:'note-swimkit', title:'Mia\u2019s swimming kit', area:'Family', body:'Goggles keep going missing \u2014 worth buying a spare pair and labelling them.', linked:null },
-  { id:'note-groomer', title:'Dog groomer numbers', area:'Home', body:'Two local groomers worth comparing before booking the next appointment.', linked:null }
+  { id:'note-shopping', title:'Shopping list', area:'Home', body:'Milk\nEggs\nDog food\nBin bags\nCoffee\nKitchen roll', linked:null },
+  { id:'note-gym', title:'Gym log', area:'Home', body:'Squats — 40kg x 8, 8, 6\nBench press — 30kg x 10, 8, 8\nDeadlift — 50kg x 5, 5, 5\nNext session: try 42.5kg on squats', linked:null },
+  { id:'note-groomer', title:'Dog groomer', area:'Home', body:'Oakfield Grooming — 01865 555 0142\nAsk for Deb, she knows Biscuit\nUsual slot: Thursday mornings', linked:null },
+  { id:'note-recipe', title:'Mum\u2019s lemon cake', area:'Home', body:'3 lemons (zest + juice)\n225g butter, 225g sugar, 225g self-raising flour\n4 eggs\n180\u00b0C, 45 mins\nDrizzle: juice of 1 lemon + 100g sugar while still warm', linked:null }
 ];
 const state = {
   clash: null,           // null | 'cover' | 'leave'
@@ -1593,7 +1583,6 @@ const state = {
   _colourPaletteTab:'arelo', // 'arelo' (calm branded defaults) | 'broad' (wider hue range) — which tab the open popover shows
   _activeJourney:'italy', // 'italy' (primary, richer) | 'northstar' (secondary/example) — which Journey the Journey tab shows
   _notesOpen:{},          // note-group id -> bool, progressive disclosure on the Notes page (collapsed by default)
-  _notesExplainerOpen:false, // "How a note finds its place" — collapsed by default so the real Notes surface is primary
   standaloneNotes: STANDALONE_NOTES_SEED.slice(), // ARELO-345 amendment: user-authored notes that don't require a Pin/Journey
   _notesSearch:'',        // My Notes search box (matches title/body)
   _notesAreaFilter:'all', // My Notes area dropdown filter
@@ -1618,19 +1607,11 @@ const NORTHSTAR_PRESPREP_NOTES = [
   'Ask what they would need internally to get this signed off.'
 ];
 
-/* Notes Gemma left herself on the "buy a calculator" Pin — a small, one-off example that a
-   note group doesn't need a big backstory to be genuine (ARELO-346/347 refinement). */
-const CALCULATOR_NOTES = [
-  'No specific model requested — any basic scientific calculator should do.',
-  'Worth checking with Mia’s teacher if her class needs a particular model.',
-  'The Post-it said "URGENT" but gave no actual deadline.'
-];
-
 /* Notes captured against the Italy Journey itself, not any single Pin — the ARELO-345 decision
    explicitly allows notes to associate with an existing Journey as well as an existing Pin.
    Still not a new object type: this is a plain fixture array, the same shape as
-   NORTHSTAR_PRESPREP_NOTES/CALCULATOR_NOTES above, just attached to a Journey identity instead
-   of a Pin id in notesModel() below. */
+   NORTHSTAR_PRESPREP_NOTES above, just attached to a Journey identity instead of a Pin id in
+   notesModel() below. */
 const ITALY_JOURNEY_NOTES = [
   'Everyone needs to travel with a printed GHIC card, not just a photo of it.',
   'Leave the house by 6am to make the Eurotunnel check-in with time to spare.',
@@ -1791,8 +1772,7 @@ function buildPins(){
     remind:ov('robconsent','remind','Every day until it’s signed — it’s overdue'), need:ov('robconsent','need','Before the next session'), source:'robconsent', overdue:!state.robConsentDone});
   P.push({id:'calculator', t:ov('calculator','t','Buy Mia a calculator'), cat:'Family', time:'This week', lifecycle: state.calculatorDone?'Done':'Open', attention:'Active', progress: state.calculatorDone?'Done':'Needs you', size:'small',
     summary:'From the URGENT Post-it note — no deadline given.', na:ov('calculator','na','Pick one up next time you’re near a shop'),
-    remind:ov('calculator','remind','Sat 12 September — Arelo’s own proposal, no deadline was given'), need:ov('calculator','need','Not specified'), source:'calculator',
-    notes: ov('calculator','notes', CALCULATOR_NOTES)});
+    remind:ov('calculator','remind','Sat 12 September — Arelo’s own proposal, no deadline was given'), need:ov('calculator','need','Not specified'), source:'calculator'});
   P.push({id:'lemons', t:ov('lemons','t','Get lemons for the bake-sale cake'), cat:'Family', time:'This week', lifecycle:'Open', attention:'Active', progress:'Needs you', size:'small',
     summary:'For the lemon cake you mentioned to Arelo.', na:ov('lemons','na','Add to next shop'),
     remind:ov('lemons','remind','Before your next shop'), need:ov('lemons','need','Before you bake'), source:'lemons'});
@@ -3011,29 +2991,13 @@ function renderNotes(){
     ? `<div class="nt-section-label">Linked to your Pins &amp; Journeys</div><div class="nt-groups">${linkedGroups.map(groupCard).join('')}</div>`
     : '';
 
-  const explainerOpen = !!state._notesExplainerOpen;
-  const workedEv = EVIDENCE['northstarprep'];
-  const explainerHtml = `
-    <div class="nt-explainer${explainerOpen?' open':''}">
-      <button type="button" class="nt-explainer-toggle" id="notesExplainerToggle" aria-expanded="${explainerOpen}">
-        <span>How a note finds its place</span>
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
-      ${explainerOpen? `
-      <div class="nt-explainer-body">
-        <p class="nt-quote">“${workedEv.body.replace(/^"|"$/g,'')}”</p>
-        <p>A note doesn’t need a Pin or Journey to be worth keeping — Arelo only links one when there’s a genuine connection, like this raw thought about the presentation prep already pinned for Friday’s client meeting. Linking never turns the note itself into a new responsibility.</p>
-        <p class="nt-disclosure">This demo doesn’t run a live understanding model — these are fixed examples showing both a standalone note and one Arelo has linked to an existing Pin.</p>
-      </div>` : ''}
-    </div>`;
-
   const modalHtml = state._noteModal ? renderNoteModal(state._noteModal) : '';
 
   el.innerHTML = `
     <div class="nt-top">
       <div>
         <h1>My Notes</h1>
-        <p class="nt-intro">A quiet place for things before they become tasks.</p>
+        <p class="nt-intro">The things worth keeping that don\u2019t need to become something to do.</p>
       </div>
       <button type="button" class="nt-new-btn" id="notesNewBtn">+ New note</button>
     </div>
@@ -3046,7 +3010,6 @@ function renderNotes(){
     </div>
     ${gridHtml}
     ${linkedHtml}
-    ${explainerHtml}
     ${modalHtml}
   `;
 
@@ -3231,11 +3194,9 @@ document.getElementById('app').addEventListener('click', e=>{
   const jrSourcesToggle = e.target.closest('#journeySourcesToggle');
   if(jrSourcesToggle){ state._journeySourcesOpen = !state._journeySourcesOpen; renderJourney(); return; }
 
-  // ---- Notes: progressive disclosure — collapsed note groups, and the de-emphasised explainer ----
+  // ---- Notes: progressive disclosure for linked-Pin/Journey groups (collapsed by default) ----
   const noteToggle = e.target.closest('[data-notetoggle]');
   if(noteToggle){ const id = noteToggle.dataset.notetoggle; state._notesOpen[id] = !state._notesOpen[id]; renderNotes(); return; }
-  const notesExplainerToggle = e.target.closest('#notesExplainerToggle');
-  if(notesExplainerToggle){ state._notesExplainerOpen = !state._notesExplainerOpen; renderNotes(); return; }
   // ---- Notes: standalone note create/edit/delete (ARELO-345 PO amendment) ----
   const noteDel = e.target.closest('[data-note-del]');
   if(noteDel){ const id = noteDel.dataset.noteDel; state.standaloneNotes = state.standaloneNotes.filter(n=>n.id!==id); renderNotes(); return; }
