@@ -855,7 +855,7 @@ button,input,select{font:inherit}
    (ARELO-345 PO amendment, 14 Sep): a Note is a valid object on its own, not merely Pin/Journey
    annotation. Editable/deletable client-side, session-only (same pattern as other demo edits). */
 .nt-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0 0 30px}
-.nt-card{border:1px solid var(--nt-line);border-radius:14px;padding:14px 16px;background:#fff;cursor:pointer;text-align:left;font:inherit;color:inherit;width:100%}
+.nt-card{border:1px solid var(--nt-line);border-left-width:4px;border-radius:14px;padding:14px 16px;background:#fff;cursor:pointer;text-align:left;font:inherit;color:inherit;width:100%}
 .nt-card:hover{border-color:var(--nt-muted)}
 .nt-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
 .nt-card-title{font-size:15px;font-weight:800;color:var(--nt-ink)}
@@ -894,8 +894,8 @@ button,input,select{font:inherit}
 .nt-format-bar{display:flex;gap:6px;margin:0 0 8px}
 .nt-format-btn{width:30px;height:30px;border:1px solid var(--nt-line);background:#fff;color:var(--nt-ink);border-radius:8px;cursor:pointer;font-size:13px;display:grid;place-items:center}
 .nt-format-btn:hover{border-color:var(--nt-muted)}
-.nt-area-pill{font-family:"Nunito",Arial,sans-serif;font-size:12px;font-weight:800;background:#fff;border:1px solid var(--nt-line);color:var(--nt-muted);border-radius:999px;padding:6px 13px;cursor:pointer}
-.nt-area-pill.is-active{background:var(--nt-teal-soft);border-color:var(--nt-teal-line);color:var(--nt-teal)}
+.nt-area-pill{font-family:"Nunito",Arial,sans-serif;font-size:12px;font-weight:800;background:#fff;border:1px solid var(--nt-line);color:var(--nt-muted);border-radius:999px;padding:6px 13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.nt-cat-dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto}
 .nt-modal-body-input{width:100%;min-height:140px;border:1px solid var(--nt-line);border-radius:10px;padding:11px 12px;font:inherit;font-size:14px;line-height:1.55;color:var(--nt-ink);resize:vertical;margin:0 0 12px}
 .nt-link-row{margin:0 0 18px}
 .nt-link-row label{display:block;font-family:"Nunito",Arial,sans-serif;font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--nt-muted);margin:0 0 6px}
@@ -1546,12 +1546,14 @@ if(document.readyState === 'loading'){
    ========================================================================= */
 // Standalone user-authored notes (ARELO-345 PO amendment, 14 Sep): a Note is a valid object on
 // its own — it does not require a Pin or Journey to exist. Declared before `state` since the
-// initial state references it as the seed value for state.standaloneNotes.
+// initial state references it as the seed value for state.standaloneNotes. `cat` reuses the
+// same Family/Work/Life category system already approved for Pins (see `cats`/`catStyle()`
+// below) — Notes do not get their own category taxonomy or colour palette.
 const STANDALONE_NOTES_SEED = [
-  { id:'note-shopping', title:'Shopping list', area:'Home', body:'Milk\nEggs\nDog food\nBin bags\nCoffee\nKitchen roll', linked:null },
-  { id:'note-gym', title:'Gym log', area:'Home', body:'Squats — 40kg x 8, 8, 6\nBench press — 30kg x 10, 8, 8\nDeadlift — 50kg x 5, 5, 5\nNext session: try 42.5kg on squats', linked:null },
-  { id:'note-groomer', title:'Dog groomer', area:'Home', body:'Oakfield Grooming — 01865 555 0142\nAsk for Deb, she knows Biscuit\nUsual slot: Thursday mornings', linked:null },
-  { id:'note-recipe', title:'Mum\u2019s lemon cake', area:'Home', body:'3 lemons (zest + juice)\n225g butter, 225g sugar, 225g self-raising flour\n4 eggs\n180\u00b0C, 45 mins\nDrizzle: juice of 1 lemon + 100g sugar while still warm', linked:null }
+  { id:'note-shopping', title:'Shopping list', cat:'Life', body:'Milk\nEggs\nDog food\nBin bags\nCoffee\nKitchen roll', linked:null },
+  { id:'note-gym', title:'Gym log', cat:'Life', body:'Squats — 40kg x 8, 8, 6\nBench press — 30kg x 10, 8, 8\nDeadlift — 50kg x 5, 5, 5\nNext session: try 42.5kg on squats', linked:null },
+  { id:'note-groomer', title:'Dog groomer', cat:'Life', body:'Oakfield Grooming — 01865 555 0142\nAsk for Deb, she knows Biscuit\nUsual slot: Thursday mornings', linked:null },
+  { id:'note-recipe', title:'Mum\u2019s lemon cake', cat:'Family', body:'3 lemons (zest + juice)\n225g butter, 225g sugar, 225g self-raising flour\n4 eggs\n180\u00b0C, 45 mins\nDrizzle: juice of 1 lemon + 100g sugar while still warm', linked:null }
 ];
 const state = {
   clash: null,           // null | 'cover' | 'leave'
@@ -2928,19 +2930,22 @@ function renderNotes(){
   const { linkedGroups, standalone } = notesModel();
   const el = document.getElementById('notesBody'); if(!el) return;
 
-  const areas = Array.from(new Set(standalone.map(n=>n.area))).sort();
+  // Filter uses the same category values Notes actually display — the approved Family/Work/Life
+  // set (see `cats`), not a separately invented area taxonomy.
+  const noteCats = Object.keys(cats);
   const q = state._notesSearch.trim().toLowerCase();
   const filtered = standalone.filter(n=>{
-    const matchesArea = state._notesAreaFilter==='all' || n.area===state._notesAreaFilter;
+    const matchesCat = state._notesAreaFilter==='all' || n.cat===state._notesAreaFilter;
     const text = (n.title+' '+n.body).toLowerCase();
-    return matchesArea && (!q || text.includes(q));
+    return matchesCat && (!q || text.includes(q));
   });
 
   const noteCard = n => {
-    const linkLabel = n.linked ? (n.linked.kind==='journey' ? `Linked to ${n.linked.label}` : `Linked to ${n.linked.label}`) : '';
+    const s = catStyle(n.cat);
+    const linkLabel = n.linked ? `Linked to ${n.linked.label}` : '';
     const linkAttr = n.linked ? (n.linked.kind==='journey' ? `data-gotojourney="${n.linked.id}"` : `data-gotopin="${n.linked.id}"`) : '';
     return `
-      <div class="nt-card" data-note-edit="${n.id}">
+      <div class="nt-card" data-note-edit="${n.id}" style="border-left-color:${s.border}">
         <div class="nt-card-head">
           <span class="nt-card-title">${n.title||'Untitled note'}</span>
           <button type="button" class="nt-card-del" data-note-del="${n.id}" title="Delete note" aria-label="Delete note">
@@ -2948,7 +2953,7 @@ function renderNotes(){
           </button>
         </div>
         <div class="nt-card-foot">
-          <span class="nt-cat-chip" style="background:#eef2f6;color:#5b7186">${(n.area||'').toUpperCase()}</span>
+          <span class="nt-cat-chip" style="background:${s.bg};color:${s.text}">${n.cat||''}</span>
           ${n.linked ? `<button type="button" class="nt-linked-chip" ${linkAttr} data-note-link-jump="1">${linkLabel} ↗</button>` : ''}
         </div>
       </div>`;
@@ -3004,8 +3009,8 @@ function renderNotes(){
     <div class="nt-toolbar">
       <input type="text" class="nt-search" id="notesSearch" placeholder="Search notes…" value="${state._notesSearch.replace(/"/g,'&quot;')}">
       <select class="nt-area-select" id="notesAreaFilter">
-        <option value="all"${state._notesAreaFilter==='all'?' selected':''}>All areas</option>
-        ${areas.map(a=>`<option value="${a}"${state._notesAreaFilter===a?' selected':''}>${a}</option>`).join('')}
+        <option value="all"${state._notesAreaFilter==='all'?' selected':''}>All categories</option>
+        ${noteCats.map(c=>`<option value="${c}"${state._notesAreaFilter===c?' selected':''}>${c}</option>`).join('')}
       </select>
     </div>
     ${gridHtml}
@@ -3020,15 +3025,20 @@ function renderNotes(){
   const modalTitleEl = document.getElementById('noteModalTitle');
   if(modalTitleEl){ modalTitleEl.focus(); }
 }
-const NOTE_AREAS = ['Home','Family','Work','Admin','Later'];
 function renderNoteModal(m){
   const linkOpts = noteLinkOptions();
+  const catPills = Object.keys(cats).map(c=>{
+    const s = catStyle(c);
+    const active = m.cat===c;
+    const style = active ? `background:${s.bg};border-color:${s.border};color:${s.text}` : `border-color:${s.border}66;color:${s.text}`;
+    return `<button type="button" class="nt-area-pill${active?' is-active':''}" data-note-area="${c}" style="${style}"><span class="nt-cat-dot" style="background:${s.border}"></span>${c}</button>`;
+  }).join('');
   return `
     <div class="nt-modal-backdrop" id="noteModalBackdrop">
       <div class="nt-modal" role="dialog" aria-label="${m.id? 'Edit note':'New note'}">
         <h2>Arelo</h2>
         <input type="text" class="nt-modal-title-input" id="noteModalTitle" placeholder="Note title" value="${(m.title||'').replace(/"/g,'&quot;')}">
-        <div class="nt-area-pills">${NOTE_AREAS.map(a=>`<button type="button" class="nt-area-pill${m.area===a?' is-active':''}" data-note-area="${a}">${a}</button>`).join('')}</div>
+        <div class="nt-area-pills">${catPills}</div>
         <div class="nt-format-bar">
           <button type="button" class="nt-format-btn" data-note-format="bold" title="Bold" aria-label="Bold"><strong>B</strong></button>
           <button type="button" class="nt-format-btn" data-note-format="italic" title="Italic" aria-label="Italic"><em>I</em></button>
@@ -3201,13 +3211,13 @@ document.getElementById('app').addEventListener('click', e=>{
   const noteDel = e.target.closest('[data-note-del]');
   if(noteDel){ const id = noteDel.dataset.noteDel; state.standaloneNotes = state.standaloneNotes.filter(n=>n.id!==id); renderNotes(); return; }
   const notesNewBtn = e.target.closest('#notesNewBtn');
-  if(notesNewBtn){ state._noteModal = { id:null, title:'', area:'Home', body:'', linkTo:null }; renderNotes(); return; }
+  if(notesNewBtn){ state._noteModal = { id:null, title:'', cat:'Life', body:'', linkTo:null }; renderNotes(); return; }
   const noteAreaPill = e.target.closest('[data-note-area]');
   if(noteAreaPill && state._noteModal){
     const tEl = document.getElementById('noteModalTitle'), bEl = document.getElementById('noteModalBody');
     if(tEl) state._noteModal.title = tEl.value;
     if(bEl) state._noteModal.body = bEl.value;
-    state._noteModal.area = noteAreaPill.dataset.noteArea;
+    state._noteModal.cat = noteAreaPill.dataset.noteArea;
     renderNotes();
     return;
   }
@@ -3247,9 +3257,9 @@ document.getElementById('app').addEventListener('click', e=>{
     if(title || body){
       if(state._noteModal.id){
         const existing = state.standaloneNotes.find(n=>n.id===state._noteModal.id);
-        if(existing){ existing.title=title; existing.area=state._noteModal.area; existing.body=body; existing.linked=linkTo; }
+        if(existing){ existing.title=title; existing.cat=state._noteModal.cat; existing.body=body; existing.linked=linkTo; }
       } else {
-        state.standaloneNotes.push({ id:'note-'+Date.now(), title, area:state._noteModal.area, body, linked:linkTo });
+        state.standaloneNotes.push({ id:'note-'+Date.now(), title, cat:state._noteModal.cat, body, linked:linkTo });
       }
     }
     state._noteModal = null;
@@ -3278,7 +3288,7 @@ document.getElementById('app').addEventListener('click', e=>{
   const noteEdit = e.target.closest('[data-note-edit]');
   if(noteEdit){
     const n = state.standaloneNotes.find(x=>x.id===noteEdit.dataset.noteEdit);
-    if(n){ state._noteModal = { id:n.id, title:n.title, area:n.area, body:n.body, linkTo:n.linked }; renderNotes(); }
+    if(n){ state._noteModal = { id:n.id, title:n.title, cat:n.cat, body:n.body, linkTo:n.linked }; renderNotes(); }
     return;
   }
   const openPin = e.target.closest('[data-openpin]');
@@ -3358,7 +3368,7 @@ document.querySelectorAll('[data-lens]').forEach(b=>b.addEventListener('click', 
   document.querySelectorAll('[data-lens]').forEach(x=>x.classList.toggle('active', x===b));
   renderPins();
 }));
-document.getElementById('themeToggle').addEventListener('click', ()=>{ state.pinsDark = !state.pinsDark; renderPins(); });
+document.getElementById('themeToggle').addEventListener('click', ()=>{ state.pinsDark = !state.pinsDark; renderPins(); renderNotes(); });
 /* Carousel prev/next — scrolls by one column's width (+gap) so a click always lands on a clean
    snap point, matching the native swipe/scroll behaviour rather than fighting it. Not scoped to
    By-time: these arrows now only show when there's real overflow (see updateBoardNavVisibility),
