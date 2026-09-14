@@ -17,31 +17,73 @@ body{
   line-height:1.45;
 }
 button,input,select{font:inherit}
-.shell{width:min(1360px,100%);margin:0 auto;min-height:100vh}
+/* ===== ARELO-332 — desktop side navigation / mobile bottom navigation, matching the real
+   authenticated Arelo app's placement (side rail on desktop, bottom bar on mobile) rather than
+   a horizontal top menu. Rebuilt per the approved Engineering Design + Lovable Prompt on
+   ARELO-332 (Product Office authorised fresh rebuild, comment 14783, after the prior session's
+   verified build was lost before it was persisted). Structural/interaction contract only:
+   labels, destinations, disclosure text and the switchTab()/data-tab wiring are unchanged. ===== */
+.shell{width:100%;margin:0;min-height:100vh;display:flex;align-items:stretch}
 .topbar{
-  display:flex;align-items:center;justify-content:space-between;gap:16px;
-  padding:16px 22px;background:#fff;border-bottom:1px solid #d5e0e9;
+  display:flex;flex-direction:column;align-items:stretch;gap:18px;
+  width:220px;flex:0 0 220px;padding:20px 14px;
+  background:#17324d;color:#fff;border-bottom:0;border-right:1px solid rgba(255,255,255,.08);
+  position:sticky;top:0;align-self:flex-start;height:100vh;overflow-y:auto;
 }
-.topbar .brand{font-family:Georgia,"Times New Roman",serif;font-size:19px;font-weight:700;color:#17324d}
-.topbar .brand span{color:#2d6f67}
-.tabstrip{display:flex;gap:4px;flex-wrap:wrap}
+.topbar .brand{font-family:Georgia,"Times New Roman",serif;font-size:19px;font-weight:700;color:#fff;padding:0 8px}
+.topbar .brand span{color:#7fd8c9}
+.tabstrip{display:flex;flex-direction:column;gap:3px;flex-wrap:nowrap}
 .tabstrip button{
-  border:0;background:transparent;color:#60758a;padding:9px 14px;border-radius:999px;
-  font-weight:700;font-size:13.5px;cursor:pointer;
+  display:flex;align-items:center;gap:11px;
+  border:0;background:transparent;color:#b9c7d6;padding:10px 12px;border-radius:10px;
+  font-weight:700;font-size:13.5px;cursor:pointer;text-align:left;width:100%;
 }
-.tabstrip button.active{background:#17324d;color:#fff}
-.tabstrip button:hover:not(.active){background:#f3f6f8}
-.topbar .meta{font-size:12.5px;color:#60758a}
-.topbar .meta-group{display:flex;align-items:center;gap:12px}
+.tabstrip button svg{width:18px;height:18px;flex:0 0 18px;opacity:.85}
+.tabstrip button.active{background:rgba(255,255,255,.14);color:#fff}
+.tabstrip button.active svg{opacity:1}
+.tabstrip button:hover:not(.active){background:rgba(255,255,255,.07)}
+.topbar .meta-group{display:flex;flex-direction:column;align-items:flex-start;gap:10px;margin-top:auto;padding:0 8px}
+.topbar .meta{font-size:12px;color:rgba(255,255,255,.62);line-height:1.4}
 .topbar .feedback-link{
-  font-size:12.5px;color:#0f8a7c;text-decoration:none;font-weight:700;
-  padding:7px 14px;border:1px solid #d5e0e9;border-radius:999px;white-space:nowrap;
+  font-size:12.5px;color:#7fd8c9;text-decoration:none;font-weight:700;
+  padding:7px 14px;border:1px solid rgba(255,255,255,.22);border-radius:999px;white-space:nowrap;
   transition:background .15s,border-color .15s;
 }
-.topbar .feedback-link:hover{background:#e3f5f1;border-color:#0f8a7c}
+.topbar .feedback-link:hover{background:rgba(255,255,255,.08);border-color:#7fd8c9}
+.main{flex:1 1 auto;min-width:0}
 .panel{display:none;padding:26px 22px 64px}
 .panel.active{display:block}
 [hidden]{display:none!important}
+@media(max-width:680px){
+  .shell{flex-direction:column}
+  .topbar{
+    position:sticky;top:0;height:auto;width:100%;flex:0 0 auto;
+    flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:space-between;
+    gap:10px 14px;padding:12px 14px;border-right:0;border-bottom:1px solid rgba(255,255,255,.08);
+    z-index:50;overflow-y:visible;
+  }
+  .topbar .brand{padding:0}
+  .tabstrip{display:none}
+  .topbar .meta-group{flex-direction:row;flex-wrap:wrap;margin-top:0;padding:0;gap:8px 14px}
+  .main{padding-bottom:64px}
+  .bottom-nav{
+    position:fixed;left:0;right:0;bottom:0;z-index:900;
+    display:flex;justify-content:space-around;
+    background:#17324d;border-top:1px solid rgba(255,255,255,.1);
+    padding:6px 4px calc(6px + env(safe-area-inset-bottom));
+  }
+  .bottom-nav button{
+    display:flex;flex-direction:column;align-items:center;gap:3px;
+    border:0;background:transparent;color:#b9c7d6;padding:6px 8px;border-radius:10px;
+    font-weight:700;font-size:10.5px;cursor:pointer;flex:1 1 0;min-width:0;
+  }
+  .bottom-nav button svg{width:20px;height:20px;opacity:.8}
+  .bottom-nav button.active{color:#fff}
+  .bottom-nav button.active svg{opacity:1}
+}
+@media(min-width:681px){
+  .bottom-nav{display:none}
+}
 
 /* ===== Arrival (ARELO-331) — seamless hero-animation -> interactive-demo handoff.
    Supersedes ARELO-319's #chaosIntro AND the first ARELO-331 pass (an invented fragment-card
@@ -80,7 +122,9 @@ button,input,select{font:inherit}
    settleOrbThenFade) so it never collides with tab/meta text at any breakpoint;
    this is a same-viewport fallback only, in case that measurement isn't available. */
 .arrival-orb.phase-settle{top:26px;left:calc(100% - 49px)}
-.arrival-orb.phase-fade{opacity:0}
+/* ARELO-331 (comment 14668): ambient/resting state — the orb stays on screen beside the brand mark for the life of the demo; no fade-out, no removal. */
+.arrival-orb.phase-rest{animation:arrivalOrbAmbient 4.2s ease-in-out infinite}
+@keyframes arrivalOrbAmbient{0%,100%{transform:scale(1);box-shadow:0 0 24px rgba(15,138,124,.45)}50%{transform:scale(1.08);box-shadow:0 0 30px rgba(15,138,124,.58)}}
 /* Post-handoff cue (ARELO-331 amendment): permission/context, not an interstitial — never
    intercepts a click, never blocks interaction, and disappears on its own. */
 .arrival-explore-cue{
@@ -140,21 +184,24 @@ button,input,select{font:inherit}
 }
 .arrival-caption.show{opacity:1}
 
-/* Final composition — matched to the real Focus first paint (same bg token, topbar geometry,
-   H1 position/size, card column) so the dissolve to .shell beneath registers as continuous. */
-.arrival-final{position:absolute;inset:0;opacity:0;transition:opacity .5s ease}
+/* Final composition — matched to the real Focus first paint. ARELO-332: the real shell now
+   uses a desktop side-nav rail / mobile bottom-nav instead of a horizontal topbar, so this mock
+   is rebuilt as the same sidebar + content geometry (same bg tokens, rail width, H1 position,
+   card column) so the dissolve to .shell beneath still registers as continuous, not a "pop". */
+.arrival-final{position:absolute;inset:0;opacity:0;transition:opacity .5s ease;display:flex;align-items:stretch}
 .arrival-final[data-shown]{opacity:1}
 .arrival-final-topbar{
-  display:flex;align-items:center;justify-content:space-between;gap:16px;
-  padding:16px 22px;background:#fff;border-bottom:1px solid #d5e0e9;
+  display:flex;flex-direction:column;align-items:stretch;gap:18px;
+  width:220px;flex:0 0 220px;padding:20px 14px;background:#17324d;
+  border-right:1px solid rgba(255,255,255,.08);
 }
-.arrival-final-brand{font-family:Georgia,"Times New Roman",serif;font-size:19px;font-weight:700;color:#17324d}
-.arrival-final-brand span{color:#2d6f67}
-.arrival-final-tabs{display:flex;gap:4px}
-.arrival-final-tabs span{padding:9px 14px;border-radius:999px;font-weight:700;font-size:13.5px;color:#60758a}
-.arrival-final-tabs span.on{background:#17324d;color:#fff}
-.arrival-final-meta{font-size:12.5px;color:#60758a}
-.arrival-final-body{max-width:1120px;margin:0 auto;padding:26px 22px}
+.arrival-final-brand{font-family:Georgia,"Times New Roman",serif;font-size:19px;font-weight:700;color:#fff;padding:0 8px}
+.arrival-final-brand span{color:#7fd8c9}
+.arrival-final-tabs{display:flex;flex-direction:column;gap:3px}
+.arrival-final-tabs span{padding:10px 12px;border-radius:10px;font-weight:700;font-size:13.5px;color:#b9c7d6;text-align:left}
+.arrival-final-tabs span.on{background:rgba(255,255,255,.14);color:#fff}
+.arrival-final-meta{font-size:12px;color:rgba(255,255,255,.62);margin-top:auto;padding:0 8px;line-height:1.4}
+.arrival-final-body{flex:1 1 auto;min-width:0;max-width:1120px;margin:0;padding:26px 22px}
 .arrival-final-head h2{font-family:Georgia,"Times New Roman",serif;margin:0 0 5px;font-size:28px;letter-spacing:-.02em}
 .arrival-final-head p{margin:0 0 18px;color:#60758a}
 .arrival-final-card{background:rgba(255,255,255,.28);border:1px solid #d5e0e9;border-radius:28px;padding:22px}
@@ -188,14 +235,24 @@ button,input,select{font:inherit}
 .arrival.reduced .arrival-still{display:flex}
 
 @media(max-width:680px){
-  /* Matches the real Focus mobile collapse point (.scope-focus .focus-grid at 680px). */
+  /* Matches the real Focus mobile collapse point (.scope-focus .focus-grid at 680px) and the
+     real shell's ARELO-332 mobile collapse (side rail -> slim top strip, tabs move to the
+     bottom-nav which isn't part of this matched composition). */
+  .arrival-final{flex-direction:column}
+  .arrival-final-topbar{
+    width:100%;flex:0 0 auto;flex-direction:row;flex-wrap:wrap;align-items:center;
+    justify-content:space-between;gap:8px 14px;padding:12px 14px;border-right:0;
+    border-bottom:1px solid rgba(255,255,255,.08);
+  }
   .arrival-final-tabs{display:none}
+  .arrival-final-meta{margin-top:0;padding:0}
   .arrival-final-body{padding:20px 16px}
 }
 @media (prefers-reduced-motion: reduce){
   .arrival-stage,.arrival-final,.arrival-frame-cue,.arrival-caption{ transition:none!important }
   .arrival-frame-cue{ animation:none!important }
   .arrival-orb{ transition:opacity .3s ease!important }
+  .arrival-orb.phase-rest{ animation:none!important }
   .arrival-explore-cue{ transition:opacity .3s ease!important }
 }
 
@@ -968,19 +1025,28 @@ function __arrivalInit(){
     if(!orb) return;
     // Settle just past the real brand mark, measured live off the actual topbar, so the
     // orb never collides with tab/meta text at any breakpoint rather than a guessed spot.
+    // ARELO-332: the topbar is now a 220px sidebar on desktop, so also clamp against the
+    // sidebar's own right edge — otherwise brand.right + 22 can spill the orb past the rail
+    // and over the main content column.
     var brand = document.querySelector('.topbar .brand');
+    var rail = document.querySelector('.topbar');
     if(brand){
       var r = brand.getBoundingClientRect();
       if(r.width || r.height){
-        var cx = Math.min(r.right + 22, window.innerWidth - 30);
+        var maxX = window.innerWidth - 30;
+        if(rail){
+          var railRect = rail.getBoundingClientRect();
+          if(railRect.width) maxX = Math.min(maxX, railRect.right - 30);
+        }
+        var cx = Math.min(r.right + 22, maxX);
         var cy = r.top + r.height / 2;
         orb.style.top = cy + 'px';
         orb.style.left = cx + 'px';
       }
     }
+    orb.classList.add('phase-in');
     orb.classList.add('phase-settle');
-    window.setTimeout(function(){ orb.classList.add('phase-fade'); }, 450);
-    window.setTimeout(function(){ if(orb && orb.parentNode) orb.parentNode.removeChild(orb); }, 1000);
+    window.setTimeout(function(){ orb.classList.add('phase-rest'); }, 450);
   }
 
   function fadeArrivalDisclosure(){
@@ -1111,18 +1177,26 @@ if(document.readyState === 'loading'){
   <header class="topbar">
     <div class="brand">Arelo <span>· Gemma's week</span></div>
     <nav class="tabstrip" id="tabstrip">
-      <button data-tab="focus" class="active">Focus</button>
-      <button data-tab="review">Review</button>
-      <button data-tab="pins">Pins</button>
-      <button data-tab="calendar">Calendar</button>
-      <button data-tab="emails">Emails</button>
+      <button data-tab="focus" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="7.2"/><circle cx="12" cy="12" r="2.6" fill="currentColor" stroke="none"/></svg><span>Focus</span></button>
+      <button data-tab="review"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h11M4 12h16M4 18h9"/><path d="M17 16l2 2 3-3.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Review</span></button>
+      <button data-tab="pins"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 3h6l-.7 5.2L18 12h-4.5l-.7 8-.8-8H7l3.7-3.8L9 3z" stroke-linejoin="round"/></svg><span>Pins</span></button>
+      <button data-tab="calendar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg><span>Calendar</span></button>
+      <button data-tab="emails"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="M4 6.5l8 6.5 8-6.5" stroke-linejoin="round"/></svg><span>Emails</span></button>
     </nav>
     <div class="meta-group">
       <div class="meta">Tuesday 8 September · interactive demo, not a live account</div>
       <a class="feedback-link" href="/feedback" title="Give feedback on this demo">💬 Give feedback</a>
     </div>
   </header>
+  <nav class="bottom-nav" id="bottomNav" aria-hidden="true">
+    <button data-tab="focus" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="7.2"/><circle cx="12" cy="12" r="2.6" fill="currentColor" stroke="none"/></svg>Focus</button>
+    <button data-tab="review"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h11M4 12h16M4 18h9"/><path d="M17 16l2 2 3-3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Review</button>
+    <button data-tab="pins"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 3h6l-.7 5.2L18 12h-4.5l-.7 8-.8-8H7l3.7-3.8L9 3z" stroke-linejoin="round"/></svg>Pins</button>
+    <button data-tab="calendar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg>Calendar</button>
+    <button data-tab="emails"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="M4 6.5l8 6.5 8-6.5" stroke-linejoin="round"/></svg>Emails</button>
+  </nav>
 
+  <div class="main">
   <!-- ===================== FOCUS ===================== -->
   <section class="panel active scope-focus" id="panel-focus" data-panel="focus">
     <div class="max">
@@ -1280,6 +1354,7 @@ if(document.readyState === 'loading'){
       <main class="review-list" id="emailsList"><!-- rendered --></main>
     </div>
   </section>
+  </div>
 </div>
 
 <script>
@@ -2383,6 +2458,7 @@ function renderAll(){ renderFocus(); renderCalendar(); renderReview(); renderPin
 function switchTab(tab){
   const btn = document.querySelector(`#tabstrip button[data-tab="${tab}"]`); if(!btn) return;
   document.querySelectorAll('#tabstrip button').forEach(b=>b.classList.toggle('active', b===btn));
+  document.querySelectorAll('#bottomNav button').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
   document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active', p.dataset.panel===tab));
   // A hidden panel has 0 width, so re-measuring overflow while it's off-screen would wrongly read
   // "nothing to scroll" and hide arrows that were correct a moment ago. Re-check the instant the
@@ -2572,6 +2648,12 @@ document.getElementById('app').addEventListener('click', e=>{
     if(input.value.trim()){ state._drawerNotesDraft.push(input.value.trim()); }
     renderDrawer(); return;
   }
+});
+// ARELO-332: mobile bottom-nav uses the exact same switchTab() single source of truth as the
+// desktop side-nav rail — no separate tab-switching logic, no new navigation model.
+document.getElementById('bottomNav').addEventListener('click', e=>{
+  const btn = e.target.closest('button[data-tab]'); if(!btn) return;
+  switchTab(btn.dataset.tab);
 });
 
 document.getElementById('pinsDrawerClose').addEventListener('click', ()=>document.getElementById('pinsDrawer').classList.remove('show'));
