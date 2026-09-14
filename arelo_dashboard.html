@@ -759,6 +759,10 @@ button,input,select{font:inherit}
   background:#fff; color:var(--jr-ink);
 }
 .jr-page{max-width:640px;margin:0 auto;padding:8px 4px 40px}
+.jr-switch{display:flex;gap:8px;margin:0 0 20px;flex-wrap:wrap}
+.jr-switch-btn{font-family:"Nunito",Arial,sans-serif;font-size:11.5px;font-weight:800;letter-spacing:.03em;background:#fff;border:1px solid var(--jr-line);color:var(--jr-muted);border-radius:999px;padding:6px 14px;cursor:pointer}
+.jr-switch-btn:hover:not(.is-active){border-color:var(--jr-muted);color:var(--jr-ink)}
+.jr-switch-btn.is-active{background:var(--jr-ink);border-color:var(--jr-ink);color:#fff}
 .jr-eyebrow{font-family:"Nunito",Arial,sans-serif;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--jr-muted)}
 .jr-title{font:400 34px/1.15 "DM Serif Display",Georgia,serif;margin:6px 0 8px;letter-spacing:-.02em}
 .jr-orient{color:var(--jr-muted);font-size:14px;margin:0 0 30px}
@@ -778,8 +782,9 @@ button,input,select{font:inherit}
 .jr-pin-chip:hover{border-color:var(--jr-muted)}
 .jr-pin-chip .jr-pin-next{font-weight:400;color:var(--jr-muted);font-size:12.5px}
 .jr-later{font-size:14px;color:var(--jr-ink)}
-.jr-later-row{display:flex;gap:10px;padding:7px 0;border-top:1px solid var(--jr-line)}
+.jr-later-row{display:flex;align-items:center;gap:10px;width:100%;padding:7px 0;border:0;border-top:1px solid var(--jr-line);background:none;font:inherit;color:inherit;text-align:left;cursor:pointer}
 .jr-later-row:first-child{border-top:0}
+.jr-later-row:hover{color:var(--jr-teal)}
 .jr-later-when{flex:0 0 92px;color:var(--jr-muted);font-size:12.5px;font-weight:700}
 .jr-settled{color:var(--jr-muted);font-size:13.5px;line-height:1.7}
 .jr-settled .dot{margin:0 8px;color:var(--jr-line)}
@@ -804,23 +809,51 @@ button,input,select{font:inherit}
 }
 .nt-page{max-width:680px;margin:0 auto;padding:8px 4px 40px}
 .nt-page h1{font:400 31px/1.05 "DM Serif Display",Georgia,serif;letter-spacing:-.03em;margin:0 0 6px;color:var(--nt-teal)}
-.nt-intro{color:var(--nt-muted);font-size:14px;margin:0 0 26px}
-.nt-card{border:1px solid var(--nt-line);border-radius:14px;padding:16px 18px;margin:0 0 16px}
-.nt-card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:4px}
-.nt-card-title{background:none;border:0;padding:0;font:inherit;font-size:16px;font-weight:800;color:var(--nt-ink);cursor:pointer;text-align:left}
-.nt-card-title:hover{text-decoration:underline}
+.nt-intro{color:var(--nt-muted);font-size:14px;margin:0 0 22px}
 .nt-cat-chip{font-family:"Nunito",Arial,sans-serif;font-size:10px;font-weight:800;padding:2px 9px;border-radius:999px;white-space:nowrap}
-.nt-list{margin:10px 0 10px;padding-left:19px}
+.nt-empty{color:var(--nt-muted);font-size:14px;padding:8px 0 24px}
+
+/* ---- Note groups: collapsed by default, a short preview + count + provenance identity, expand
+   to reveal the full notes — the progressive-disclosure surface itself is the primary thing on
+   this page (ARELO-347 refinement, PO 14 Sep). ---- */
+.nt-groups{display:flex;flex-direction:column;gap:10px;margin:0 0 28px}
+.nt-group{border:1px solid var(--nt-line);border-radius:14px;padding:2px 18px;transition:border-color .15s ease}
+.nt-group.open{border-color:var(--nt-teal-line)}
+.nt-group-head{width:100%;background:none;border:0;padding:14px 0;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;font:inherit;text-align:left}
+.nt-group-main{display:flex;align-items:center;gap:10px;min-width:0}
+.nt-parent-kind{font-family:"Nunito",Arial,sans-serif;font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--nt-muted);border:1px solid var(--nt-line);border-radius:999px;padding:2px 8px;white-space:nowrap}
+.nt-group-title{font-size:16px;font-weight:800;color:var(--nt-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nt-group-meta{display:flex;align-items:center;gap:10px;flex:0 0 auto}
+.nt-group-count{font-family:"Nunito",Arial,sans-serif;font-size:11px;font-weight:800;color:var(--nt-muted)}
+.nt-group-chev{width:14px;height:14px;color:var(--nt-muted);transition:transform .15s ease}
+.nt-group-head[aria-expanded="true"] .nt-group-chev{transform:rotate(180deg)}
+.nt-preview{margin:0 0 14px;font-size:13.5px;font-style:italic;color:var(--nt-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nt-group-body{margin:0 0 14px}
+.nt-list{margin:0 0 10px;padding-left:19px}
 .nt-list li{margin:0 0 6px;font-size:14px;line-height:1.55;color:var(--nt-ink)}
 .nt-provenance{font-size:12px;color:var(--nt-muted);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .nt-source-link{background:none;border:1px solid var(--nt-teal-line);color:var(--nt-teal);border-radius:999px;padding:2px 10px;font:inherit;font-size:11.5px;font-weight:800;cursor:pointer}
-.nt-empty{color:var(--nt-muted);font-size:14px;padding:8px 0 24px}
-.nt-example{margin-top:8px;background:var(--nt-teal-soft);border:1px solid var(--nt-teal-line);border-radius:14px;padding:18px 20px}
-.nt-example-label{font-family:"Nunito",Arial,sans-serif;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--nt-teal);margin:0 0 10px}
-.nt-example p{margin:0 0 10px;font-size:14px;line-height:1.6;color:var(--nt-ink)}
-.nt-example p:last-child{margin-bottom:0}
-.nt-example .nt-quote{font-style:italic;color:var(--nt-muted)}
-.nt-example .nt-disclosure{font-size:11.5px;color:var(--nt-muted);border-top:1px dashed var(--nt-teal-line);padding-top:10px;margin-top:12px}
+
+/* ---- Explainer: collapsed behind its own toggle so the note groups above stay the primary
+   surface on this page, not this box (ARELO-347 refinement). ---- */
+.nt-explainer{border-top:1px solid var(--nt-line);padding-top:14px}
+.nt-explainer-toggle{width:100%;background:none;border:0;padding:0;font:inherit;font-size:12.5px;font-weight:800;color:var(--nt-muted);cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.nt-explainer-toggle svg{width:13px;height:13px;transition:transform .15s ease;flex:0 0 auto}
+.nt-explainer-toggle[aria-expanded="true"] svg{transform:rotate(180deg)}
+.nt-explainer-body{margin-top:14px;background:var(--nt-teal-soft);border:1px solid var(--nt-teal-line);border-radius:14px;padding:16px 18px}
+.nt-explainer-body p{margin:0 0 10px;font-size:13px;line-height:1.6;color:var(--nt-ink)}
+.nt-explainer-body p:last-child{margin-bottom:0}
+.nt-explainer-body .nt-quote{font-style:italic;color:var(--nt-muted)}
+.nt-explainer-body .nt-disclosure{font-size:11px;color:var(--nt-muted);border-top:1px dashed var(--nt-teal-line);padding-top:10px;margin-top:10px}
+/* Narrow viewports: the collapsed one-line header (parent badge + title + category chip + count
+   + chevron) has too many fixed-width elements to fit one row without crushing the title down to
+   a few letters — let it wrap onto a second line instead of truncating the title away. */
+@media(max-width:480px){
+  .nt-group-head{flex-wrap:wrap;row-gap:6px}
+  .nt-group-main{flex:1 1 100%;min-width:0}
+  .nt-group-title{white-space:normal;overflow:visible;text-overflow:clip}
+  .nt-group-meta{flex:1 1 100%;justify-content:flex-end}
+}
 </style>
 </head>
 <body>
@@ -1479,7 +1512,10 @@ const state = {
   _drawerEditing:false,
   _drawerNotesDraft:null,
   _colourPopoverFor:null, // category name ('Family'|'Work'|'Life') whose colour popover is open, or null
-  _colourPaletteTab:'arelo' // 'arelo' (calm branded defaults) | 'broad' (wider hue range) — which tab the open popover shows
+  _colourPaletteTab:'arelo', // 'arelo' (calm branded defaults) | 'broad' (wider hue range) — which tab the open popover shows
+  _activeJourney:'italy', // 'italy' (primary, richer) | 'northstar' (secondary/example) — which Journey the Journey tab shows
+  _notesOpen:{},          // note-group id -> bool, progressive disclosure on the Notes page (collapsed by default)
+  _notesExplainerOpen:false // "How a note finds its place" — collapsed by default so the real Notes surface is primary
 };
 
 const NORTHSTAR_STEPS = [
@@ -1500,6 +1536,26 @@ const NORTHSTAR_PRESPREP_NOTES = [
   'Ask what they would need internally to get this signed off.'
 ];
 
+/* Notes Gemma left herself on the "buy a calculator" Pin — a small, one-off example that a
+   note group doesn't need a big backstory to be genuine (ARELO-346/347 refinement). */
+const CALCULATOR_NOTES = [
+  'No specific model requested — any basic scientific calculator should do.',
+  'Worth checking with Mia’s teacher if her class needs a particular model.',
+  'The Post-it said "URGENT" but gave no actual deadline.'
+];
+
+/* Notes captured against the Italy Journey itself, not any single Pin — the ARELO-345 decision
+   explicitly allows notes to associate with an existing Journey as well as an existing Pin.
+   Still not a new object type: this is a plain fixture array, the same shape as
+   NORTHSTAR_PRESPREP_NOTES/CALCULATOR_NOTES above, just attached to a Journey identity instead
+   of a Pin id in notesModel() below. */
+const ITALY_JOURNEY_NOTES = [
+  'Everyone needs to travel with a printed GHIC card, not just a photo of it.',
+  'Leave the house by 6am to make the Eurotunnel check-in with time to spare.',
+  'Check whether the villa has a car seat for Mia, or whether we need to bring ours.',
+  'Ask the kennels whether they need proof of vaccinations before drop-off.'
+];
+
 /* ---- Evidence (Emails tab + provenance) ---- */
 const EVIDENCE = {
   sophie:   {type:'e-invite', from:"Sophie's mum", date:'Thu 3 Sep', subject:"You're invited! Sophie is turning 7 🎈", body:"Sophie is turning 7! Join us at Party Central on Sunday 19 September, 2:30pm. Let us know if Mia can come by Friday 11 September."},
@@ -1514,6 +1570,16 @@ const EVIDENCE = {
   noise1:   {type:'email', from:'Company newsletter', date:'Mon 7 Sep', subject:'This week at a glance', body:'Sales all-hands recap, new expenses portal, canteen menu change. Nothing needed from you.'},
   noise2:   {type:'email', from:'Priya (colleague)', date:'Fri 4 Sep', subject:'Re: Expenses — approved', body:"All sorted, approved this morning. Thanks!"},
   northstarprep:{type:'conversation', from:'You, to Arelo', date:'Tue 1 Sep', subject:'Prep for Northstar client presentation', body:'"I want to hold onto some thoughts for the Northstar presentation while they’re fresh."'},
+
+  /* ---- Italy family holiday evidence (ARELO-346/347 refinement, PO 14 Sep) — the primary
+     Journey's provenance. italyghic is a conversation (Gemma flagged it to Arelo herself), so it
+     stays out of EMAIL_TAB_IDS like lemons/northstarprep; italyvilla/italycrossing are genuine
+     booking-confirmation emails, dated from when they were actually booked (mid-August) rather
+     than "the last week" the Emails tab otherwise covers, so they're kept out of that list too —
+     they still surface with full provenance via the Pin drawer and the Journey's Sources list. ---- */
+  italyghic:{type:'conversation', from:'You, to Arelo', date:'Sat 5 Sep', subject:'Sorting GHIC before Italy', body:'"All four of our GHIC cards expired in the spring — we should sort renewals before the Italy trip."'},
+  italyvilla:{type:'email', from:'Casa Belvedere (villa rental)', date:'Tue 18 Aug', subject:'Booking confirmed — Casa Belvedere, 24 Oct–4 Nov', body:'Thanks for booking! Deposit received — the remaining balance is due 3 weeks before arrival.'},
+  italycrossing:{type:'email', from:'Eurotunnel', date:'Wed 19 Aug', subject:'Booking confirmation — Folkestone to Calais', body:'Your crossing is confirmed for the morning of Saturday 24 October. Check in from 90 minutes before departure.'},
 
   /* ---- Delivery evidence: three separate transactional emails Arelo folds into one quiet
      Focus line ("Three parcels are on their way today"). None of these creates a Pin. ---- */
@@ -1643,7 +1709,8 @@ function buildPins(){
     remind:ov('robconsent','remind','Every day until it’s signed — it’s overdue'), need:ov('robconsent','need','Before the next session'), source:'robconsent', overdue:!state.robConsentDone});
   P.push({id:'calculator', t:ov('calculator','t','Buy Mia a calculator'), cat:'Family', time:'This week', lifecycle: state.calculatorDone?'Done':'Open', attention:'Active', progress: state.calculatorDone?'Done':'Needs you', size:'small',
     summary:'From the URGENT Post-it note — no deadline given.', na:ov('calculator','na','Pick one up next time you’re near a shop'),
-    remind:ov('calculator','remind','Sat 12 September — Arelo’s own proposal, no deadline was given'), need:ov('calculator','need','Not specified'), source:'calculator'});
+    remind:ov('calculator','remind','Sat 12 September — Arelo’s own proposal, no deadline was given'), need:ov('calculator','need','Not specified'), source:'calculator',
+    notes: ov('calculator','notes', CALCULATOR_NOTES)});
   P.push({id:'lemons', t:ov('lemons','t','Get lemons for the bake-sale cake'), cat:'Family', time:'This week', lifecycle:'Open', attention:'Active', progress:'Needs you', size:'small',
     summary:'For the lemon cake you mentioned to Arelo.', na:ov('lemons','na','Add to next shop'),
     remind:ov('lemons','remind','Before your next shop'), need:ov('lemons','need','Before you bake'), source:'lemons'});
@@ -1685,6 +1752,28 @@ function buildPins(){
     repeats:ov('bootcamp-booking','repeats','Weekly'),
     days:ov('bootcamp-booking','days','Monday + Thursday'),
     source:null});
+
+  // ---- Italy family holiday (ARELO-346 refinement, PO 14 Sep): the demo's richer primary
+  // Journey — a family driving holiday to Italy over half-term (24 October – 4 November). Every
+  // item below is an ordinary Pin, built exactly like any other — the Italy Journey is a
+  // presentation over these, never a new object type. Only italy-ghic genuinely needs Gemma this
+  // week; italy-crossing is already settled, and italy-villa/insurance/kennels are accepted
+  // responsibilities held quietly for a later point — which is what lets the Journey show one
+  // real Most Useful Movement rather than turning into a task list. ----
+  P.push({id:'italy-ghic', t:ov('italy-ghic','t','Renew the family’s GHIC cards for Italy'), cat:'Family', time:'This week', lifecycle:'Open', attention:'Active', progress:'Needs you', size:'medium',
+    summary:'All four cards expired in the spring — the renewal can take a couple of weeks to arrive.', na:ov('italy-ghic','na','Apply for renewed GHIC cards online'),
+    remind:ov('italy-ghic','remind','This week — allow time for it to arrive before you leave'), need:ov('italy-ghic','need','Before you leave on 24 October'), source:'italyghic'});
+  P.push({id:'italy-villa', t:ov('italy-villa','t','Pay the villa balance'), cat:'Family', time:'Later', lifecycle:'Open', attention:'Active', progress:'Waiting', size:'medium',
+    summary:'The deposit’s already paid — the balance isn’t due until 3 weeks before you travel.', na:'—',
+    remind:ov('italy-villa','remind','Early October — Arelo will remind you nearer the balance due date'), need:ov('italy-villa','need','3 weeks before travel'), source:'italyvilla'});
+  P.push({id:'italy-crossing', t:'Eurotunnel crossing to Calais', cat:'Family', time:'Done', lifecycle:'Done', attention:'Quiet', progress:'Done', size:'small',
+    summary:'Booked for the morning of Saturday 24 October.', na:'—', remind:'—', need:'Booked', source:'italycrossing'});
+  P.push({id:'italy-insurance', t:ov('italy-insurance','t','Buy travel insurance for the trip'), cat:'Family', time:'Later', lifecycle:'Open', attention:'Active', progress:'Waiting', size:'small',
+    summary:'Worth comparing policies once the GHIC applications are in.', na:ov('italy-insurance','na','Compare and buy a family policy'),
+    remind:ov('italy-insurance','remind','Early October'), need:ov('italy-insurance','need','Before you travel'), source:null});
+  P.push({id:'italy-kennels', t:ov('italy-kennels','t','Book the dog into kennels'), cat:'Family', time:'Later', lifecycle:'Open', attention:'Active', progress:'Waiting', size:'small',
+    summary:'Worth booking ahead — good kennels nearby tend to fill up over half-term.', na:ov('italy-kennels','na','Book kennels for 24 Oct – 4 Nov'),
+    remind:ov('italy-kennels','remind','Early October'), need:ov('italy-kennels','need','Before you travel'), source:null});
 
   if(state.northstar.created){
     // This week, not Now — the enrichment table placed an example under Now, but that isn't this
@@ -2547,15 +2636,53 @@ function goToPin(id){
 }
 
 /* =========================================================================
-   RENDER: JOURNEY (ARELO-346) — demo-scoped application of ARELO-290's approved
-   editorial grammar, built entirely from the existing Northstar Pin(s)/evidence
-   already in this fixture (northstar-presprep, northstar, esin). No new Pins, no
-   new Journey object model — a richer presentation of the same responsibility,
-   per Single Identity. Sections that would have nothing truthful to show (e.g.
-   "Coming later" — neither Northstar Pin ever carries a future/Next-week/Later
-   horizon) are omitted entirely rather than manufactured.
-   ========================================================================= */
-function journeyModel(){
+   RENDER: JOURNEY (ARELO-346, refined per PO 14 Sep) — demo-scoped application of
+   ARELO-290's approved editorial grammar, built entirely from ordinary Pins/evidence
+   already in this fixture. No new Pins, no new Journey object model — a richer
+   presentation of an existing responsibility, per Single Identity. Sections that
+   would have nothing truthful to show are omitted entirely rather than manufactured.
+
+   Two Journeys share this one grammar: 'italy' (the primary Journey — richer, with
+   a genuine Coming Later horizon) and 'northstar' (preserved as a secondary/example
+   Journey, unchanged in substance from the first build). state._activeJourney picks
+   which one is showing; a small switcher lets Gemma flip between them. ========= */
+function italyJourneyModel(){
+  const pins = buildPins();
+  const ghic = pins.find(p=>p.id==='italy-ghic');
+  const villa = pins.find(p=>p.id==='italy-villa');
+  const insurance = pins.find(p=>p.id==='italy-insurance');
+  const kennels = pins.find(p=>p.id==='italy-kennels');
+
+  const story = 'You’re driving out to Italy as a family over half-term — the crossing is booked, the villa’s confirmed, and Arelo is keeping the last few things moving in the right order rather than surfacing all of them at once.';
+  const orientation = '1 needs you · 2 coming later';
+
+  // Most useful movement — the one genuine next step, with only the Pin that actually
+  // contributes to it (ARELO-290 comment 14019): GHIC renewal, nothing else folded in.
+  const movement = { title: ghic.na, meta: 'Arelo will remind you ' + ghic.remind, pins:[ghic] };
+
+  // Arelo is holding — Pin-backed only: the villa Pin's own "Waiting" progress state.
+  const holding = { body: 'The villa balance isn’t due for a few more weeks yet — Arelo will remind you nearer the date rather than now.' };
+
+  // Already part of the story — settled context, visually received rather than a checklist.
+  const settled = [
+    'Eurotunnel crossing booked for Saturday 24 October',
+    'Villa deposit paid — balance due 3 weeks before travel',
+    'Half-term travel dates confirmed (24 October – 4 November)'
+  ];
+
+  // Coming later — accepted Pins with a genuine future horizon, never every related Pin (that
+  // would turn this into a task list). Just the two that are truly "not yet, but held".
+  const laterPins = [insurance, kennels].filter(Boolean);
+
+  // Sources behind this story — genuine provenance already in EVIDENCE.
+  const sourceIds = ['italyghic','italyvilla','italycrossing'].filter(id=>!!EVIDENCE[id]);
+
+  return {
+    eyebrow:'JOURNEY · FAMILY', title:'Italy road trip', orientSuffix:'half-term · 24 Oct – 4 Nov',
+    story, orientation, movement, holding, settled, laterPins, sourceIds
+  };
+}
+function northstarJourneyModel(){
   const pins = buildPins();
   const prep = pins.find(p=>p.id==='northstar-presprep');
   const proposal = pins.find(p=>p.id==='northstar'); // only present once state.northstar.created
@@ -2600,13 +2727,26 @@ function journeyModel(){
   // Sources behind this story — genuine provenance already in EVIDENCE, never a fabricated count.
   const sourceIds = ['northstarprep','northstar','esin'].filter(id=>!!EVIDENCE[id]);
 
-  return {story, orientation, movement, holding, settled, sourceIds, prep, proposal};
+  return {
+    eyebrow:'JOURNEY · WORK', title:'Northstar proposal', orientSuffix:'client asked for Friday 11 September',
+    story, orientation, movement, holding, settled, laterPins:[], sourceIds, prep, proposal
+  };
+}
+function journeyModel(key){
+  return (key||state._activeJourney)==='northstar' ? northstarJourneyModel() : italyJourneyModel();
 }
 function renderJourney(){
-  const m = journeyModel();
+  const active = state._activeJourney || 'italy';
+  const m = journeyModel(active);
   const el = document.getElementById('journeyBody'); if(!el) return;
 
   const pinChip = p => `<button type="button" class="jr-pin-chip" data-gotopin="${p.id}">${p.t}<span class="jr-pin-next">— ${p.na}</span></button>`;
+
+  const switchHtml = `
+    <div class="jr-switch" role="tablist" aria-label="Journeys">
+      <button type="button" class="jr-switch-btn${active==='italy'?' is-active':''}" role="tab" aria-selected="${active==='italy'}" data-journey="italy">Italy road trip</button>
+      <button type="button" class="jr-switch-btn${active==='northstar'?' is-active':''}" role="tab" aria-selected="${active==='northstar'}" data-journey="northstar">Northstar proposal</button>
+    </div>`;
 
   const movementHtml = m.movement ? `
     <div class="jr-section jr-movement">
@@ -2629,6 +2769,12 @@ function renderJourney(){
       <div class="jr-settled">${m.settled.map(s=>`<span>${s}</span>`).join('<span class="dot">·</span>')}</div>
     </div>` : '';
 
+  const laterHtml = (m.laterPins && m.laterPins.length) ? `
+    <div class="jr-section">
+      <div class="jr-section-label">Coming later</div>
+      <div class="jr-later">${m.laterPins.map(p=>`<button type="button" class="jr-later-row" data-gotopin="${p.id}"><span class="jr-later-when">${p.time}</span><span>${p.t}</span></button>`).join('')}</div>
+    </div>` : '';
+
   const sourcesOpen = !!state._journeySourcesOpen;
   const sourceRows = m.sourceIds.map(id=>{
     const ev = EVIDENCE[id];
@@ -2644,9 +2790,10 @@ function renderJourney(){
     </div>` : '';
 
   el.innerHTML = `
-    <div class="jr-eyebrow">JOURNEY · WORK</div>
-    <h1 class="jr-title">Northstar proposal</h1>
-    <p class="jr-orient">${m.orientation} · client asked for Friday 11 September</p>
+    ${switchHtml}
+    <div class="jr-eyebrow">${m.eyebrow}</div>
+    <h1 class="jr-title">${m.title}</h1>
+    <p class="jr-orient">${m.orientation} · ${m.orientSuffix}</p>
     <div class="jr-section jr-story">
       <div class="jr-section-label">The story so far</div>
       <p>${m.story}</p>
@@ -2654,60 +2801,91 @@ function renderJourney(){
     ${movementHtml}
     ${holdingHtml}
     ${settledHtml}
+    ${laterHtml}
     ${sourcesHtml}
   `;
 }
 
 /* =========================================================================
-   RENDER: NOTES (ARELO-347 / ARELO-345 decision) — aggregates the notes already
-   attached to existing Pins (the same p.notes field the Pins drawer already
-   shows) with visible provenance back to the Pin/source. Not a new object model:
-   a Note is presentation over existing Pin/evidence data, never a floating item.
+   RENDER: NOTES (ARELO-347 / ARELO-345 decision, refined per PO 14 Sep) —
+   aggregates notes already attached to existing Pins (the same p.notes field the
+   Pins drawer shows) and to the Italy Journey (ITALY_JOURNEY_NOTES, per the
+   ARELO-345 decision's "associated with existing Pins/Journeys"), as a
+   progressive-disclosure list of compact, collapsed-by-default note groups. Not a
+   new object model: a note group is presentation over existing Pin/Journey/evidence
+   data, never a floating item — and it never becomes an independent responsibility
+   of its own (it has no lifecycle, no progress, nothing Review would ever surface).
    ========================================================================= */
 function notesModel(){
-  return buildPins().filter(p=>Array.isArray(p.notes) && p.notes.length);
+  const pinGroups = buildPins()
+    .filter(p=>Array.isArray(p.notes) && p.notes.length)
+    .map(p=>({ kind:'pin', id:p.id, title:p.t, cat:p.cat, notes:p.notes, provenance:pinSourceLabel(p), sourceAction:pinSourceAction(p) }));
+  const journeyGroups = [
+    { kind:'journey', id:'italy', title:'Italy road trip', cat:'Family', notes:ITALY_JOURNEY_NOTES, provenance:'Arelo bot (conversation)', sourceAction:null }
+  ];
+  // Journey groups alongside Pin groups, in a stable, readable order — Pins first (closer to
+  // "around now"), then the Journey-level group.
+  return [...pinGroups, ...journeyGroups];
 }
 function renderNotes(){
-  const pinsWithNotes = notesModel();
+  const groups = notesModel();
   const el = document.getElementById('notesBody'); if(!el) return;
 
-  const cardFor = p => {
-    const s = catStyle(p.cat);
-    const act = pinSourceAction(p);
-    const srcLabel = pinSourceLabel(p);
+  const groupCard = g => {
+    const open = !!state._notesOpen[g.id];
+    const s = catStyle(g.cat);
+    const parentKind = g.kind==='journey' ? 'Journey' : 'Pin';
+    const gotoAttr = g.kind==='journey' ? `data-gotojourney="${g.id}"` : `data-gotopin="${g.id}"`;
     return `
-      <div class="nt-card">
-        <div class="nt-card-head">
-          <button type="button" class="nt-card-title" data-gotopin="${p.id}">${p.t}</button>
-          <span class="nt-cat-chip" style="background:${s.bg};color:${s.text}">${p.cat}</span>
-        </div>
-        <ul class="nt-list">${p.notes.map(n=>`<li>${n}</li>`).join('')}</ul>
-        <div class="nt-provenance">
-          <span>${p.notes.length} note${p.notes.length===1?'':'s'} · from ${srcLabel}</span>
-          ${act? `<button type="button" class="nt-source-link" data-gotosource="${act.id}">${act.label} ↗</button>` : ''}
-        </div>
+      <div class="nt-group${open?' open':''}">
+        <button type="button" class="nt-group-head" data-notetoggle="${g.id}" aria-expanded="${open}">
+          <span class="nt-group-main">
+            <span class="nt-parent-kind">${parentKind}</span>
+            <span class="nt-group-title">${g.title}</span>
+            <span class="nt-cat-chip" style="background:${s.bg};color:${s.text}">${g.cat}</span>
+          </span>
+          <span class="nt-group-meta">
+            <span class="nt-group-count">${g.notes.length} note${g.notes.length===1?'':'s'}</span>
+            <svg viewBox="0 0 24 24" class="nt-group-chev" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </button>
+        ${!open ? `<p class="nt-preview">“${g.notes[0]}”</p>` : `
+        <div class="nt-group-body">
+          <ul class="nt-list">${g.notes.map(n=>`<li>${n}</li>`).join('')}</ul>
+          <div class="nt-provenance">
+            <span>from ${g.provenance}</span>
+            <button type="button" class="nt-source-link" ${gotoAttr}>Open ${parentKind.toLowerCase()} ↗</button>
+            ${g.sourceAction? `<button type="button" class="nt-source-link" data-gotosource="${g.sourceAction.id}">${g.sourceAction.label} ↗</button>` : ''}
+          </div>
+        </div>`}
       </div>`;
   };
 
-  const listHtml = pinsWithNotes.length
-    ? pinsWithNotes.map(cardFor).join('')
-    : `<div class="nt-empty">Nothing here yet — Notes appear once a Pin has context attached to it.</div>`;
+  const listHtml = groups.length
+    ? groups.map(groupCard).join('')
+    : `<div class="nt-empty">Nothing here yet — Notes appear once a Pin or Journey has context attached to it.</div>`;
 
-  const worked = pinsWithNotes.find(p=>p.id==='northstar-presprep');
+  const explainerOpen = !!state._notesExplainerOpen;
   const workedEv = EVIDENCE['northstarprep'];
-  const example = (worked && workedEv) ? `
-    <div class="nt-example">
-      <div class="nt-example-label">How a note finds its place</div>
-      <p class="nt-quote">“${workedEv.body.replace(/^"|"$/g,'')}”</p>
-      <p>Arelo recognised this as context for the presentation prep you’d already pinned for Friday’s client meeting — not a new responsibility — and attached it as notes on that existing Pin rather than creating a second one.</p>
-      <div class="nt-disclosure">This demo doesn’t run a live understanding model — this is a fixed example showing how a raw note gets routed to an existing Pin, a Journey, or Review, never left floating on its own.</div>
-    </div>` : '';
+  const explainerHtml = `
+    <div class="nt-explainer${explainerOpen?' open':''}">
+      <button type="button" class="nt-explainer-toggle" id="notesExplainerToggle" aria-expanded="${explainerOpen}">
+        <span>How a note finds its place</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      ${explainerOpen? `
+      <div class="nt-explainer-body">
+        <p class="nt-quote">“${workedEv.body.replace(/^"|"$/g,'')}”</p>
+        <p>Arelo recognised this as context for the presentation prep already pinned for Friday’s client meeting — not a new responsibility — and attached it as notes on that existing Pin rather than creating a second one.</p>
+        <p class="nt-disclosure">This demo doesn’t run a live understanding model — this is a fixed example showing how a raw note gets routed to an existing Pin, a Journey, or Review, never left floating on its own.</p>
+      </div>` : ''}
+    </div>`;
 
   el.innerHTML = `
     <h1>Notes</h1>
     <p class="nt-intro">Context you’ve added to what Arelo is already holding — every note stays attached to the Pin or Journey it belongs to.</p>
-    ${listHtml}
-    ${example}
+    <div class="nt-groups">${listHtml}</div>
+    ${explainerHtml}
   `;
 }
 
@@ -2843,9 +3021,27 @@ document.getElementById('app').addEventListener('click', e=>{
   const emailToggle = e.target.closest('[data-email-toggle]');
   if(emailToggle){ const id = emailToggle.dataset.emailToggle; state.emailExpanded[id] = !state.emailExpanded[id]; renderEmails(); return; }
 
+  // ---- Journey: switch between the primary (Italy) and secondary (Northstar) Journey ----
+  const jrSwitch = e.target.closest('[data-journey]');
+  if(jrSwitch){
+    state._activeJourney = jrSwitch.dataset.journey;
+    state._journeySourcesOpen = false; // don't carry the other Journey's open/closed Sources state across
+    renderJourney();
+    return;
+  }
   // ---- Journey: progressive disclosure for "Sources behind this story" (ARELO-290 pattern) ----
   const jrSourcesToggle = e.target.closest('#journeySourcesToggle');
   if(jrSourcesToggle){ state._journeySourcesOpen = !state._journeySourcesOpen; renderJourney(); return; }
+
+  // ---- Notes: progressive disclosure — collapsed note groups, and the de-emphasised explainer ----
+  const noteToggle = e.target.closest('[data-notetoggle]');
+  if(noteToggle){ const id = noteToggle.dataset.notetoggle; state._notesOpen[id] = !state._notesOpen[id]; renderNotes(); return; }
+  const notesExplainerToggle = e.target.closest('#notesExplainerToggle');
+  if(notesExplainerToggle){ state._notesExplainerOpen = !state._notesExplainerOpen; renderNotes(); return; }
+  // A Journey referenced from Notes' parent identity — jump to the Journey tab showing that
+  // specific Journey (same "go to the real destination" pattern as goToPin/goToSource).
+  const gotoJourney = e.target.closest('[data-gotojourney]');
+  if(gotoJourney){ state._activeJourney = gotoJourney.dataset.gotojourney; state._journeySourcesOpen = false; renderJourney(); switchTab('journey'); return; }
 
   // ---- Pins ----
   // Checked ahead of data-openpin: the chip sits inside the card's own button (so it stays part
