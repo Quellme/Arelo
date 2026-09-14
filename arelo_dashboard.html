@@ -744,6 +744,83 @@ button,input,select{font:inherit}
   .scope-pins .board-nav-next{right:-7px}
   .scope-pins .board-nav-btn svg{width:21px;height:21px}
 }
+
+/* =========================================================================
+   ARELO-346 — JOURNEY. Demo-scoped application of ARELO-290's approved editorial
+   grammar (story so far / most useful movement / Arelo is holding / coming later /
+   already part of the story / sources), built from Gemma's existing Pin data only.
+   Typography/whitespace-led per the approved visual direction — not a card-heavy
+   dashboard. Warm emphasis for "most useful movement", cool/teal for "Arelo is
+   holding"; everything else uses type, rules and receding weight, no boxes. ========= */
+.scope-journey{
+  --jr-ink:#17324d; --jr-muted:#5b7186; --jr-line:#e1e8ef;
+  --jr-warm:#8a5a00; --jr-warm-soft:#faf0d8; --jr-warm-line:#f0dfb0;
+  --jr-teal:#3E9088; --jr-teal-soft:#EEF9F7; --jr-teal-line:#CFECE7;
+  background:#fff; color:var(--jr-ink);
+}
+.jr-page{max-width:640px;margin:0 auto;padding:8px 4px 40px}
+.jr-eyebrow{font-family:"Nunito",Arial,sans-serif;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--jr-muted)}
+.jr-title{font:400 34px/1.15 "DM Serif Display",Georgia,serif;margin:6px 0 8px;letter-spacing:-.02em}
+.jr-orient{color:var(--jr-muted);font-size:14px;margin:0 0 30px}
+.jr-section{margin:0 0 30px}
+.jr-section-label{font-family:"Nunito",Arial,sans-serif;font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--jr-muted);margin:0 0 10px}
+.jr-story p{font-size:16.5px;line-height:1.6;margin:0;color:var(--jr-ink)}
+.jr-movement{background:var(--jr-warm-soft);border:1px solid var(--jr-warm-line);border-left:4px solid var(--jr-warm);border-radius:12px;padding:16px 18px}
+.jr-movement .jr-section-label{color:var(--jr-warm)}
+.jr-movement h3{font:400 19px/1.3 "DM Serif Display",Georgia,serif;margin:0 0 6px;color:var(--jr-ink)}
+.jr-movement p{margin:0 0 12px;font-size:14px;color:var(--jr-muted)}
+.jr-holding{background:var(--jr-teal-soft);border:1px solid var(--jr-teal-line);border-left:4px solid var(--jr-teal);border-radius:12px;padding:16px 18px}
+.jr-holding .jr-section-label{color:var(--jr-teal)}
+.jr-holding h3{font:400 18px/1.3 "DM Serif Display",Georgia,serif;margin:0 0 6px;color:var(--jr-ink)}
+.jr-holding p{margin:0;font-size:14px;color:var(--jr-muted)}
+.jr-pin-list{display:flex;flex-direction:column;gap:6px;margin-top:2px}
+.jr-pin-chip{display:flex;align-items:center;gap:8px;text-align:left;background:#fff;border:1px solid var(--jr-line);border-radius:9px;padding:8px 11px;cursor:pointer;font:inherit;color:var(--jr-ink);font-size:13.5px;font-weight:700}
+.jr-pin-chip:hover{border-color:var(--jr-muted)}
+.jr-pin-chip .jr-pin-next{font-weight:400;color:var(--jr-muted);font-size:12.5px}
+.jr-later{font-size:14px;color:var(--jr-ink)}
+.jr-later-row{display:flex;gap:10px;padding:7px 0;border-top:1px solid var(--jr-line)}
+.jr-later-row:first-child{border-top:0}
+.jr-later-when{flex:0 0 92px;color:var(--jr-muted);font-size:12.5px;font-weight:700}
+.jr-settled{color:var(--jr-muted);font-size:13.5px;line-height:1.7}
+.jr-settled .dot{margin:0 8px;color:var(--jr-line)}
+.jr-sources{border-top:1px solid var(--jr-line);padding-top:14px}
+.jr-sources-toggle{background:none;border:0;padding:0;font:inherit;font-size:13px;font-weight:800;color:var(--jr-muted);cursor:pointer;display:flex;align-items:center;gap:6px}
+.jr-sources-toggle svg{width:14px;height:14px;transition:transform .15s ease}
+.jr-sources-toggle[aria-expanded="true"] svg{transform:rotate(180deg)}
+.jr-sources-list{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+.jr-source-row{font-size:13px;color:var(--jr-muted);display:flex;justify-content:space-between;gap:10px;border-bottom:1px dashed var(--jr-line);padding-bottom:6px}
+.jr-source-row strong{color:var(--jr-ink);font-weight:700}
+@media(max-width:560px){ .jr-title{font-size:28px} }
+
+/* =========================================================================
+   ARELO-347 — NOTES. Aggregates the notes already attached to existing Pins
+   (per-Pin annotation data that already existed for the drawer's "Gemma's notes"
+   block) with visible provenance back to the underlying Pin/source — never a
+   floating note, never a new object model. ========= */
+.scope-notes{
+  --nt-ink:#17324d; --nt-muted:#5b7186; --nt-line:#e1e8ef;
+  --nt-teal:#3E9088; --nt-teal-soft:#EEF9F7; --nt-teal-line:#CFECE7;
+  background:#fff; color:var(--nt-ink);
+}
+.nt-page{max-width:680px;margin:0 auto;padding:8px 4px 40px}
+.nt-page h1{font:400 31px/1.05 "DM Serif Display",Georgia,serif;letter-spacing:-.03em;margin:0 0 6px;color:var(--nt-teal)}
+.nt-intro{color:var(--nt-muted);font-size:14px;margin:0 0 26px}
+.nt-card{border:1px solid var(--nt-line);border-radius:14px;padding:16px 18px;margin:0 0 16px}
+.nt-card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:4px}
+.nt-card-title{background:none;border:0;padding:0;font:inherit;font-size:16px;font-weight:800;color:var(--nt-ink);cursor:pointer;text-align:left}
+.nt-card-title:hover{text-decoration:underline}
+.nt-cat-chip{font-family:"Nunito",Arial,sans-serif;font-size:10px;font-weight:800;padding:2px 9px;border-radius:999px;white-space:nowrap}
+.nt-list{margin:10px 0 10px;padding-left:19px}
+.nt-list li{margin:0 0 6px;font-size:14px;line-height:1.55;color:var(--nt-ink)}
+.nt-provenance{font-size:12px;color:var(--nt-muted);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.nt-source-link{background:none;border:1px solid var(--nt-teal-line);color:var(--nt-teal);border-radius:999px;padding:2px 10px;font:inherit;font-size:11.5px;font-weight:800;cursor:pointer}
+.nt-empty{color:var(--nt-muted);font-size:14px;padding:8px 0 24px}
+.nt-example{margin-top:8px;background:var(--nt-teal-soft);border:1px solid var(--nt-teal-line);border-radius:14px;padding:18px 20px}
+.nt-example-label{font-family:"Nunito",Arial,sans-serif;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--nt-teal);margin:0 0 10px}
+.nt-example p{margin:0 0 10px;font-size:14px;line-height:1.6;color:var(--nt-ink)}
+.nt-example p:last-child{margin-bottom:0}
+.nt-example .nt-quote{font-style:italic;color:var(--nt-muted)}
+.nt-example .nt-disclosure{font-size:11.5px;color:var(--nt-muted);border-top:1px dashed var(--nt-teal-line);padding-top:10px;margin-top:12px}
 </style>
 </head>
 <body>
@@ -1182,6 +1259,8 @@ if(document.readyState === 'loading'){
       <button data-tab="pins"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 3h6l-.7 5.2L18 12h-4.5l-.7 8-.8-8H7l3.7-3.8L9 3z" stroke-linejoin="round"/></svg><span>Pins</span></button>
       <button data-tab="calendar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg><span>Calendar</span></button>
       <button data-tab="emails"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="M4 6.5l8 6.5 8-6.5" stroke-linejoin="round"/></svg><span>Emails</span></button>
+      <button data-tab="journey"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19c3-1 5-1 7-3s2-5 5-6 5 1 5 1" stroke-linecap="round"/><circle cx="4" cy="19" r="1.5" fill="currentColor" stroke="none"/><circle cx="20" cy="6" r="1.5" fill="currentColor" stroke="none"/></svg><span>Journey</span></button>
+      <button data-tab="notes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 4h9l3 3v13H6z" stroke-linejoin="round"/><path d="M9 10h6M9 14h6M9 18h3"/></svg><span>Notes</span></button>
     </nav>
     <div class="meta-group">
       <div class="meta">Tuesday 8 September · interactive demo, not a live account</div>
@@ -1194,6 +1273,8 @@ if(document.readyState === 'loading'){
     <button data-tab="pins"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 3h6l-.7 5.2L18 12h-4.5l-.7 8-.8-8H7l3.7-3.8L9 3z" stroke-linejoin="round"/></svg>Pins</button>
     <button data-tab="calendar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg>Calendar</button>
     <button data-tab="emails"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="M4 6.5l8 6.5 8-6.5" stroke-linejoin="round"/></svg>Emails</button>
+    <button data-tab="journey"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19c3-1 5-1 7-3s2-5 5-6 5 1 5 1" stroke-linecap="round"/><circle cx="4" cy="19" r="1.5" fill="currentColor" stroke="none"/><circle cx="20" cy="6" r="1.5" fill="currentColor" stroke="none"/></svg>Journey</button>
+    <button data-tab="notes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 4h9l3 3v13H6z" stroke-linejoin="round"/><path d="M9 10h6M9 14h6M9 18h3"/></svg>Notes</button>
   </nav>
 
   <div class="main">
@@ -1353,6 +1434,16 @@ if(document.readyState === 'loading'){
       </header>
       <main class="review-list" id="emailsList"><!-- rendered --></main>
     </div>
+  </section>
+
+  <!-- ===================== JOURNEY (ARELO-346, reusing ARELO-290's approved grammar) ===================== -->
+  <section class="panel scope-journey" id="panel-journey" data-panel="journey">
+    <div class="jr-page" id="journeyBody"><!-- rendered --></div>
+  </section>
+
+  <!-- ===================== NOTES (ARELO-347 / ARELO-345 decision) ===================== -->
+  <section class="panel scope-notes" id="panel-notes" data-panel="notes">
+    <div class="nt-page" id="notesBody"><!-- rendered --></div>
   </section>
   </div>
 </div>
@@ -2447,11 +2538,183 @@ function openPinDrawer(id){
   renderDrawer();
   document.getElementById('pinsDrawer').classList.add('show');
 }
+// Opens a Pin's drawer from another panel (Journey, Notes) — the drawer element lives inside
+// #panel-pins, so switch there first (same "jump to the real destination" pattern as
+// goToSource()) rather than toggling 'show' while the Pins panel itself is hidden.
+function goToPin(id){
+  switchTab('pins');
+  openPinDrawer(id);
+}
+
+/* =========================================================================
+   RENDER: JOURNEY (ARELO-346) — demo-scoped application of ARELO-290's approved
+   editorial grammar, built entirely from the existing Northstar Pin(s)/evidence
+   already in this fixture (northstar-presprep, northstar, esin). No new Pins, no
+   new Journey object model — a richer presentation of the same responsibility,
+   per Single Identity. Sections that would have nothing truthful to show (e.g.
+   "Coming later" — neither Northstar Pin ever carries a future/Next-week/Later
+   horizon) are omitted entirely rather than manufactured.
+   ========================================================================= */
+function journeyModel(){
+  const pins = buildPins();
+  const prep = pins.find(p=>p.id==='northstar-presprep');
+  const proposal = pins.find(p=>p.id==='northstar'); // only present once state.northstar.created
+  const created = !!proposal;
+  const done = created && proposal.lifecycle==='Done';
+
+  let story;
+  if(done){
+    story = 'The proposal has gone out, and the presentation is ready for Friday — nothing left open here.';
+  } else if(created){
+    story = (proposal.progress==='Waiting')
+      ? 'Esin is still finalising the new pricing — nothing to send yet. Presentation prep is already in hand for Friday.'
+      : 'The revised proposal is being pinned down ahead of Friday’s client presentation.';
+  } else {
+    story = 'The client has asked for a revised proposal by Friday. You’ve already captured your thinking for the presentation while it was fresh — the proposal itself is still sitting in Review, waiting to be pinned.';
+  }
+
+  const orientation = done ? 'Settled' : (created ? '1 needs you' : '1 needs you · 1 in Review');
+
+  // Most useful movement — a single interpreted movement, only when one genuinely exists, with
+  // only the Pin(s) that actually contribute to settling that same movement (ARELO-290 comment
+  // 14019, correcting the "Send Maya's allergy note" mis-grouping in the original Lisbon example).
+  let movement = null;
+  if(!done){
+    movement = created
+      ? { title: proposal.na, meta: 'Arelo will remind you ' + proposal.remind, pins:[proposal] }
+      : { title: prep.na, meta: 'Arelo will remind you ' + prep.remind, pins:[prep] };
+  }
+
+  // Arelo is holding — Pin-backed only (ARELO-290 comment 14019): the Northstar Pin's own
+  // "Waiting" progress state, never an invented monitoring feed.
+  let holding = null;
+  if(created && !done && proposal.progress==='Waiting'){
+    holding = { body:'Esin confirmed she’s pulling the new pricing together — nothing needed from you until it lands.' };
+  }
+
+  // Already part of the story — settled context, visually received rather than a checklist.
+  const settled = ['Esin confirmed she’s working on the new pricing'];
+  if(created) settled.push('Proposal pinned as a tracked responsibility');
+  if(done) settled.push('Proposal sent to Northstar');
+
+  // Sources behind this story — genuine provenance already in EVIDENCE, never a fabricated count.
+  const sourceIds = ['northstarprep','northstar','esin'].filter(id=>!!EVIDENCE[id]);
+
+  return {story, orientation, movement, holding, settled, sourceIds, prep, proposal};
+}
+function renderJourney(){
+  const m = journeyModel();
+  const el = document.getElementById('journeyBody'); if(!el) return;
+
+  const pinChip = p => `<button type="button" class="jr-pin-chip" data-gotopin="${p.id}">${p.t}<span class="jr-pin-next">— ${p.na}</span></button>`;
+
+  const movementHtml = m.movement ? `
+    <div class="jr-section jr-movement">
+      <div class="jr-section-label">Most useful movement in this Journey</div>
+      <h3>${m.movement.title}</h3>
+      <p>${m.movement.meta}</p>
+      <div class="jr-pin-list">${m.movement.pins.map(pinChip).join('')}</div>
+    </div>` : '';
+
+  const holdingHtml = m.holding ? `
+    <div class="jr-section jr-holding">
+      <div class="jr-section-label">Arelo is holding</div>
+      <h3>The background details are covered</h3>
+      <p>${m.holding.body}</p>
+    </div>` : '';
+
+  const settledHtml = m.settled.length ? `
+    <div class="jr-section">
+      <div class="jr-section-label">Already part of the story</div>
+      <div class="jr-settled">${m.settled.map(s=>`<span>${s}</span>`).join('<span class="dot">·</span>')}</div>
+    </div>` : '';
+
+  const sourcesOpen = !!state._journeySourcesOpen;
+  const sourceRows = m.sourceIds.map(id=>{
+    const ev = EVIDENCE[id];
+    return `<div class="jr-source-row"><span><strong>${ev.subject}</strong> · ${ev.from}</span><span>${ev.date}</span></div>`;
+  }).join('');
+  const sourcesHtml = m.sourceIds.length ? `
+    <div class="jr-sources">
+      <button type="button" class="jr-sources-toggle" id="journeySourcesToggle" aria-expanded="${sourcesOpen}">
+        Sources behind this story · ${m.sourceIds.length}
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      ${sourcesOpen? `<div class="jr-sources-list">${sourceRows}</div>` : ''}
+    </div>` : '';
+
+  el.innerHTML = `
+    <div class="jr-eyebrow">JOURNEY · WORK</div>
+    <h1 class="jr-title">Northstar proposal</h1>
+    <p class="jr-orient">${m.orientation} · client asked for Friday 11 September</p>
+    <div class="jr-section jr-story">
+      <div class="jr-section-label">The story so far</div>
+      <p>${m.story}</p>
+    </div>
+    ${movementHtml}
+    ${holdingHtml}
+    ${settledHtml}
+    ${sourcesHtml}
+  `;
+}
+
+/* =========================================================================
+   RENDER: NOTES (ARELO-347 / ARELO-345 decision) — aggregates the notes already
+   attached to existing Pins (the same p.notes field the Pins drawer already
+   shows) with visible provenance back to the Pin/source. Not a new object model:
+   a Note is presentation over existing Pin/evidence data, never a floating item.
+   ========================================================================= */
+function notesModel(){
+  return buildPins().filter(p=>Array.isArray(p.notes) && p.notes.length);
+}
+function renderNotes(){
+  const pinsWithNotes = notesModel();
+  const el = document.getElementById('notesBody'); if(!el) return;
+
+  const cardFor = p => {
+    const s = catStyle(p.cat);
+    const act = pinSourceAction(p);
+    const srcLabel = pinSourceLabel(p);
+    return `
+      <div class="nt-card">
+        <div class="nt-card-head">
+          <button type="button" class="nt-card-title" data-gotopin="${p.id}">${p.t}</button>
+          <span class="nt-cat-chip" style="background:${s.bg};color:${s.text}">${p.cat}</span>
+        </div>
+        <ul class="nt-list">${p.notes.map(n=>`<li>${n}</li>`).join('')}</ul>
+        <div class="nt-provenance">
+          <span>${p.notes.length} note${p.notes.length===1?'':'s'} · from ${srcLabel}</span>
+          ${act? `<button type="button" class="nt-source-link" data-gotosource="${act.id}">${act.label} ↗</button>` : ''}
+        </div>
+      </div>`;
+  };
+
+  const listHtml = pinsWithNotes.length
+    ? pinsWithNotes.map(cardFor).join('')
+    : `<div class="nt-empty">Nothing here yet — Notes appear once a Pin has context attached to it.</div>`;
+
+  const worked = pinsWithNotes.find(p=>p.id==='northstar-presprep');
+  const workedEv = EVIDENCE['northstarprep'];
+  const example = (worked && workedEv) ? `
+    <div class="nt-example">
+      <div class="nt-example-label">How a note finds its place</div>
+      <p class="nt-quote">“${workedEv.body.replace(/^"|"$/g,'')}”</p>
+      <p>Arelo recognised this as context for the presentation prep you’d already pinned for Friday’s client meeting — not a new responsibility — and attached it as notes on that existing Pin rather than creating a second one.</p>
+      <div class="nt-disclosure">This demo doesn’t run a live understanding model — this is a fixed example showing how a raw note gets routed to an existing Pin, a Journey, or Review, never left floating on its own.</div>
+    </div>` : '';
+
+  el.innerHTML = `
+    <h1>Notes</h1>
+    <p class="nt-intro">Context you’ve added to what Arelo is already holding — every note stays attached to the Pin or Journey it belongs to.</p>
+    ${listHtml}
+    ${example}
+  `;
+}
 
 /* =========================================================================
    WIRING
    ========================================================================= */
-function renderAll(){ renderFocus(); renderCalendar(); renderReview(); renderPins(); renderEmails(); }
+function renderAll(){ renderFocus(); renderCalendar(); renderReview(); renderPins(); renderEmails(); renderJourney(); renderNotes(); }
 
 // Single source of truth for "which tab is showing" — used by the tabstrip clicks below and by
 // a Pin's "Open email" action link, so both switch tabs the exact same way.
@@ -2580,12 +2843,21 @@ document.getElementById('app').addEventListener('click', e=>{
   const emailToggle = e.target.closest('[data-email-toggle]');
   if(emailToggle){ const id = emailToggle.dataset.emailToggle; state.emailExpanded[id] = !state.emailExpanded[id]; renderEmails(); return; }
 
+  // ---- Journey: progressive disclosure for "Sources behind this story" (ARELO-290 pattern) ----
+  const jrSourcesToggle = e.target.closest('#journeySourcesToggle');
+  if(jrSourcesToggle){ state._journeySourcesOpen = !state._journeySourcesOpen; renderJourney(); return; }
+
   // ---- Pins ----
   // Checked ahead of data-openpin: the chip sits inside the card's own button (so it stays part
   // of the same compact row rather than needing a separate layout slot), so this has to win
   // before the card's own click-to-open-drawer handler runs.
   const gotoSource = e.target.closest('[data-gotosource]');
   if(gotoSource){ goToSource(gotoSource.dataset.gotosource); return; }
+  // A Pin referenced from outside the Pins panel (Journey's contributing Pins, Notes'
+  // provenance) — the drawer itself lives inside #panel-pins, so jump there first (same
+  // "go to the real destination" pattern as goToSource) rather than opening it while hidden.
+  const gotoPin = e.target.closest('[data-gotopin]');
+  if(gotoPin){ goToPin(gotoPin.dataset.gotopin); return; }
   const openPin = e.target.closest('[data-openpin]');
   if(openPin){ openPinDrawer(openPin.dataset.openpin); return; }
   const nudgeBtn = e.target.closest('[data-nudge]');
