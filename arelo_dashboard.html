@@ -88,6 +88,53 @@ button,input,select{font:inherit}
   .bottom-nav{display:none}
 }
 
+/* ===== Persona choice gate (ARELO — persona choice screen, 15 Sep) — shown before the arrival
+   animation on an ordinary first visit, so the visitor picks which example life to explore
+   before anything plays: "choose a life to explore," never "which one are you?" or account
+   setup. Full-viewport, highest z-index in the page (above the Orb composer's 1100 and the
+   arrival overlay's 999-1001) so nothing behind it — #arrivalDisclosure/#arrivalOrb, the
+   arrival stage, #app — can show through before a choice is made. Skipped entirely when a
+   persona is already resolved via ?persona=, preserving that existing direct-link/verification
+   entry point untouched (see ARRIVAL_PERSONA_PARAM in the script below). Two buttons, no other
+   interactive surface — the same two-choice shape as the rest of this demo's confirmations. */
+.persona-gate{
+  position:fixed;inset:0;z-index:1200;background:#eef3f8;color:#17324d;
+  display:flex;align-items:center;justify-content:center;padding:40px 20px;overflow-y:auto;
+  transition:opacity .35s ease;
+}
+.persona-gate[data-leaving]{opacity:0;pointer-events:none}
+/* While the gate is open, nothing behind it should be visible or reachable — the disclosure
+   chip and the resting Orb both live outside #arrival (siblings, not children) so they aren't
+   covered by #arrival's own hidden state; body.persona-gate-open is added/removed by
+   showPersonaGate()/choosePersona() in the arrival script below. */
+body.persona-gate-open #arrivalDisclosure,
+body.persona-gate-open #arrivalOrb,
+body.persona-gate-open #arrivalExploreCue{ display:none }
+.persona-gate-inner{width:min(920px,100%);text-align:center}
+.persona-gate-inner h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(26px,4vw,36px);margin:0 0 10px;letter-spacing:-.02em}
+.persona-gate-sub{margin:0 auto 34px;color:#5b7186;font-size:15px;line-height:1.5;max-width:520px}
+.persona-gate-options{display:grid;grid-template-columns:1fr 1fr;gap:20px;text-align:left}
+.persona-gate-card{
+  display:flex;flex-direction:column;align-items:flex-start;gap:8px;
+  background:#fff;border:1px solid #d5e0e9;border-radius:22px;padding:26px 24px 22px;
+  cursor:pointer;font:inherit;color:#17324d;box-shadow:0 12px 30px rgba(28,55,81,.08);
+  transition:box-shadow .15s ease,border-color .15s ease,transform .15s ease;
+}
+.persona-gate-card:hover,.persona-gate-card:focus-visible{border-color:#0f8a7c;box-shadow:0 16px 36px rgba(15,138,124,.16);transform:translateY(-2px)}
+.persona-gate-card .pg-name{font-family:Georgia,"Times New Roman",serif;font-size:22px;font-weight:700}
+.persona-gate-card .pg-role{font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#0f8a7c}
+.persona-gate-card .pg-list{list-style:none;margin:6px 0 4px;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.persona-gate-card .pg-list li{background:#f3f6f8;border:1px solid #e4ebf0;border-radius:999px;padding:4px 10px;font-size:11.5px;color:#5b7186;font-weight:700}
+.persona-gate-card .pg-cta{margin-top:10px;font-weight:800;font-size:13.5px;color:#0f8a7c}
+@media(max-width:680px){
+  .persona-gate{padding:28px 16px}
+  .persona-gate-options{grid-template-columns:1fr}
+  .persona-gate-inner h1{font-size:24px}
+}
+@media (prefers-reduced-motion: reduce){
+  .persona-gate{transition:none!important}
+}
+
 /* ===== Arrival (ARELO-331) — seamless hero-animation -> interactive-demo handoff.
    Supersedes ARELO-319's #chaosIntro AND the first ARELO-331 pass (an invented fragment-card
    sequence, rejected in Product Office review — comment 14608). The chaos -> organised visual
@@ -958,6 +1005,36 @@ button,input,select{font:inherit}
 </style>
 </head>
 <body>
+<!-- ===== Persona choice gate (ARELO — persona choice screen, 15 Sep) — the visitor picks which
+     example life to explore before the arrival animation starts. Hidden by default; shown by
+     showPersonaGate() (see the arrival script below) only when no ?persona= is already resolved
+     in the URL. Choosing a card sets the persona for the whole demo fixture (arrival, Focus,
+     Pins, Calendar, Emails, Notes, Journeys, Orb), switches the interactive shell underneath to
+     that persona via the existing switchPersona(), then lets the arrival animation begin. ===== -->
+<div id="personaGate" class="persona-gate" role="dialog" aria-modal="true" aria-labelledby="personaGateTitle" hidden>
+  <div class="persona-gate-inner">
+    <h1 id="personaGateTitle">Choose a life to explore</h1>
+    <p class="persona-gate-sub">Arelo adapts to what matters in your life. Pick an example world to see how it works.</p>
+    <div class="persona-gate-options">
+      <button type="button" class="persona-gate-card" data-choose-persona="gemma">
+        <span class="pg-name">Gemma</span>
+        <span class="pg-role">Working parent</span>
+        <ul class="pg-list">
+          <li>Family logistics</li><li>School</li><li>Work</li><li>Home admin</li><li>Travel &amp; family Journeys</li>
+        </ul>
+        <span class="pg-cta">Explore Gemma's Arelo →</span>
+      </button>
+      <button type="button" class="persona-gate-card" data-choose-persona="jake">
+        <span class="pg-name">Jake</span>
+        <span class="pg-role">Student · young adult</span>
+        <ul class="pg-list">
+          <li>University</li><li>Medication &amp; prescriptions</li><li>Part-time work</li><li>Rent &amp; bills</li><li>Social life</li><li>Gym &amp; Notes</li><li>Flat admin</li>
+        </ul>
+        <span class="pg-cta">Explore Jake's Arelo →</span>
+      </button>
+    </div>
+  </div>
+</div>
 <!-- ===== Arrival (ARELO-331) — seamless hero-animation -> interactive-demo handoff. Plays once
      over the real demo (already rendered beneath, at #app), then dissolves to reveal it — no
      route change, no reload, no second document, no end card. Supersedes ARELO-319's #chaosIntro;
@@ -1062,16 +1139,21 @@ button,input,select{font:inherit}
   <button type="button" class="arrival-skip" id="arrivalSkip">Skip intro →</button>
 </div>
 <script>
-// Persona pre-selection for the arrival animation only (ARELO Jake persona addition, 15 Sep):
-// the interactive shell's persona switcher lives in the sidebar, which only exists after the
-// arrival dissolves — so it can't itself choose which persona's arrival plays. A URL parameter
-// lets the correct persona's arrival be verified/demoed directly (?persona=jake); default is
-// Gemma, matching the existing behaviour exactly for anyone who doesn't pass it. The interactive
-// shell's state.persona is initialised from this same value below, so the two stay consistent.
-var ARRIVAL_PERSONA = (function(){
-  try { return new URLSearchParams(location.search).get('persona')==='jake' ? 'jake' : 'gemma'; }
-  catch(e){ return 'gemma'; }
+// Persona selection for the arrival animation (ARELO — persona choice screen, 15 Sep).
+// ARRIVAL_PERSONA_PARAM captures an explicit ?persona= in the URL — kept as the existing
+// direct-link/verification entry point (e.g. ?persona=jake), which now also means "skip the
+// choice gate, I already know which persona I want." When it's absent (an ordinary first
+// visit), the persona choice gate (#personaGate, see showPersonaGate below) decides
+// ARRIVAL_PERSONA instead, and the animation does not start until the visitor picks. The
+// interactive shell's state.persona is initialised from ARRIVAL_PERSONA below; choosePersona()
+// updates both together so they never disagree about which world is showing.
+var ARRIVAL_PERSONA_PARAM = (function(){
+  try {
+    var p = new URLSearchParams(location.search).get('persona');
+    return (p==='jake' || p==='gemma') ? p : null;
+  } catch(e){ return null; }
 })();
+var ARRIVAL_PERSONA = ARRIVAL_PERSONA_PARAM || 'gemma';
 /* =========================================================================
    DEMO DATE ANCHOR (date-relativity correction, 14 Sep) — the whole Gemma fixture
    was originally authored around a fixed "today" of Tuesday 8 September. Rather than
@@ -1187,23 +1269,98 @@ var GEMMA_ARRIVAL_FRAGMENTS = [
 // rotations, timing, role/slot choreography, ported line-for-line from Gemma's array), different
 // life signals. Text cards instead of photos: there are no real photo assets for a fictional
 // second persona, and this demo never fabricates an image and passes it off as a real one.
+// Text copy aligned to the Product Office's own illustrative Jake arrival examples (persona
+// choice screen brief, 15 Sep) \u2014 same choreography/positions/timings/roles/slots as before
+// (untouched), only the card copy changed, so this stays the smallest safe edit against the
+// approved fragment layout.
 var JAKE_ARRIVAL_FRAGMENTS = [
-  { text:"Oakfield Lettings\nRent payment reminder", w:280, h:140, x:300, y:140, rot:-3, from:[-620,-220], t:0.05, role:"rest" },
+  { text:"Oakfield Lettings\nRent due Monday", w:280, h:140, x:300, y:140, rot:-3, from:[-620,-220], t:0.05, role:"rest" },
   { text:"Gmail", w:170, h:100, x:230, y:350, rot:-7, from:[-560,120], t:0.22, role:"rest" },
   { text:"Dr. Osei (Course Convenor)\nDissertation draft chapter reminder", w:300, h:150, x:660, y:230, rot:3, from:[0,-640], t:0.38, role:"know", slot:ARRIVAL_SLOT.awareness },
-  { text:"Gym note:\ntry 42.5kg next session", w:190, h:150, x:980, y:150, rot:6, from:[260,-620], t:0.55, role:"rest" },
+  { text:"Gym note:\nLeg press 75kg \u00d7 10", w:190, h:150, x:980, y:150, rot:6, from:[260,-620], t:0.55, role:"rest" },
   { text:"Oakfield Pharmacy\nPrescription ready for collection", w:230, h:150, x:1215, y:275, rot:5, from:[640,-260], t:0.72, role:"act", slot:ARRIVAL_SLOT.prescription },
-  { text:"Priya (co-worker)\nSaturday shift swap?", w:210, h:150, x:1470, y:300, rot:9, from:[700,-60], t:0.9, role:"rest" },
-  { text:"Student finance\nPayment notice", w:300, h:130, x:1080, y:560, rot:-4, from:[720,200], t:1.08, role:"rest" },
-  { text:"WhatsApp \u2014 flat group\nHousewarming maybe?", w:280, h:130, x:1330, y:720, rot:4, from:[660,460], t:1.26, role:"rest" },
-  { text:"Dissertation chapter draft\ndue Friday", w:230, h:160, x:840, y:715, rot:-8, from:[0,620], t:1.44, role:"act", slot:ARRIVAL_SLOT.calculator },
+  { text:"Priya (co-worker)\nCover Saturday 6\u201310?", w:210, h:150, x:1470, y:300, rot:9, from:[700,-60], t:0.9, role:"rest" },
+  { text:"InPost\nParcel arriving 14:00\u201316:00", w:300, h:130, x:1080, y:560, rot:-4, from:[720,200], t:1.08, role:"rest" },
+  { text:"WhatsApp \u2014 flat group\nPub at 8 instead?", w:280, h:130, x:1330, y:720, rot:4, from:[660,460], t:1.26, role:"rest" },
+  { text:"Research methods draft\ndue Friday", w:230, h:160, x:840, y:715, rot:-8, from:[0,620], t:1.44, role:"act", slot:ARRIVAL_SLOT.calculator },
   { text:"Five-a-side football\ntonight?", w:170, h:120, x:700, y:445, rot:-3, from:[-160,600], t:1.6, role:"rest" },
-  { text:"Oakfield Lettings\nFlat move \u2014 sort internet, redirect post", w:230, h:150, x:445, y:655, rot:7, from:[-480,520], t:1.78, role:"act", slot:ARRIVAL_SLOT.primary },
+  { text:"Oakfield Lettings\nInspection next Wednesday", w:230, h:150, x:445, y:655, rot:7, from:[-480,520], t:1.78, role:"act", slot:ARRIVAL_SLOT.primary },
   { text:"Bike service reminder", w:200, h:140, x:115, y:655, rot:-10, from:[-620,340], t:1.95, role:"rest" },
   { text:"Cafe shift\n5:30\u201310pm today", w:280, h:130, x:1150, y:880, rot:-5, from:[420,620], t:2.12, role:"rest" },
   { text:"Landlord \u2014 maintenance line\nSaved contact", w:170, h:130, x:480, y:900, rot:5, from:[-420,640], t:2.3, role:"rest" }
 ];
-var ARRIVAL_FRAGMENTS = ARRIVAL_PERSONA==='jake' ? JAKE_ARRIVAL_FRAGMENTS : GEMMA_ARRIVAL_FRAGMENTS;
+function arrivalFragmentsFor(p){ return p==='jake' ? JAKE_ARRIVAL_FRAGMENTS : GEMMA_ARRIVAL_FRAGMENTS; }
+var ARRIVAL_FRAGMENTS = arrivalFragmentsFor(ARRIVAL_PERSONA);
+// Persona-specific arrival copy (frame cue, aria-label, reduced-motion still, explore cue) \u2014
+// previously hardcoded to Gemma's wording regardless of which persona's arrival was playing;
+// applyArrivalCopyFor() (called from __arrivalInit and from choosePersona()) keeps these in
+// step with ARRIVAL_PERSONA so a Jake arrival never captions itself as Gemma's.
+var ARRIVAL_COPY = {
+  gemma: {
+    frameCue: "This is Gemma's Tuesday.",
+    ariaLabel: "Animation: this is Gemma's Tuesday \u2014 her real messages, emails and notes arriving, then Arelo quietly organising them into her Focus",
+    exploreCue: "Explore Gemma's Arelo",
+    stillFrags: ['\u2709\ufe0f Robotics club reply','\ud83d\udc8a Prescription ready','\ud83e\uddee Buy a calculator','\ud83e\uddc1 Brownies cancelled']
+  },
+  jake: {
+    frameCue: "This is Jake's Tuesday.",
+    ariaLabel: "Animation: this is Jake's Tuesday \u2014 his real messages, emails and notes arriving, then Arelo quietly organising them into his Focus",
+    exploreCue: "Explore Jake's Arelo",
+    stillFrags: ['\ud83c\udf93 Research methods draft due Friday','\ud83d\udc8a Prescription ready for collection','\ud83c\udfe0 Inspection next Wednesday','\ud83d\udcda Dissertation draft chapter reminder']
+  }
+};
+function applyArrivalCopyFor(persona){
+  var c = ARRIVAL_COPY[persona] || ARRIVAL_COPY.gemma;
+  var root = document.getElementById('arrival');
+  if(root) root.setAttribute('aria-label', c.ariaLabel);
+  var frameCue = document.getElementById('arrivalFrameCue');
+  if(frameCue) frameCue.textContent = c.frameCue;
+  var stillCue = document.querySelector('.arrival-still-frame-cue');
+  if(stillCue) stillCue.textContent = c.frameCue;
+  var stillFragsEl = document.querySelector('.arrival-still-frags');
+  if(stillFragsEl) stillFragsEl.innerHTML = c.stillFrags.map(function(t){ return '<span>'+t+'</span>'; }).join('');
+  var exploreCue = document.getElementById('arrivalExploreCue');
+  if(exploreCue) exploreCue.textContent = c.exploreCue;
+}
+// Persona choice gate \u2014 shown only when no ?persona= already resolved the choice (see
+// ARRIVAL_PERSONA_PARAM above). __beginArrivalPlayback is set by __arrivalInit once its closure
+// (stage/canvas/orb/etc. element refs) exists; showPersonaGate/choosePersona call it once a
+// persona is settled, whichever way that happened.
+var __beginArrivalPlayback = null;
+function choosePersona(p){
+  var gate = document.getElementById('personaGate');
+  ARRIVAL_PERSONA = p;
+  ARRIVAL_FRAGMENTS = arrivalFragmentsFor(p);
+  applyArrivalCopyFor(p);
+  // Drive the interactive shell underneath to the chosen persona's world (Focus/Pins/Calendar/
+  // Emails/Notes/Journey/Orb examples) before the arrival dissolves to reveal it \u2014 reuses the
+  // exact same switchPersona() the post-entry sidebar switcher already uses, so there is only
+  // ever one code path that changes which persona's fixture is showing.
+  if(typeof switchPersona==='function') switchPersona(p);
+  if(gate){
+    gate.setAttribute('data-leaving','');
+    window.setTimeout(function(){
+      gate.hidden = true;
+      document.body.classList.remove('persona-gate-open');
+      if(__beginArrivalPlayback) __beginArrivalPlayback();
+    }, 320);
+  } else if(__beginArrivalPlayback){
+    __beginArrivalPlayback();
+  }
+}
+function showPersonaGate(){
+  var gate = document.getElementById('personaGate');
+  if(!gate){ if(__beginArrivalPlayback) __beginArrivalPlayback(); return; }
+  document.body.classList.add('persona-gate-open');
+  gate.hidden = false;
+  gate.addEventListener('click', function(e){
+    var btn = e.target.closest('[data-choose-persona]');
+    if(!btn) return;
+    choosePersona(btn.dataset.choosePersona);
+  });
+  var firstCard = gate.querySelector('.persona-gate-card');
+  if(firstCard) firstCard.focus();
+}
 // Authored scene list (OM_SCENES in the artefact): Chaos 3s, Takeover 2s, Organised 3s, Hold 2s —
 // same relative pacing, played once in real time (no scrub/retime machinery needed for a single
 // fixed playback).
@@ -1311,6 +1468,9 @@ function __arrivalInit(){
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var prevOverflow = document.body.style.overflow;
   document.body.style.overflow = 'hidden';
+  // Covers the ?persona= direct-link path (no gate shown) — applyArrivalCopyFor() is otherwise
+  // only called from choosePersona(), which this path never reaches.
+  applyArrivalCopyFor(ARRIVAL_PERSONA);
 
   function isShellReady(){
     return !!(shell && shell.offsetHeight > 0);
@@ -1508,44 +1668,59 @@ function __arrivalInit(){
   // fixed here as part of "preserve reduced-motion/accessibility behaviour".
   document.addEventListener('keydown', function(e){
     if(done) return;
+    // The persona choice gate sits above this overlay (see showPersonaGate); while it's open,
+    // Enter/Space activating a gate button must not also fast-forward an arrival that hasn't
+    // even been chosen yet.
+    if(document.body.classList.contains('persona-gate-open')) return;
     if(['Enter',' ','Spacebar','ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].indexOf(e.key) !== -1) fastForward();
   });
 
-  // Deferred one frame so environments that apply a reduced-motion / viewport emulation
-  // asynchronously around navigation (automated test harnesses; some embedded webviews)
-  // are guaranteed settled before the branch is chosen — matchMedia itself stays live either way.
-  window.requestAnimationFrame(function(){
-    reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if(reduce){
-      // Static two-state still, not an instant skip — keeps the chaos -> organised meaning,
-      // loses only the motion. Held ~1.6s, dismissible immediately by Skip or any interaction.
-      root.classList.add('reduced');
-      if(orb) orb.classList.add('phase-in');
-      readyThenDissolve(1600);
-    } else {
-      // Cue points are the artefact's own (ARRIVAL_CUES) — nothing here is a re-timed guess.
-      // Organised-0.6: the fragments have gathered/landed enough (per the ported land/leave
-      // curves) that the matched-layer final composition can take over, same pairing the
-      // artefact's own Shot(from=Organised-0.6) uses for its AreloScreen reveal.
-      var revealMs = (ARRIVAL_CUES.Organised - 0.6) * 1000;
-      // Organised+0.3: caption confirms the resolution once the final composition is visible.
-      var captionOnMs = (ARRIVAL_CUES.Organised + 0.3) * 1000;
-      // ~Organised+1.5: after the composed orb has fully faded (its own fade curve completes by
-      // Organised+1.1), the outer continuity orb picks up — never two orbs on screen at once.
-      var outerOrbMs = (ARRIVAL_CUES.Organised + 1.5) * 1000;
-      startComposition();
-      window.setTimeout(function(){
-        if(done) return;
-        stage.setAttribute('data-done','');
-        finalLayer.setAttribute('data-shown','');
-      }, revealMs);
-      window.setTimeout(function(){
-        if(!done && caption) caption.classList.add('show');
-      }, captionOnMs);
-      window.setTimeout(function(){ if(!done && orb) orb.classList.add('phase-in'); }, outerOrbMs);
-      readyThenDissolve(ARRIVAL_TOTAL * 1000);
-    }
-  });
+  // Playback itself is deferred behind persona resolution: an explicit ?persona= runs it
+  // immediately (unchanged direct-link/verification behaviour), otherwise the choice gate
+  // decides and calls this once the visitor picks (see choosePersona() above __arrivalInit).
+  __beginArrivalPlayback = function(){
+    // Deferred one frame so environments that apply a reduced-motion / viewport emulation
+    // asynchronously around navigation (automated test harnesses; some embedded webviews)
+    // are guaranteed settled before the branch is chosen — matchMedia itself stays live either way.
+    window.requestAnimationFrame(function(){
+      reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if(reduce){
+        // Static two-state still, not an instant skip — keeps the chaos -> organised meaning,
+        // loses only the motion. Held ~1.6s, dismissible immediately by Skip or any interaction.
+        root.classList.add('reduced');
+        if(orb) orb.classList.add('phase-in');
+        readyThenDissolve(1600);
+      } else {
+        // Cue points are the artefact's own (ARRIVAL_CUES) — nothing here is a re-timed guess.
+        // Organised-0.6: the fragments have gathered/landed enough (per the ported land/leave
+        // curves) that the matched-layer final composition can take over, same pairing the
+        // artefact's own Shot(from=Organised-0.6) uses for its AreloScreen reveal.
+        var revealMs = (ARRIVAL_CUES.Organised - 0.6) * 1000;
+        // Organised+0.3: caption confirms the resolution once the final composition is visible.
+        var captionOnMs = (ARRIVAL_CUES.Organised + 0.3) * 1000;
+        // ~Organised+1.5: after the composed orb has fully faded (its own fade curve completes by
+        // Organised+1.1), the outer continuity orb picks up — never two orbs on screen at once.
+        var outerOrbMs = (ARRIVAL_CUES.Organised + 1.5) * 1000;
+        startComposition();
+        window.setTimeout(function(){
+          if(done) return;
+          stage.setAttribute('data-done','');
+          finalLayer.setAttribute('data-shown','');
+        }, revealMs);
+        window.setTimeout(function(){
+          if(!done && caption) caption.classList.add('show');
+        }, captionOnMs);
+        window.setTimeout(function(){ if(!done && orb) orb.classList.add('phase-in'); }, outerOrbMs);
+        readyThenDissolve(ARRIVAL_TOTAL * 1000);
+      }
+    });
+  };
+
+  if(ARRIVAL_PERSONA_PARAM){
+    __beginArrivalPlayback();
+  } else {
+    showPersonaGate();
+  }
 }
 // #app (.shell) is parsed after this point in the document, so defer until the DOM is built —
 // negligible delay on a static inline document, and the disclosure/orb/first fragment are
@@ -1785,7 +1960,9 @@ const JAKE_STANDALONE_NOTES_SEED = [
   { id:'jnote-gym', title:'Gym log', cat:'Life', body:'Bench — 60kg x 5, 5, 5\nSquat — 80kg x 5, 5, 5\nDeadlift — 100kg x 3, 3, 3\nAdd 2.5kg next week if all sets feel solid', linked:null },
   { id:'jnote-shopping', title:'Shopping list', cat:'Life', body:'Pasta\nOat milk\nEggs\nCoffee\nWashing up liquid', linked:null },
   { id:'jnote-landlord', title:'Landlord contact', cat:'Life', body:'Dave (letting agent) \u2014 07700 900 456\nEmergency maintenance line: 0800 555 0199\nRent reference: FLAT-22B', linked:null },
-  { id:'jnote-studytips', title:'Dissertation supervisor notes', cat:'Work', body:'Meets Thursdays, 2pm\nWants the lit review narrowed to 3 core themes\nSend draft chapter 48hrs before each meeting', linked:null }
+  { id:'jnote-studytips', title:'Dissertation supervisor notes', cat:'Work', body:'Meets Thursdays, 2pm\nWants the lit review narrowed to 3 core themes\nSend draft chapter 48hrs before each meeting', linked:null },
+  { id:'jnote-reading', title:'Dissertation reading ideas', cat:'Work', body:'Follow up the citation trail from Okonkwo (2024) — looked directly relevant\nAsk the library about access to the Chen dataset paper\nCompare methodology section against the department’s example dissertation', linked:null },
+  { id:'jnote-watchlist', title:'Things to watch', cat:'Life', body:'That documentary Priya recommended\nSeason 2 of the show everyone in the flat group keeps talking about\nThe match on Saturday, if the shift swap doesn’t come off', linked:null }
 ];
 const state = {
   persona: ARRIVAL_PERSONA,       // 'gemma' | 'jake' — same product shell/nav/Orb/date-anchor, different deterministic fixture; matches whichever persona's arrival just played
@@ -1823,6 +2000,7 @@ const state = {
   _notesAreaFilter:'all', // My Notes area dropdown filter
   _noteModal:null,        // { id: existing note id | null, title, area, body, linkTo } while the note editor is open
   orbAmbiguousItemsByPersona:{ gemma:[], jake:[] },  // ARELO-332/347: items submitted via the Orb that Arelo can't confidently place — surfaced in Review, never auto-resolved, namespaced per persona
+  jakeDone:{},            // jake pin id -> bool — Jake's equivalent of robConsentDone/calculatorDone/etc., one map since he has several simple checkbox-style Pins
   _orbComposerOpen: false, // whether the Orb's "Give something to Arelo" composer is open
   _orbPending: null       // the previewed-but-not-yet-applied interpretation, set by showOrbPreview()/buildOrbPreview()
 };
@@ -1913,7 +2091,8 @@ const EVIDENCE = {
   jakeRent:{type:'email', from:'Oakfield Lettings', date:rd('Sun 6 Sep'), subject:'Rent payment reminder', body:'This is a reminder that rent (\u00a3620) is due on the 1st. Standing order details are unchanged.'},
   jakeShiftSwap:{type:'conversation', from:'Priya (co-worker)', date:rd('Tue 8 Sep'), subject:'Saturday shift swap?', body:'"Priya asked if I could cover her Saturday evening shift at the cafe \u2014 haven\u2019t said yes or no yet."'},
   jakeSocialPlan:{type:'conversation', from:'You, to Arelo', date:rd('Wed 9 Sep'), subject:'Housewarming maybe?', body:'"A few of us were talking about doing a housewarming at the new flat but nothing\u2019s actually been decided \u2014 not sure if that\u2019s really happening or just talk."'},
-  jakeFlatChat:{type:'conversation', from:'You, to Arelo', date:rd('Thu 3 Sep'), subject:'Moving into the new flat', body:'"Got the keys to the new flat \u2014 still need to sort internet, forward my post, and figure out what furniture I actually need."'}
+  jakeFlatChat:{type:'conversation', from:'You, to Arelo', date:rd('Thu 3 Sep'), subject:'Moving into the new flat', body:'"Got the keys to the new flat \u2014 still need to sort internet, forward my post, and figure out what furniture I actually need."'},
+  jakeInspection:{type:'email', from:'Oakfield Lettings', date:rd('Fri 4 Sep'), subject:'Routine inspection \u2014 next Wednesday', body:'Just to confirm your routine flat inspection is booked for next Wednesday, 10am\u201312pm. Someone needs to be in, or let us know a landlord contact who can be.'}
 };
 
 function connectedPins(evId){
@@ -1942,9 +2121,10 @@ function connectedPins(evId){
   if(evId==='lemons') c.push({label:'Get lemons for the bake-sale cake', done:state.lemonsDone, pending:false});
   if(evId==='robconsent') c.push({label:'Complete robotics consent form', done:state.robConsentDone, pending:!state.robConsentDone});
   if(evId==='northstarprep') c.push({label:'Prep for Northstar client presentation', done:false, pending:true});
-  if(evId==='jakeUniDeadline') c.push({label:'Send dissertation chapter draft', done:false, pending:true});
-  if(evId==='jakePharmacy') c.push({label:'Collect prescription from the pharmacy', done:false, pending:true});
-  if(evId==='jakeRent') c.push({label:'Pay rent', done:false, pending:true});
+  if(evId==='jakeUniDeadline') c.push({label:'Send dissertation chapter draft', done: !!state.jakeDone['jake-dissertation'], pending: !state.jakeDone['jake-dissertation']});
+  if(evId==='jakePharmacy') c.push({label:'Collect prescription from the pharmacy', done: !!state.jakeDone['jake-prescription'], pending: !state.jakeDone['jake-prescription']});
+  if(evId==='jakeRent') c.push({label:'Pay rent', done: !!state.jakeDone['jake-rent'], pending: !state.jakeDone['jake-rent']});
+  if(evId==='jakeInspection') c.push({label:'Be in for the flat inspection (or arrange cover)', done: !!state.jakeDone['jake-flat-inspection'], pending: !state.jakeDone['jake-flat-inspection']});
   (activeCustomPins()[evId]||[]).forEach(cp=> c.push({label:cp.t, done:false, pending:true}));
   return c;
 }
@@ -2237,21 +2417,28 @@ function buildGemmaPins(){
 // responsibility model, no duplicate Pins, Single Identity preserved.
 function buildJakePins(){
   const P = [];
-  P.push({id:'jake-dissertation', t:ov('jake-dissertation','t','Send dissertation chapter draft'), cat:'Work', time:'Now', lifecycle:'Open', attention:'Active', progress:'Needs you', size:'medium',
+  // done() mirrors Gemma's per-flag pattern (robConsentDone/calculatorDone/\u2026) via one shared
+  // map (state.jakeDone) since Jake has several simple checkbox-style Pins \u2014 see the [data-done]
+  // handler, which toggles state.jakeDone[id] for any 'jake-' prefixed pin id.
+  const done = id => !!state.jakeDone[id];
+  P.push({id:'jake-dissertation', t:ov('jake-dissertation','t','Send dissertation chapter draft'), cat:'Work', time: done('jake-dissertation')?'Done':'Now', lifecycle: done('jake-dissertation')?'Done':'Open', attention:'Active', progress: done('jake-dissertation')?'Done':'Needs you', size:'medium',
     summary:'Your supervisor wants the first literature review draft before Thursday\u2019s meeting.', na:ov('jake-dissertation','na','Finish and send the draft chapter'),
     remind:ov('jake-dissertation','remind','This week'), need:ov('jake-dissertation','need','48 hours before Thursday\u2019s meeting'), source:'jakeUniDeadline'});
-  P.push({id:'jake-prescription', t:ov('jake-prescription','t','Collect prescription from the pharmacy'), cat:'Life', time:'Now', lifecycle:'Open', attention:'Active', progress:'Needs you', size:'small',
+  P.push({id:'jake-prescription', t:ov('jake-prescription','t','Collect prescription from the pharmacy'), cat:'Life', time: done('jake-prescription')?'Done':'Now', lifecycle: done('jake-prescription')?'Done':'Open', attention:'Active', progress: done('jake-prescription')?'Done':'Needs you', size:'small',
     summary:'Ready for collection \u2014 bring ID if it\u2019s your first collection this year.', na:ov('jake-prescription','na','Pick up from Oakfield Pharmacy'),
     remind:ov('jake-prescription','remind','This week'), need:ov('jake-prescription','need','Not specified'), source:'jakePharmacy'});
-  P.push({id:'jake-rent', t:ov('jake-rent','t','Pay rent'), cat:'Life', time:'This week', lifecycle:'Open', attention:'Active', progress:'Needs you', size:'small',
+  P.push({id:'jake-rent', t:ov('jake-rent','t','Pay rent'), cat:'Life', time: done('jake-rent')?'Done':'This week', lifecycle: done('jake-rent')?'Done':'Open', attention:'Active', progress: done('jake-rent')?'Done':'Needs you', size:'small',
     summary:'\u00a3620 due on the 1st \u2014 standing order details are unchanged.', na:ov('jake-rent','na','Check the standing order goes through'),
     remind:ov('jake-rent','remind','This week'), need:ov('jake-rent','need','Due on the 1st'), source:'jakeRent'});
-  P.push({id:'jake-shift-swap', t:ov('jake-shift-swap','t','Reply to Priya about the Saturday shift'), cat:'Work', time:'This week', lifecycle:'Open', attention:'Active', progress:'Needs you', size:'small',
-    summary:'She asked if you could cover her Saturday evening shift \u2014 not answered yet.', na:ov('jake-shift-swap','na','Say yes or no'),
+  P.push({id:'jake-shift-swap', t:ov('jake-shift-swap','t','Reply to Priya about the Saturday shift'), cat:'Work', time: done('jake-shift-swap')?'Done':'This week', lifecycle: done('jake-shift-swap')?'Done':'Open', attention:'Active', progress: done('jake-shift-swap')?'Done':'Needs you', size:'small',
+    summary: done('jake-shift-swap') ? 'You told Priya you\u2019d cover it.' : 'She asked if you could cover her Saturday evening shift \u2014 not answered yet.', na:ov('jake-shift-swap','na','Say yes or no'),
     remind:ov('jake-shift-swap','remind','This week'), need:ov('jake-shift-swap','need','Before Saturday'), source:'jakeShiftSwap'});
-  P.push({id:'jake-flat-admin', t:ov('jake-flat-admin','t','Sort internet and post redirection for the new flat'), cat:'Life', time:'Next week', lifecycle:'Open', attention:'Active', progress:'Needs you', size:'medium',
+  P.push({id:'jake-flat-admin', t:ov('jake-flat-admin','t','Sort internet and post redirection for the new flat'), cat:'Life', time: done('jake-flat-admin')?'Done':'Next week', lifecycle: done('jake-flat-admin')?'Done':'Open', attention:'Active', progress: done('jake-flat-admin')?'Done':'Needs you', size:'medium',
     summary:'Moved in \u2014 still need broadband sorted and post forwarded.', na:ov('jake-flat-admin','na','Set up broadband and redirect post'),
     remind:ov('jake-flat-admin','remind','Next week'), need:ov('jake-flat-admin','need','Not urgent'), source:'jakeFlatChat'});
+  P.push({id:'jake-flat-inspection', t:ov('jake-flat-inspection','t','Be in for the flat inspection (or arrange cover)'), cat:'Life', time: done('jake-flat-inspection')?'Done':'Next week', lifecycle: done('jake-flat-inspection')?'Done':'Open', attention:'Active', progress: done('jake-flat-inspection')?'Done':'Needs you', size:'small',
+    summary:'Routine inspection \u2014 someone needs to be in, or the landlord needs a contact who can be.', na:ov('jake-flat-inspection','na','Be in, or tell the landlord who else can be'),
+    remind:ov('jake-flat-inspection','remind',rd('Tue 8 September')), need:ov('jake-flat-inspection','need',rd('Wed 9 September, 10am\u201312pm')), source:'jakeInspection'});
   P.push({id:'jake-seminar-prep', t:ov('jake-seminar-prep','t','Prep slides for Thursday\u2019s seminar'), cat:'Work', time:'Next week', lifecycle:'Open', attention:'Active', progress:'Needs you', size:'small',
     summary:'Your turn to present in the research seminar.', na:ov('jake-seminar-prep','na','Put together a short slide deck'),
     remind:ov('jake-seminar-prep','remind','Next week'), need:ov('jake-seminar-prep','need','Before Thursday\u2019s seminar'), source:null});
@@ -2536,6 +2723,13 @@ function renderJakeFocus(){
       <span class="capability-note">Demo fixture \u2014 no live banking connector yet</span>
     </div>`);
   }
+  const inspectionPin = pinsAll.find(p=>p.id==='jake-flat-inspection' && p.lifecycle==='Open');
+  if(inspectionPin){
+    bits.push(`<div class="ambient-group"><h4>\ud83c\udfe0 Flat</h4>
+      <div class="ambient-row"><strong>Routine inspection</strong><span>Next Wednesday, 10am\u201312pm</span></div>
+      <span class="capability-note">Be in, or let the landlord know who else can be</span>
+    </div>`);
+  }
   if(EVIDENCE.jakeSocialPlan){
     bits.push(`<div class="ambient-group"><h4>\ud83d\udcf1 Plans</h4>
       <div class="ambient-row"><strong>Housewarming \u2014 still just talk</strong><span>Nothing confirmed</span></div>
@@ -2640,7 +2834,7 @@ function jakeCalendarDays(){
     ]},
     {label:rd('Tuesday 8 September'), today:true, events: jakeDayEvents().map(e=>({time:e.time,label:e.label,cls:e.cls}))},
     {label:rd('Wednesday 9 September'), events: [
-      {time:'10:00', label:'Supervisor meeting', cls:'work'},
+      {time:'10:00', label:'Flat inspection — be in', cls:'life'},
       {time:'13:00', label:'Library — dissertation reading', cls:'work'},
       {time:'18:00', label:'Five-a-side football', cls:'social'}
     ]},
@@ -2654,7 +2848,10 @@ function jakeCalendarDays(){
       {time:'19:00', label:'Housewarming? (unconfirmed)', cls:'social'}
     ]},
     {label:rd('Saturday 12 September'), events: [
-      ...(activeCustomPins()['jake-shift-accepted'] ? [{time:'17:00', label:'Cafe shift (covering for Priya)', cls:'work'}] : [])
+      // Only shown once Jake has actually agreed to cover it (the Focus/Pin checkmark or the
+      // Orb's jakeShift confirm both set this same flag — one source of truth, no duplicate
+      // "accepted" state, previously an unreachable custom-pin key that nothing ever set).
+      ...(state.jakeDone['jake-shift-swap'] ? [{time:'17:00', label:'Cafe shift (covering for Priya)', cls:'work'}] : [])
     ]},
     {label:rd('Sunday 13 September'), events: [
       {time:'11:00', label:'Laundry + food shop', cls:'life'}
@@ -2976,6 +3173,18 @@ function emailClassification(id, rc){
     case 'brownies': return {tag:'For your information · no Pin needed', kind:'none', understood:'Brownies isn’t running next week — a one-off change, not a cancellation.', note:'Nothing to arrange — back to normal the week after.'};
     case 'noise1': return {tag:'For your information · no Pin needed', kind:'none', understood:'A general company update — nothing here is specific to you.', note:'A company-wide update — nothing needed from you.'};
     case 'noise2': return {tag:'Read and assessed · nothing needed', kind:'none', understood:'Confirmation that your expenses claim was approved.', note:'Already resolved — no action left.'};
+    case 'jakeUniDeadline': return state.jakeDone['jake-dissertation']
+      ? {tag:'Pin created · done', kind:'pin', understood:'Your supervisor’s reminder that the literature review draft is due Friday, ahead of Thursday’s meeting.'}
+      : {tag:'Pin created', kind:'pin', understood:'Your supervisor’s reminder that the literature review draft is due Friday, ahead of Thursday’s meeting.'};
+    case 'jakePharmacy': return state.jakeDone['jake-prescription']
+      ? {tag:'Pin created · done', kind:'pin', understood:'A repeat prescription is ready to collect.'}
+      : {tag:'Pin created', kind:'pin', understood:'A repeat prescription is ready to collect.'};
+    case 'jakeRent': return state.jakeDone['jake-rent']
+      ? {tag:'Pin created · done', kind:'pin', understood:'A reminder that rent is due on the 1st, by standing order.'}
+      : {tag:'Pin created', kind:'pin', understood:'A reminder that rent is due on the 1st, by standing order.'};
+    case 'jakeInspection': return state.jakeDone['jake-flat-inspection']
+      ? {tag:'Pin created · done', kind:'pin', understood:'The letting agent confirming a routine flat inspection next Wednesday.'}
+      : {tag:'Pin created', kind:'pin', understood:'The letting agent confirming a routine flat inspection next Wednesday.'};
     default: return {tag:'Read and assessed · nothing needed', kind:'none', understood:'Nothing here needs to change what Arelo is already holding.'};
   }
 }
@@ -2990,7 +3199,7 @@ const EMAIL_TAB_IDS_GEMMA = ['sophie','pta','robotics','northstar','esin',
   'delivery-amazon','delivery-inpost','delivery-evri',
   'money-youfibre','money-amex','money-scottishpower',
   'brownies','robconsent','noise1','noise2'];
-const EMAIL_TAB_IDS_JAKE = ['jakeUniDeadline','jakePharmacy','jakeRent'];
+const EMAIL_TAB_IDS_JAKE = ['jakeUniDeadline','jakePharmacy','jakeRent','jakeInspection'];
 function emailTabIds(){ return state.persona==='jake' ? EMAIL_TAB_IDS_JAKE : EMAIL_TAB_IDS_GEMMA; }
 function renderEmails(){
   const ids = emailTabIds();
@@ -3191,7 +3400,7 @@ function renderDrawer(){
   notesBlock.hidden = !hasNotes;
   if(hasNotes){
     const notesArea = document.getElementById('notesArea');
-    document.getElementById('notesBlockLabel').textContent = `Gemma’s notes${p.notes.length? ' · '+p.notes.length : ''}`;
+    document.getElementById('notesBlockLabel').textContent = `${state.persona==='jake'?'Jake’s':'Gemma’s'} notes${p.notes.length? ' · '+p.notes.length : ''}`;
     if(state._drawerEditing){
       const draft = state._drawerNotesDraft || [];
       notesArea.innerHTML = draft.map((n,i)=>`
@@ -3679,6 +3888,7 @@ function renderPersonaSwitcher(){
 // state (which drawer/tab-scoped panel is open, search text, etc.) that shouldn't carry over
 // between two different people's demo sessions, then re-renders everything from scratch.
 function switchPersona(p){
+  document.title = p==='jake' ? "Jake's Week — Arelo Demo" : "Gemma's Week — Arelo Demo";
   if(state.persona===p) return;
   state.persona = p;
   state._activeJourney = p==='jake' ? 'jake-move' : 'italy';
@@ -3752,6 +3962,7 @@ document.getElementById('app').addEventListener('click', e=>{
     if(id==='lemons') state.lemonsDone = !state.lemonsDone;
     if(id==='northstar') state.northstar.done = !state.northstar.done;
     if(id==='sophie-present') { /* toggled via drawer normally */ }
+    if(id.indexOf('jake-')===0) state.jakeDone[id] = !state.jakeDone[id];
     renderAll(); return;
   }
 
