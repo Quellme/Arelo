@@ -31,6 +31,10 @@ button,input,select{font:inherit}
   position:sticky;top:0;align-self:flex-start;height:100vh;overflow-y:auto;
 }
 .topbar .brand{font-family:Georgia,"Times New Roman",serif;font-size:19px;font-weight:700;color:#fff;padding:0 8px}
+.persona-switch{display:flex;gap:6px;padding:0 8px;margin:2px 0 4px}
+.persona-switch button{flex:1 1 0;font-family:"Nunito",Arial,sans-serif;font-size:11px;font-weight:800;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.16);color:#b9c7d6;border-radius:999px;padding:6px 4px;cursor:pointer;white-space:nowrap}
+.persona-switch button.is-active{background:#fff;border-color:#fff;color:#17324d}
+.persona-switch button:hover:not(.is-active){background:rgba(255,255,255,.12)}
 .tabstrip{display:flex;flex-direction:column;gap:3px;flex-wrap:nowrap}
 .tabstrip button{
   display:flex;align-items:center;gap:11px;
@@ -153,6 +157,7 @@ button,input,select{font:inherit}
 .orb-composer-send{font-family:"Nunito",Arial,sans-serif;font-size:13px;font-weight:800;background:#17324d;border:1px solid #17324d;color:#fff;border-radius:999px;padding:9px 18px;cursor:pointer}
 .orb-composer-send:disabled{opacity:.45;cursor:default}
 .orb-preview-explain{margin:0 0 16px;font-size:13.5px;color:#5b7186;line-height:1.5}
+.orb-preview-caveat{margin:0 0 16px;font-size:12px;color:#8397ab;line-height:1.5;font-style:italic}
 .orb-preview-items{display:flex;flex-direction:column;gap:8px;margin:0 0 18px}
 .orb-preview-item{display:flex;gap:10px;align-items:flex-start;padding:11px 13px;background:#f7fafc;border:1px solid #e1e8ef;border-radius:12px}
 .orb-preview-item-tag{flex:0 0 auto;font-family:"Nunito",Arial,sans-serif;font-size:10.5px;font-weight:800;letter-spacing:.03em;color:#3E9088;background:#EEF9F7;border:1px solid #CFECE7;border-radius:999px;padding:3px 10px;white-space:nowrap;margin-top:1px}
@@ -195,6 +200,8 @@ button,input,select{font:inherit}
 .arrival-frag-box img{display:block;width:100%;height:100%;object-fit:cover;border-radius:inherit}
 .arrival-frag-box.crop{overflow:hidden;border-radius:4px;border:0;background:#fffdf9}
 .arrival-frag-box.crop img{position:absolute;left:50%;top:50%;width:auto;height:100%;max-width:none;transform:translate(-50%,-50%)}
+.arrival-frag-box.arrival-frag-text{display:flex;align-items:center;justify-content:center;padding:14px 16px;background:#fffdf9}
+.arrival-frag-box.arrival-frag-text span{font-family:"Nunito",Arial,sans-serif;font-size:14px;font-weight:700;color:#3d3428;line-height:1.35;text-align:center}
 .arrival-orb-composed{
   position:absolute;left:0;top:0;border-radius:50%;pointer-events:none;
   background:radial-gradient(circle at 34% 30%,#b7e0da 0%,#8fc4bd 38%,#1b6c65 78%,#17605a 100%);
@@ -981,10 +988,15 @@ button,input,select{font:inherit}
     <div class="orb-composer-examples" id="orbComposerExamples">
       <span>Try one of these scripted examples:</span>
       <div class="orb-composer-example-row">
-        <button type="button" data-orb-example="braindump">A brain-dump about the calculator</button>
-        <button type="button" data-orb-example="miaparty">A brain-dump about Mia’s party</button>
-        <button type="button" data-orb-example="email">Paste a school email</button>
-        <button type="button" data-orb-example="ambiguous">Something ambiguous</button>
+        <button type="button" data-orb-example="braindump" data-orb-persona="gemma">A brain-dump about the calculator</button>
+        <button type="button" data-orb-example="miaparty" data-orb-persona="gemma">A brain-dump about Mia’s party</button>
+        <button type="button" data-orb-example="email" data-orb-persona="gemma">Paste a school email</button>
+        <button type="button" data-orb-example="ambiguous" data-orb-persona="gemma">Something ambiguous</button>
+        <button type="button" data-orb-example="jakeMed" data-orb-persona="jake">A brain-dump about a prescription</button>
+        <button type="button" data-orb-example="jakeDeadline" data-orb-persona="jake">A brain-dump about a deadline</button>
+        <button type="button" data-orb-example="jakeRent" data-orb-persona="jake">A brain-dump about rent</button>
+        <button type="button" data-orb-example="jakeShift" data-orb-persona="jake">A brain-dump about a work shift</button>
+        <button type="button" data-orb-example="jakeSocial" data-orb-persona="jake">Something ambiguous (social plan)</button>
       </div>
     </div>
     <div class="orb-composer-actions" id="orbComposerActions">
@@ -993,10 +1005,12 @@ button,input,select{font:inherit}
     </div>
     <!-- Interpretation preview — hidden until the user submits, populated deterministically per
          scripted scenario in buildOrbPreview(). Nothing in the demo has changed yet at this
-         point. -->
+         point. Copy correction (14 Sep): explicit about being an out-of-context demo example,
+         not a claim that the static demo genuinely understands arbitrary free text. -->
     <div class="orb-preview" id="orbPreview" hidden>
-      <p class="orb-preview-explain">Arelo will show you how it would make sense of this and where it would go before adding it to your Arelo.</p>
+      <p class="orb-preview-explain">This is an out-of-context demo example. I only have the text you’ve given me here, not your full Arelo context.<br><br>Based on this example alone, here’s how I’d suggest breaking it down.</p>
       <div class="orb-preview-items" id="orbPreviewItems"></div>
+      <p class="orb-preview-caveat">In a real Arelo account, I’d check your existing Pins, Notes, Journeys and calendar first so I don’t duplicate something you already have.</p>
       <div class="orb-composer-actions">
         <button type="button" class="orb-composer-cancel" id="orbPreviewBack">Back</button>
         <button type="button" class="orb-composer-send" id="orbPreviewConfirm">Add this example to my Arelo</button>
@@ -1048,6 +1062,16 @@ button,input,select{font:inherit}
   <button type="button" class="arrival-skip" id="arrivalSkip">Skip intro →</button>
 </div>
 <script>
+// Persona pre-selection for the arrival animation only (ARELO Jake persona addition, 15 Sep):
+// the interactive shell's persona switcher lives in the sidebar, which only exists after the
+// arrival dissolves — so it can't itself choose which persona's arrival plays. A URL parameter
+// lets the correct persona's arrival be verified/demoed directly (?persona=jake); default is
+// Gemma, matching the existing behaviour exactly for anyone who doesn't pass it. The interactive
+// shell's state.persona is initialised from this same value below, so the two stay consistent.
+var ARRIVAL_PERSONA = (function(){
+  try { return new URLSearchParams(location.search).get('persona')==='jake' ? 'jake' : 'gemma'; }
+  catch(e){ return 'gemma'; }
+})();
 /* =========================================================================
    DEMO DATE ANCHOR (date-relativity correction, 14 Sep) — the whole Gemma fixture
    was originally authored around a fixed "today" of Tuesday 8 September. Rather than
@@ -1143,7 +1167,7 @@ function rd(s){
    against the artefact — the point of this port is that these are NOT re-authored.
    --------------------------------------------------------------------------------------------- */
 var ARRIVAL_SLOT = { primary:[590,452], prescription:[590,574], calculator:[590,628], awareness:[1072,452] };
-var ARRIVAL_FRAGMENTS = [
+var GEMMA_ARRIVAL_FRAGMENTS = [
   { src:"assets/arrival/gemma_energy_statement_email.jpg", w:440, x:300, y:140, rot:-3, from:[-620,-220], t:0.05, role:"rest" },
   { src:"assets/arrival/gemma_gmail_inbox_mobile.jpg", w:170, x:230, y:350, rot:-7, from:[-560,120], t:0.22, role:"rest" },
   { src:"assets/arrival/gemma_brownies_cancelled_email.jpg", w:430, x:660, y:230, rot:3, from:[0,-640], t:0.38, role:"know", slot:ARRIVAL_SLOT.awareness },
@@ -1159,6 +1183,27 @@ var ARRIVAL_FRAGMENTS = [
   { src:"assets/arrival/gemma_parcel_delivery_email.jpg", w:400, x:1150, y:880, rot:-5, from:[420,620], t:2.12, role:"rest" },
   { src:"assets/arrival/gemma_cleaner_transfer_whatsapp.jpg", w:168, x:480, y:900, rot:5, from:[-420,640], t:2.3, role:"rest" }
 ];
+// Jake persona (second demo persona, 15 Sep) — same animation grammar (identical positions,
+// rotations, timing, role/slot choreography, ported line-for-line from Gemma's array), different
+// life signals. Text cards instead of photos: there are no real photo assets for a fictional
+// second persona, and this demo never fabricates an image and passes it off as a real one.
+var JAKE_ARRIVAL_FRAGMENTS = [
+  { text:"Oakfield Lettings\nRent payment reminder", w:280, h:140, x:300, y:140, rot:-3, from:[-620,-220], t:0.05, role:"rest" },
+  { text:"Gmail", w:170, h:100, x:230, y:350, rot:-7, from:[-560,120], t:0.22, role:"rest" },
+  { text:"Dr. Osei (Course Convenor)\nDissertation draft chapter reminder", w:300, h:150, x:660, y:230, rot:3, from:[0,-640], t:0.38, role:"know", slot:ARRIVAL_SLOT.awareness },
+  { text:"Gym note:\ntry 42.5kg next session", w:190, h:150, x:980, y:150, rot:6, from:[260,-620], t:0.55, role:"rest" },
+  { text:"Oakfield Pharmacy\nPrescription ready for collection", w:230, h:150, x:1215, y:275, rot:5, from:[640,-260], t:0.72, role:"act", slot:ARRIVAL_SLOT.prescription },
+  { text:"Priya (co-worker)\nSaturday shift swap?", w:210, h:150, x:1470, y:300, rot:9, from:[700,-60], t:0.9, role:"rest" },
+  { text:"Student finance\nPayment notice", w:300, h:130, x:1080, y:560, rot:-4, from:[720,200], t:1.08, role:"rest" },
+  { text:"WhatsApp \u2014 flat group\nHousewarming maybe?", w:280, h:130, x:1330, y:720, rot:4, from:[660,460], t:1.26, role:"rest" },
+  { text:"Dissertation chapter draft\ndue Friday", w:230, h:160, x:840, y:715, rot:-8, from:[0,620], t:1.44, role:"act", slot:ARRIVAL_SLOT.calculator },
+  { text:"Five-a-side football\ntonight?", w:170, h:120, x:700, y:445, rot:-3, from:[-160,600], t:1.6, role:"rest" },
+  { text:"Oakfield Lettings\nFlat move \u2014 sort internet, redirect post", w:230, h:150, x:445, y:655, rot:7, from:[-480,520], t:1.78, role:"act", slot:ARRIVAL_SLOT.primary },
+  { text:"Bike service reminder", w:200, h:140, x:115, y:655, rot:-10, from:[-620,340], t:1.95, role:"rest" },
+  { text:"Cafe shift\n5:30\u201310pm today", w:280, h:130, x:1150, y:880, rot:-5, from:[420,620], t:2.12, role:"rest" },
+  { text:"Landlord \u2014 maintenance line\nSaved contact", w:170, h:130, x:480, y:900, rot:5, from:[-420,640], t:2.3, role:"rest" }
+];
+var ARRIVAL_FRAGMENTS = ARRIVAL_PERSONA==='jake' ? JAKE_ARRIVAL_FRAGMENTS : GEMMA_ARRIVAL_FRAGMENTS;
 // Authored scene list (OM_SCENES in the artefact): Chaos 3s, Takeover 2s, Organised 3s, Hold 2s —
 // same relative pacing, played once in real time (no scrub/retime machinery needed for a single
 // fixed playback).
@@ -1293,12 +1338,23 @@ function __arrivalInit(){
         var box = document.createElement('div');
         box.className = 'arrival-frag-box' + (f.crop ? ' crop' : '');
         box.style.width = f.w + 'px';
-        box.style.height = (f.crop ? (f.w * 0.94) : f.w) + 'px';
-        var img = document.createElement('img');
-        img.src = f.src;
-        img.alt = '';
-        if(f.crop) img.style.width = (f.w / f.crop) + 'px';
-        box.appendChild(img);
+        if(f.text){
+          // Jake persona (no real photo assets for his life) — same choreography, a plain text
+          // card standing in for the photographed/screenshotted fragment a real account would
+          // have. Never a fabricated image passed off as a real one.
+          box.classList.add('arrival-frag-text');
+          box.style.height = (f.h || Math.round(f.w * 0.6)) + 'px';
+          var span = document.createElement('span');
+          span.textContent = f.text;
+          box.appendChild(span);
+        } else {
+          box.style.height = (f.crop ? (f.w * 0.94) : f.w) + 'px';
+          var img = document.createElement('img');
+          img.src = f.src;
+          img.alt = '';
+          if(f.crop) img.style.width = (f.w / f.crop) + 'px';
+          box.appendChild(img);
+        }
         canvas.appendChild(box);
         f._el = box;
       })(ARRIVAL_FRAGMENTS[i]);
@@ -1503,6 +1559,9 @@ if(document.readyState === 'loading'){
 <div class="shell" id="app">
   <header class="topbar">
     <div class="brand">Arelo</div>
+    <!-- Demo persona switcher — same product shell/nav/Orb/date-anchor for both; only the
+         underlying deterministic fixture differs. Populated by renderPersonaSwitcher(). -->
+    <div class="persona-switch" id="personaSwitch" role="tablist" aria-label="Demo persona"></div>
     <nav class="tabstrip" id="tabstrip">
       <button data-tab="focus" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="7.2"/><circle cx="12" cy="12" r="2.6" fill="currentColor" stroke="none"/></svg><span>Focus</span></button>
       <button data-tab="review"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h11M4 12h16M4 18h9"/><path d="M17 16l2 2 3-3.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Review</span></button>
@@ -1720,7 +1779,16 @@ const STANDALONE_NOTES_SEED = [
   { id:'note-groomer', title:'Dog groomer', cat:'Life', body:'Oakfield Grooming — 01865 555 0142\nAsk for Deb, she knows Biscuit\nUsual slot: Thursday mornings', linked:null },
   { id:'note-recipe', title:'Mum\u2019s lemon cake', cat:'Family', body:'3 lemons (zest + juice)\n225g butter, 225g sugar, 225g self-raising flour\n4 eggs\n180\u00b0C, 45 mins\nDrizzle: juice of 1 lemon + 100g sugar while still warm', linked:null }
 ];
+// Jake's standalone notes (second demo persona) — genuine retained information for his life
+// shape, same mechanism as Gemma's, never implying a future Pin.
+const JAKE_STANDALONE_NOTES_SEED = [
+  { id:'jnote-gym', title:'Gym log', cat:'Life', body:'Bench — 60kg x 5, 5, 5\nSquat — 80kg x 5, 5, 5\nDeadlift — 100kg x 3, 3, 3\nAdd 2.5kg next week if all sets feel solid', linked:null },
+  { id:'jnote-shopping', title:'Shopping list', cat:'Life', body:'Pasta\nOat milk\nEggs\nCoffee\nWashing up liquid', linked:null },
+  { id:'jnote-landlord', title:'Landlord contact', cat:'Life', body:'Dave (letting agent) \u2014 07700 900 456\nEmergency maintenance line: 0800 555 0199\nRent reference: FLAT-22B', linked:null },
+  { id:'jnote-studytips', title:'Dissertation supervisor notes', cat:'Work', body:'Meets Thursdays, 2pm\nWants the lit review narrowed to 3 core themes\nSend draft chapter 48hrs before each meeting', linked:null }
+];
 const state = {
+  persona: ARRIVAL_PERSONA,       // 'gemma' | 'jake' — same product shell/nav/Orb/date-anchor, different deterministic fixture; matches whichever persona's arrival just played
   clash: null,           // null | 'cover' | 'leave'
   robotics: { moved:false, clashChecked:null, extraPin:false }, // clashChecked: null|'fine'|'sort'
   sophie: { rsvp:false, rsvpDeclined:false, calendar:false, present:false, rota:false },
@@ -1739,7 +1807,7 @@ const state = {
   pinsDark:false,
   reminderNudges:{}, // pinId -> +/-days applied by Gemma's own edits
   overrides:{},       // id -> {t?,na?,remind?,need?,notes?,repeats?,days?} — Gemma's explicit correction, wins over Arelo's proposal
-  customPins:{},       // sourceEvidenceId -> [{id,t,na,remind,need,cat}] — pins Gemma added herself from an email
+  customPinsByPersona:{ gemma:{}, jake:{} }, // sourceEvidenceId -> [{id,t,na,remind,need,cat}] — pins added via the Orb, namespaced per persona so switching never mixes them
   _editingRow:null,    // review-row id currently showing its inline edit form
   _addFormOpen:{},     // sourceId -> bool, "Add Pin" inline form open
   _reviewOpen:null, // id of the one Review source card expanded at a time (null = all collapsed) — presentation only, never affects card state
@@ -1748,16 +1816,25 @@ const state = {
   _drawerNotesDraft:null,
   _colourPopoverFor:null, // category name ('Family'|'Work'|'Life') whose colour popover is open, or null
   _colourPaletteTab:'arelo', // 'arelo' (calm branded defaults) | 'broad' (wider hue range) — which tab the open popover shows
-  _activeJourney:'italy', // 'italy' (primary, richer) | 'miaparty' (early-stage planning) | 'northstar' (secondary/example) — which Journey the Journey tab shows
+  _activeJourney: ARRIVAL_PERSONA==='jake' ? 'jake-move' : 'italy', // 'italy' (primary, richer) | 'miaparty' (early-stage planning) | 'northstar' (secondary/example) | 'jake-move' (Jake's persona) — which Journey the Journey tab shows
   _notesOpen:{},          // note-group id -> bool, progressive disclosure on the Notes page (collapsed by default)
-  standaloneNotes: STANDALONE_NOTES_SEED.slice(), // ARELO-345 amendment: user-authored notes that don't require a Pin/Journey
+  standaloneNotesByPersona:{ gemma: STANDALONE_NOTES_SEED.slice(), jake: JAKE_STANDALONE_NOTES_SEED.slice() }, // ARELO-345 amendment: user-authored notes that don't require a Pin/Journey — namespaced per persona
   _notesSearch:'',        // My Notes search box (matches title/body)
   _notesAreaFilter:'all', // My Notes area dropdown filter
   _noteModal:null,        // { id: existing note id | null, title, area, body, linkTo } while the note editor is open
-  orbAmbiguousItems: [],  // ARELO-332/347: items submitted via the Orb that Arelo can't confidently place — surfaced in Review, never auto-resolved
+  orbAmbiguousItemsByPersona:{ gemma:[], jake:[] },  // ARELO-332/347: items submitted via the Orb that Arelo can't confidently place — surfaced in Review, never auto-resolved, namespaced per persona
   _orbComposerOpen: false, // whether the Orb's "Give something to Arelo" composer is open
   _orbPending: null       // the previewed-but-not-yet-applied interpretation, set by showOrbPreview()/buildOrbPreview()
 };
+// Persona-aware accessors (ARELO — Jake persona addition, 15 Sep): the few pieces of state that
+// must never mix between personas are namespaced by state.persona under the hood; every existing
+// call site reads/writes through these helpers instead of the old flat field, so Gemma's own
+// behaviour is completely unchanged (still the same object shape from her point of view) while
+// Jake gets a genuinely separate copy.
+function activeCustomPins(){ return state.customPinsByPersona[state.persona]; }
+function activeStandaloneNotes(){ return state.standaloneNotesByPersona[state.persona]; }
+function setActiveStandaloneNotes(arr){ state.standaloneNotesByPersona[state.persona] = arr; }
+function activeOrbAmbiguousItems(){ return state.orbAmbiguousItemsByPersona[state.persona]; }
 
 const NORTHSTAR_STEPS = [
   'Waiting on Esin for updated pricing',
@@ -1825,7 +1902,18 @@ const EVIDENCE = {
      Focus line ("Money looks settled"). None of these creates a Pin — they read as handled. ---- */
   'money-youfibre': {type:'email', from:'YouFibre', date:rd('Mon 7 Sep'), subject:'Payment received — thank you', body:'We’ve successfully collected your Direct Debit payment of £29.00 for this month’s broadband. No action needed.'},
   'money-amex':     {type:'email', from:'American Express', date:rd('Sun 6 Sep'), subject:'Your payment is due soon', body:'Your next statement payment is due in 2 days. Your Direct Debit is already set up, so this will be collected automatically — nothing to do.'},
-  'money-scottishpower': {type:'email', from:'Scottish Power', date:rd('Sun 6 Sep'), subject:'Your upcoming Direct Debit', body:'Your next payment of £84.16 will be collected next week as usual by Direct Debit. No action needed.'}
+  'money-scottishpower': {type:'email', from:'Scottish Power', date:rd('Sun 6 Sep'), subject:'Your upcoming Direct Debit', body:'Your next payment of £84.16 will be collected next week as usual by Direct Debit. No action needed.'},
+
+  /* ---- Jake persona evidence (second demo persona, 15 Sep) — a materially different life
+     shape: university deadlines, part-time work, rent/money, social plans, and medication
+     treated strictly as life-admin (recurring collection/reminder context only — no dosage,
+     adherence judgement or health advice, per the Product Office boundary). ---- */
+  jakeUniDeadline:{type:'email', from:'Dr. Osei (Course Convenor)', date:rd('Sun 6 Sep'), subject:'Dissertation draft chapter \u2014 reminder', body:'Just a reminder that first drafts of your literature review chapter are due Friday. Please send at least 48 hours before our Thursday meeting if you want feedback in time.'},
+  jakePharmacy:{type:'email', from:'Oakfield Pharmacy', date:rd('Mon 7 Sep'), subject:'Your prescription is ready for collection', body:'Your repeat prescription is ready to collect. Please bring ID if it\u2019s your first collection this year.'},
+  jakeRent:{type:'email', from:'Oakfield Lettings', date:rd('Sun 6 Sep'), subject:'Rent payment reminder', body:'This is a reminder that rent (\u00a3620) is due on the 1st. Standing order details are unchanged.'},
+  jakeShiftSwap:{type:'conversation', from:'Priya (co-worker)', date:rd('Tue 8 Sep'), subject:'Saturday shift swap?', body:'"Priya asked if I could cover her Saturday evening shift at the cafe \u2014 haven\u2019t said yes or no yet."'},
+  jakeSocialPlan:{type:'conversation', from:'You, to Arelo', date:rd('Wed 9 Sep'), subject:'Housewarming maybe?', body:'"A few of us were talking about doing a housewarming at the new flat but nothing\u2019s actually been decided \u2014 not sure if that\u2019s really happening or just talk."'},
+  jakeFlatChat:{type:'conversation', from:'You, to Arelo', date:rd('Thu 3 Sep'), subject:'Moving into the new flat', body:'"Got the keys to the new flat \u2014 still need to sort internet, forward my post, and figure out what furniture I actually need."'}
 };
 
 function connectedPins(evId){
@@ -1854,7 +1942,10 @@ function connectedPins(evId){
   if(evId==='lemons') c.push({label:'Get lemons for the bake-sale cake', done:state.lemonsDone, pending:false});
   if(evId==='robconsent') c.push({label:'Complete robotics consent form', done:state.robConsentDone, pending:!state.robConsentDone});
   if(evId==='northstarprep') c.push({label:'Prep for Northstar client presentation', done:false, pending:true});
-  (state.customPins[evId]||[]).forEach(cp=> c.push({label:cp.t, done:false, pending:true}));
+  if(evId==='jakeUniDeadline') c.push({label:'Send dissertation chapter draft', done:false, pending:true});
+  if(evId==='jakePharmacy') c.push({label:'Collect prescription from the pharmacy', done:false, pending:true});
+  if(evId==='jakeRent') c.push({label:'Pay rent', done:false, pending:true});
+  (activeCustomPins()[evId]||[]).forEach(cp=> c.push({label:cp.t, done:false, pending:true}));
   return c;
 }
 
@@ -1868,7 +1959,7 @@ function saveOverride(id, fields){
 }
 function addCustomPin(sourceId, title){
   if(!title || !title.trim()) return;
-  const list = state.customPins[sourceId] || (state.customPins[sourceId] = []);
+  const list = activeCustomPins()[sourceId] || (activeCustomPins()[sourceId] = []);
   list.push({id:`custom-${sourceId}-${list.length}`, t:title.trim(), cat:'Family', na:'Set by Gemma', remind:'Arelo will ask you when this matters', need:'Not specified'});
 }
 
@@ -1936,7 +2027,7 @@ function reviewCatStyle(cat){
 const timeOrder=["Now","This week","Next week","Later","Sleeping","Done"];
 const lifeOrder=["Family","Work","Life"];
 
-function buildPins(){
+function buildGemmaPins(){
   const P = [];
   P.push({id:'robconsent', t:ov('robconsent','t','Complete robotics club consent form'), cat:'Family', time:'Now', lifecycle: state.robConsentDone?'Done':'Open', attention:'Active', progress: state.robConsentDone?'Done':'Needs you', size:'medium',
     summary:'Was due before last Wednesday’s session — still outstanding.', na:ov('robconsent','na','Sign and return the form'),
@@ -2131,14 +2222,57 @@ function buildPins(){
   P.push({id:'q3-forecast', t:'Send Q3 forecast', cat:'Work', time:'Done', lifecycle:'Done', attention:'Quiet', progress:'Done', size:'small',
     summary:'Sent to Marcus.', na:'—', remind:'—', need:'Completed', source:null});
 
-  Object.keys(state.customPins).forEach(srcId=>{
-    (state.customPins[srcId]||[]).forEach(cp=>{
+  Object.keys(activeCustomPins()).forEach(srcId=>{
+    (activeCustomPins()[srcId]||[]).forEach(cp=>{
       P.push({id:cp.id, t:ov(cp.id,'t',cp.t), cat:cp.cat, time:'This week', lifecycle:'Open', attention:'Active', progress:'Needs you', size:'small',
         summary:'Added by you.', na:ov(cp.id,'na',cp.na), remind:ov(cp.id,'remind',cp.remind), need:ov(cp.id,'need',cp.need), source:srcId});
     });
   });
 
   return P;
+}
+// Jake's Pins — second demo persona (ARELO, 15 Sep): a materially different life shape from
+// Gemma's (university deadlines, part-time work, rent/money, social plans, medication treated
+// strictly as life-admin). Same object shape/lifecycle/category system as Gemma's — no new
+// responsibility model, no duplicate Pins, Single Identity preserved.
+function buildJakePins(){
+  const P = [];
+  P.push({id:'jake-dissertation', t:ov('jake-dissertation','t','Send dissertation chapter draft'), cat:'Work', time:'Now', lifecycle:'Open', attention:'Active', progress:'Needs you', size:'medium',
+    summary:'Your supervisor wants the first literature review draft before Thursday\u2019s meeting.', na:ov('jake-dissertation','na','Finish and send the draft chapter'),
+    remind:ov('jake-dissertation','remind','This week'), need:ov('jake-dissertation','need','48 hours before Thursday\u2019s meeting'), source:'jakeUniDeadline'});
+  P.push({id:'jake-prescription', t:ov('jake-prescription','t','Collect prescription from the pharmacy'), cat:'Life', time:'Now', lifecycle:'Open', attention:'Active', progress:'Needs you', size:'small',
+    summary:'Ready for collection \u2014 bring ID if it\u2019s your first collection this year.', na:ov('jake-prescription','na','Pick up from Oakfield Pharmacy'),
+    remind:ov('jake-prescription','remind','This week'), need:ov('jake-prescription','need','Not specified'), source:'jakePharmacy'});
+  P.push({id:'jake-rent', t:ov('jake-rent','t','Pay rent'), cat:'Life', time:'This week', lifecycle:'Open', attention:'Active', progress:'Needs you', size:'small',
+    summary:'\u00a3620 due on the 1st \u2014 standing order details are unchanged.', na:ov('jake-rent','na','Check the standing order goes through'),
+    remind:ov('jake-rent','remind','This week'), need:ov('jake-rent','need','Due on the 1st'), source:'jakeRent'});
+  P.push({id:'jake-shift-swap', t:ov('jake-shift-swap','t','Reply to Priya about the Saturday shift'), cat:'Work', time:'This week', lifecycle:'Open', attention:'Active', progress:'Needs you', size:'small',
+    summary:'She asked if you could cover her Saturday evening shift \u2014 not answered yet.', na:ov('jake-shift-swap','na','Say yes or no'),
+    remind:ov('jake-shift-swap','remind','This week'), need:ov('jake-shift-swap','need','Before Saturday'), source:'jakeShiftSwap'});
+  P.push({id:'jake-flat-admin', t:ov('jake-flat-admin','t','Sort internet and post redirection for the new flat'), cat:'Life', time:'Next week', lifecycle:'Open', attention:'Active', progress:'Needs you', size:'medium',
+    summary:'Moved in \u2014 still need broadband sorted and post forwarded.', na:ov('jake-flat-admin','na','Set up broadband and redirect post'),
+    remind:ov('jake-flat-admin','remind','Next week'), need:ov('jake-flat-admin','need','Not urgent'), source:'jakeFlatChat'});
+  P.push({id:'jake-seminar-prep', t:ov('jake-seminar-prep','t','Prep slides for Thursday\u2019s seminar'), cat:'Work', time:'Next week', lifecycle:'Open', attention:'Active', progress:'Needs you', size:'small',
+    summary:'Your turn to present in the research seminar.', na:ov('jake-seminar-prep','na','Put together a short slide deck'),
+    remind:ov('jake-seminar-prep','remind','Next week'), need:ov('jake-seminar-prep','need','Before Thursday\u2019s seminar'), source:null});
+  P.push({id:'jake-bike-service', t:ov('jake-bike-service','t','Book a bike service'), cat:'Life', time:'Later', lifecycle:'Open', attention:'Active', progress:'Waiting', size:'small',
+    summary:'Brakes are getting noisy \u2014 nothing urgent yet.', na:'\u2014', remind:ov('jake-bike-service','remind','No rush'), need:'Not specified', source:null});
+  P.push({id:'jake-loan-check', t:ov('jake-loan-check','t','Check student finance payment date'), cat:'Life', time:'Sleeping', lifecycle:'Open', attention:'Sleeping', progress:'Sleeping', size:'small',
+    summary:'Not due for a while \u2014 nothing to do until closer to the date.', na:'\u2014', remind:ov('jake-loan-check','remind','Closer to the payment date'), need:'Not specified', source:null});
+  P.push({id:'jake-timetable-done', t:'Confirm term timetable', cat:'Work', time:'Done', lifecycle:'Done', attention:'Quiet', progress:'Done', size:'small',
+    summary:'Sorted \u2014 confirmed with the department.', na:'\u2014', remind:'\u2014', need:'Completed', source:null});
+
+  Object.keys(activeCustomPins()).forEach(srcId=>{
+    (activeCustomPins()[srcId]||[]).forEach(cp=>{
+      P.push({id:cp.id, t:ov(cp.id,'t',cp.t), cat:cp.cat, time:'This week', lifecycle:'Open', attention:'Active', progress:'Needs you', size:'small',
+        summary:'Added by you.', na:ov(cp.id,'na',cp.na), remind:ov(cp.id,'remind',cp.remind), need:ov(cp.id,'need',cp.need), source:srcId});
+    });
+  });
+
+  return P;
+}
+function buildPins(){
+  return state.persona==='jake' ? buildJakePins() : buildGemmaPins();
 }
 
 /* =========================================================================
@@ -2190,7 +2324,7 @@ function nearHorizonGroups(restPins){
   return groups;
 }
 
-function renderFocus(){
+function renderGemmaFocus(){
   const hero = document.getElementById('focusHero');
   const clashLines = [];
   if(!state.clash) clashLines.push('Your roadmap sync moved to 3pm today and now runs right up against Mia’s pickup — that’s the one thing to sort.');
@@ -2306,8 +2440,115 @@ function renderFocus(){
   </div>`);
   ambient.innerHTML = bits.join('');
 }
+// Jake's Focus (second demo persona, 15 Sep) — proves the lower Focus area is person-shaped,
+// not a fixed Gemma taxonomy. Reuses the same generic Pin-line/"Keeping within reach" machinery
+// (nearHorizonGroups, buildPins) — only the hero copy, top-of-day framing and lower informational
+// groupings differ, and those groupings are conditional on Jake's actual fixture rather than
+// hard-coded as permanent sections.
+function renderJakeFocus(){
+  const hero = document.getElementById('focusHero');
+  const pinsAll = buildPins();
+  const dissertation = pinsAll.find(p=>p.id==='jake-dissertation');
+  hero.innerHTML = `
+    <h2>Morning, Jake.</h2>
+    <p class="lead"><strong>${dissertation ? 'One thing worth sorting before Thursday.' : 'A steady day.'}</strong></p>
+    ${dissertation ? `<p>• Your literature review draft is due Friday \u2014 worth starting today.</p>` : ''}
+    <p>• Cafe shift this evening, 5:30\u201310.</p>
+  `;
 
-function dayEvents(){
+  // Jake's fixture has no same-day scheduling clash like Gemma's roadmap-sync/pickup — the
+  // primary-conflict card is genuinely absent rather than showing an invented one.
+  document.getElementById('focusClash').innerHTML = '';
+
+  const pins = pinsAll;
+  const now = pins.filter(p=>p.time==='Now' && p.lifecycle==='Open');
+  const rest = pins.filter(p=> !(p.time==='Now' && p.lifecycle==='Open') && p.lifecycle==='Open' && p.attention!=='Sleeping');
+  const catClass = (cat) => cat==='Family'?'cat-family':cat==='Work'?'cat-work':cat==='Life'?'cat-life':'';
+  const pinLine = (p) => `
+    <div class="pin-line ${catClass(p.cat)}${p.overdue?' overdue':''}${state._expandedFocus===p.id?' expanded':''}" data-pin="${p.id}">
+      <div class="pin-copy">
+        <strong>${p.t}</strong>
+        <span class="meta">${p.remind}</span>
+        ${p.overdue? '<span class="overdue-badge">OVERDUE</span>' : ''}
+      </div>
+      <button class="pin-expand-btn" type="button" data-expand="${p.id}" aria-expanded="${state._expandedFocus===p.id}">
+        <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button class="pin-check" type="button" data-done="${p.id}">✓</button>
+      <div class="pin-detail">${p.summary}<br><span class="story-link">Next: ${p.na} · Needed by: ${p.need}</span><span class="pin-context">${p.source? 'From evidence' : 'Ongoing'}</span></div>
+    </div>`;
+  const horizonGroups = nearHorizonGroups(rest);
+  const shownIds = new Set(horizonGroups.reduce((ids,g)=>ids.concat(g.pins.map(p=>p.id)), []));
+  const hasMorePins = rest.length > shownIds.size;
+  const keepWrapHtml = !horizonGroups.length ? '' : `
+    <div class="keep-wrap"><button class="keep-toggle" id="keepToggle" type="button" aria-expanded="${state._keepOpen?'true':'false'}"><span>Keeping within reach</span>
+      <span class="chev-chip"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
+      <div class="keep-list${state._keepOpen?' open':''}">
+        ${horizonGroups.map(g=>`<div class="keep-day-group"><div class="keep-day-label">${g.label}</div>${g.pins.map(pinLine).join('')}</div>`).join('')}
+        ${hasMorePins ? '<button class="keep-seeall" id="keepSeeAll" type="button">See all Pins →</button>' : ''}
+      </div>
+    </div>`;
+  document.getElementById('focusPins').innerHTML = `
+    ${now.map(pinLine).join('') || '<div style="padding:8px;color:#8ea0af;font-size:12.5px">Nothing else needs you right this moment.</div>'}
+    ${keepWrapHtml}`;
+
+  document.getElementById('browniesFyi').innerHTML = `<strong>Library closes at 6pm today.</strong> Maintenance work \u2014 back to normal hours tomorrow.`;
+
+  const events = dayEvents();
+  document.getElementById('dayShapeCopy').textContent = 'A steady day \u2014 a seminar, some reading, then your shift this evening.';
+  const spanStart=9*60, spanEnd=22*60;
+  const pct = m => Math.max(0,Math.min(100, (m-spanStart)/(spanEnd-spanStart)*100));
+  document.getElementById('dayThermometer').innerHTML = `<span class="rail"></span>` + events.map(e=>{
+    const mins = e.h*60+e.m;
+    return `<span class="mark ${e.cls}" style="left:${pct(mins)}%" title="${e.time} ${e.label}"></span>`;
+  }).join('') + `<span class="now" style="left:${pct(10*60)}%"></span>`;
+
+  document.getElementById('dayDetails').innerHTML = events.map(e=>`
+    <div class="day-entry ${e.cls}">
+      <span class="event-dot ${e.cls}"></span>
+      <div class="t">${e.time}</div>
+      <div><strong>${e.label}</strong><div class="event-meta"><span class="duration">⏱ ${e.dur}</span></div></div>
+    </div>`).join('');
+
+  // Lower informational area — conditional groupings that reflect Jake's actual fixture, not a
+  // fixed Gemma taxonomy. Each group only appears while its underlying Pin/evidence is genuinely
+  // still open — if e.g. the prescription were marked done, "Health" would simply not show.
+  const ambient = document.getElementById('focusAmbient');
+  const bits = [];
+  const deadlinePin = pinsAll.find(p=>p.id==='jake-dissertation' && p.lifecycle==='Open');
+  if(deadlinePin){
+    bits.push(`<div class="ambient-group"><h4>\ud83c\udf93 Deadlines</h4>
+      <div class="ambient-row"><strong>Dissertation literature review</strong><span>Due Friday</span></div>
+      <span class="capability-note">Needs 48 hours before Thursday's supervisor meeting</span>
+    </div>`);
+  }
+  const prescriptionPin = pinsAll.find(p=>p.id==='jake-prescription' && p.lifecycle==='Open');
+  if(prescriptionPin){
+    bits.push(`<div class="ambient-group"><h4>\ud83d\udc8a Health</h4>
+      <div class="ambient-row"><strong>Prescription ready for collection</strong><span>Oakfield Pharmacy</span></div>
+      <span class="capability-note">Life-admin only \u2014 collection reminder, not a health record</span>
+    </div>`);
+  }
+  const rentPin = pinsAll.find(p=>p.id==='jake-rent' && p.lifecycle==='Open');
+  if(rentPin){
+    bits.push(`<div class="ambient-group money"><h4>\ud83d\udcb3 Money</h4>
+      <div class="ambient-row"><strong>Rent</strong><span>£620 due on the 1st</span></div>
+      <span class="capability-note">Demo fixture \u2014 no live banking connector yet</span>
+    </div>`);
+  }
+  if(EVIDENCE.jakeSocialPlan){
+    bits.push(`<div class="ambient-group"><h4>\ud83d\udcf1 Plans</h4>
+      <div class="ambient-row"><strong>Housewarming \u2014 still just talk</strong><span>Nothing confirmed</span></div>
+      <span class="capability-note">Ordinary social texture, not a Pin</span>
+    </div>`);
+  }
+  ambient.innerHTML = bits.join('');
+}
+function renderFocus(){
+  return state.persona==='jake' ? renderJakeFocus() : renderGemmaFocus();
+}
+
+function gemmaDayEvents(){
   // Tuesday 8 September — a comfortably busy sales day, built around the two canonical anchors
   // (Northstar client call, the Roadmap sync/Mia clash) rather than replacing them.
   return [
@@ -2323,12 +2564,26 @@ function dayEvents(){
     {time:'20:00', h:20,m:0, label:'Dinner with friends', dur:'2 hrs', cls:'social'}
   ];
 }
+// Jake's "today" — a plausible student/young-adult day: a seminar, a shift, gym, a deadline
+// looming but not yet a same-day clash (Jake's life doesn't need to reuse Gemma's specific
+// roadmap-sync/pickup conflict to be genuine — a materially different day shape is the point).
+function jakeDayEvents(){
+  return [
+    {time:'10:00', h:10,m:0, label:'Seminar — Research Methods', dur:'1 hr', cls:'work'},
+    {time:'12:00', h:12,m:0, label:'Gym', dur:'1 hr', cls:'life'},
+    {time:'14:00', h:14,m:0, label:'Library — dissertation reading', dur:'2 hrs', cls:'work'},
+    {time:'17:30', h:17,m:30, label:'Cafe shift', dur:'4 hrs', cls:'work'}
+  ];
+}
+function dayEvents(){
+  return state.persona==='jake' ? jakeDayEvents() : gemmaDayEvents();
+}
 
 /* =========================================================================
    RENDER: CALENDAR (full week agenda — actual events only)
    ========================================================================= */
-function renderCalendar(){
-  const days = [
+function gemmaCalendarDays(){
+  return [
     {label:rd('Monday 7 September'), events: [
       {time:'08:45', label:'Sales team stand-up', cls:'work'},
       {time:'09:30', label:'Customer call — Everline Ltd', cls:'work'},
@@ -2338,7 +2593,7 @@ function renderCalendar(){
       {time:'16:00', label:'Account review — Kestrel Group', cls:'work'},
       {time:'18:30', label:'Boot Camp', cls:'life'}
     ]},
-    {label:rd('Tuesday 8 September'), today:true, events: dayEvents().map(e=>({time:e.time,label:e.label,cls:e.cls}))},
+    {label:rd('Tuesday 8 September'), today:true, events: gemmaDayEvents().map(e=>({time:e.time,label:e.label,cls:e.cls}))},
     {label:rd('Wednesday 9 September'), events: [
       {time:'09:30', label:'Sales team check-in', cls:'work'},
       {time:'11:00', label:'Forecast review', cls:'work'},
@@ -2373,6 +2628,41 @@ function renderCalendar(){
       {time:'16:30', label:'Mia’s swimming', cls:'family'}
     ]}
   ];
+}
+// Jake's week — materially different shape: lectures/seminars, shifts, gym, rent day, a
+// housewarming that's still just talk. Same rendering template as Gemma's, different fixture.
+function jakeCalendarDays(){
+  return [
+    {label:rd('Monday 7 September'), events: [
+      {time:'09:00', label:'Lecture — Research Methods', cls:'work'},
+      {time:'12:00', label:'Gym', cls:'life'},
+      {time:'14:00', label:'Cafe shift', cls:'work'}
+    ]},
+    {label:rd('Tuesday 8 September'), today:true, events: jakeDayEvents().map(e=>({time:e.time,label:e.label,cls:e.cls}))},
+    {label:rd('Wednesday 9 September'), events: [
+      {time:'10:00', label:'Supervisor meeting', cls:'work'},
+      {time:'13:00', label:'Library — dissertation reading', cls:'work'},
+      {time:'18:00', label:'Five-a-side football', cls:'social'}
+    ]},
+    {label:rd('Thursday 10 September'), events: [
+      {time:'11:00', label:'Seminar — present slides', cls:'work'},
+      {time:'15:00', label:'Cafe shift', cls:'work'}
+    ]},
+    {label:rd('Friday 11 September'), events: [
+      {time:'09:00', label:'Lecture', cls:'work'},
+      {time:'12:00', label:'Gym', cls:'life'},
+      {time:'19:00', label:'Housewarming? (unconfirmed)', cls:'social'}
+    ]},
+    {label:rd('Saturday 12 September'), events: [
+      ...(activeCustomPins()['jake-shift-accepted'] ? [{time:'17:00', label:'Cafe shift (covering for Priya)', cls:'work'}] : [])
+    ]},
+    {label:rd('Sunday 13 September'), events: [
+      {time:'11:00', label:'Laundry + food shop', cls:'life'}
+    ]}
+  ];
+}
+function renderCalendar(){
+  const days = state.persona==='jake' ? jakeCalendarDays() : gemmaCalendarDays();
   document.getElementById('calendarBody').innerHTML = days.map(d=>`
     <div class="cal-day${d.today?' is-today':''}">
       <h3>${d.label}${d.today?'<span class="today-badge">Today</span>':''}</h3>
@@ -2392,6 +2682,18 @@ function renderCalendar(){
    ========================================================================= */
 function reviewCards(){
   const cards = [];
+  if(state.persona==='jake'){
+    activeOrbAmbiguousItems().forEach(item=>{
+      if(!item.resolution){
+        cards.push({id:item.id, ev:item.id, cat:'Life', kicker:'You gave Arelo this via the Orb',
+          hint:'Not clear enough to place on its own — worth a quick look', resolved:false, render: renderOrbAmbiguousCard.bind(null,item)});
+      } else {
+        cards.push({id:item.id, ev:item.id, resolved:true,
+          resolvedNote: item.resolution==='pin' ? 'Pinned as a responsibility.' : 'Marked as nothing needed.'});
+      }
+    });
+    return cards;
+  }
 
   // 1. Sophie — judgement card, multiple suggestions together
   if(!(state.sophie.rsvp||state.sophie.rsvpDeclined) || !state.sophie.calendar || (!state.sophie.present && !state._sophiePresentDeclined) || !state.sophie.rota){
@@ -2433,7 +2735,7 @@ function reviewCards(){
   // 5. Orb-submitted ambiguous items (ARELO-332/347) — Arelo doesn't confidently know where these
   // belong, so they wait here for a genuine judgement call, exactly like everything else in
   // Review. Never auto-resolved, never silently turned into a Pin.
-  state.orbAmbiguousItems.forEach(item=>{
+  activeOrbAmbiguousItems().forEach(item=>{
     if(!item.resolution){
       cards.push({id:item.id, ev:item.id, cat:'Life', kicker:'You gave Arelo this via the Orb',
         hint:'Not clear enough to place on its own — worth a quick look', resolved:false, render: renderOrbAmbiguousCard.bind(null,item)});
@@ -2684,12 +2986,14 @@ function emailClassification(id, rc){
    EMAIL_TAB_IDS is the one source of truth for "is this evidence actually visible in Emails" —
    also used by pinSourceAction() below so a Pin's "Open email" link only ever appears when
    there's a real row to open, never a dead link. */
-const EMAIL_TAB_IDS = ['sophie','pta','robotics','northstar','esin',
+const EMAIL_TAB_IDS_GEMMA = ['sophie','pta','robotics','northstar','esin',
   'delivery-amazon','delivery-inpost','delivery-evri',
   'money-youfibre','money-amex','money-scottishpower',
   'brownies','robconsent','noise1','noise2'];
+const EMAIL_TAB_IDS_JAKE = ['jakeUniDeadline','jakePharmacy','jakeRent'];
+function emailTabIds(){ return state.persona==='jake' ? EMAIL_TAB_IDS_JAKE : EMAIL_TAB_IDS_GEMMA; }
 function renderEmails(){
-  const ids = EMAIL_TAB_IDS;
+  const ids = emailTabIds();
   document.getElementById('emailsCount').textContent = `${ids.length} in the last week`;
   const rc = Object.fromEntries(reviewCards().map(c=>[c.id,c]));
   document.getElementById('emailsList').innerHTML = `<div class="inbox">` + ids.map(id=>{
@@ -2823,7 +3127,7 @@ function pinSourceLabel(p){
    fully shown inline (pinSourceLabel, above) — and a Pin with no source at all is Arelo's own
    reasoning, not evidence to open. Returns null rather than a link that goes nowhere. */
 function pinSourceAction(p){
-  if(!p.source || !EMAIL_TAB_IDS.includes(p.source)) return null;
+  if(!p.source || !emailTabIds().includes(p.source)) return null;
   const ev = EVIDENCE[p.source]; if(!ev) return null;
   return {label:'Open email', id:p.source};
 }
@@ -3058,8 +3362,37 @@ function miaPartyJourneyModel(){
     story, orientation, movement, holding, settled, laterPins, sourceIds
   };
 }
+// Jake's Journey (second demo persona, 15 Sep) — a move/flat-admin Journey, genuinely different
+// in shape from Gemma's family holiday/work proposal Journeys, using the exact same ARELO-290
+// grammar and template.
+function jakeMoveJourneyModel(){
+  const pins = buildPins();
+  const flatAdmin = pins.find(p=>p.id==='jake-flat-admin');
+
+  const story = 'You\u2019ve just moved into the new flat. The keys are yours and the deposit\u2019s sorted \u2014 what\u2019s left is ordinary settling-in admin, not anything urgent.';
+  const orientation = '1 needs you';
+
+  const movement = { title: 'Sort internet and post redirection', meta: 'Get the basics running before anything else about the flat needs attention.', pins:[flatAdmin].filter(Boolean) };
+
+  const holding = { body: 'Nothing is time-critical yet \u2014 broadband and post redirection can happen whenever suits you this week.' };
+
+  const settled = [
+    'Got the keys to the new flat',
+    'Deposit and first month\u2019s rent already paid'
+  ];
+
+  const laterPins = [];
+
+  const sourceIds = ['jakeFlatChat'].filter(id=>!!EVIDENCE[id]);
+
+  return {
+    eyebrow:'JOURNEY \u00b7 LIFE', title:'Settling into the new flat', orientSuffix:'Just moved in',
+    story, orientation, movement, holding, settled, laterPins, sourceIds
+  };
+}
 function journeyModel(key){
   const k = key||state._activeJourney;
+  if(state.persona==='jake') return jakeMoveJourneyModel();
   if(k==='northstar') return northstarJourneyModel();
   if(k==='miaparty') return miaPartyJourneyModel();
   return italyJourneyModel();
@@ -3070,8 +3403,9 @@ function renderJourney(){
   const el = document.getElementById('journeyBody'); if(!el) return;
 
   // Demo navigation only (choosing which Gemma Journey to view) — deliberately rendered
-  // outside the ARELO-290 editorial chapter grammar below, not a replacement for it.
-  const switchHtml = `
+  // outside the ARELO-290 editorial chapter grammar below, not a replacement for it. Jake only
+  // has one Journey in this fixture, so no selector is shown for him.
+  const switchHtml = state.persona==='jake' ? '' : `
     <div class="jr-switch" role="tablist" aria-label="Journeys">
       <button type="button" class="jr-switch-btn${active==='italy'?' is-active':''}" role="tab" aria-selected="${active==='italy'}" data-journey="italy">Italy road trip</button>
       <button type="button" class="jr-switch-btn${active==='miaparty'?' is-active':''}" role="tab" aria-selected="${active==='miaparty'}" data-journey="miaparty">Mia\u2019s birthday party</button>
@@ -3183,13 +3517,15 @@ function notesModel(){
   const journeyGroups = [
     { kind:'journey', id:'italy', title:'Italy road trip', cat:'Family', notes:ITALY_JOURNEY_NOTES, noteCount:1, provenance:'Arelo bot (conversation)', sourceAction:null }
   ];
-  return { linkedGroups:[...pinGroups, ...journeyGroups], standalone: state.standaloneNotes };
+  return { linkedGroups:[...pinGroups, ...journeyGroups], standalone: activeStandaloneNotes() };
 }
 // Options offered in the note editor's "Link to" select — existing accepted Pins and Journeys
 // only (never Arelo suggestions, never a newly-invented target).
 function noteLinkOptions(){
   const pins = buildPins().filter(p=>p.lifecycle==='Open').map(p=>({kind:'pin', id:p.id, label:p.t}));
-  const journeys = [{kind:'journey', id:'italy', label:'Italy road trip'}, {kind:'journey', id:'miaparty', label:'Mia\u2019s birthday party'}, {kind:'journey', id:'northstar', label:'Northstar proposal'}];
+  const journeys = state.persona==='jake'
+    ? [{kind:'journey', id:'jake-move', label:'Settling into the new flat'}]
+    : [{kind:'journey', id:'italy', label:'Italy road trip'}, {kind:'journey', id:'miaparty', label:'Mia\u2019s birthday party'}, {kind:'journey', id:'northstar', label:'Northstar proposal'}];
   return [...journeys, ...pins];
 }
 function renderNotes(){
@@ -3329,7 +3665,36 @@ function renderNoteModal(m){
 /* =========================================================================
    WIRING
    ========================================================================= */
-function renderAll(){ renderFocus(); renderCalendar(); renderReview(); renderPins(); renderEmails(); renderJourney(); renderNotes(); }
+function renderAll(){ renderPersonaSwitcher(); renderFocus(); renderCalendar(); renderReview(); renderPins(); renderEmails(); renderJourney(); renderNotes(); }
+function renderPersonaSwitcher(){
+  const el = document.getElementById('personaSwitch'); if(!el) return;
+  el.innerHTML = `
+    <button type="button" class="${state.persona==='gemma'?'is-active':''}" role="tab" aria-selected="${state.persona==='gemma'}" data-persona="gemma" title="Gemma \u00b7 Working parent">Gemma</button>
+    <button type="button" class="${state.persona==='jake'?'is-active':''}" role="tab" aria-selected="${state.persona==='jake'}" data-persona="jake" title="Jake \u00b7 Student">Jake</button>
+  `;
+}
+// Switching persona never mixes state — Gemma's and Jake's Pins/Notes/Journeys/Review items are
+// already namespaced (buildPins/activeStandaloneNotes/activeOrbAmbiguousItems/journeyModel all
+// dispatch on state.persona), so a switch just resets the few pieces of purely presentational UI
+// state (which drawer/tab-scoped panel is open, search text, etc.) that shouldn't carry over
+// between two different people's demo sessions, then re-renders everything from scratch.
+function switchPersona(p){
+  if(state.persona===p) return;
+  state.persona = p;
+  state._activeJourney = p==='jake' ? 'jake-move' : 'italy';
+  state._drawerId = null; state._drawerEditing = false; state._drawerNotesDraft = null;
+  state._reviewOpen = null; state._editingRow = null; state._addFormOpen = {};
+  state._notesOpen = {}; state._notesSearch = ''; state._notesAreaFilter = 'all'; state._noteModal = null;
+  state._expandedFocus = null; state._keepOpen = false;
+  state._journeySourcesOpen = false;
+  closeOrbComposer();
+  switchTab('focus');
+  renderAll();
+}
+document.getElementById('personaSwitch').addEventListener('click', e=>{
+  const btn = e.target.closest('[data-persona]'); if(!btn) return;
+  switchPersona(btn.dataset.persona);
+});
 
 // Single source of truth for "which tab is showing" — used by the tabstrip clicks below and by
 // a Pin's "Open email" action link, so both switch tabs the exact same way.
@@ -3475,7 +3840,7 @@ document.getElementById('app').addEventListener('click', e=>{
   if(noteToggle){ const id = noteToggle.dataset.notetoggle; state._notesOpen[id] = !state._notesOpen[id]; renderNotes(); return; }
   // ---- Notes: standalone note create/edit/delete (ARELO-345 PO amendment) ----
   const noteDel = e.target.closest('[data-note-del]');
-  if(noteDel){ const id = noteDel.dataset.noteDel; state.standaloneNotes = state.standaloneNotes.filter(n=>n.id!==id); renderNotes(); return; }
+  if(noteDel){ const id = noteDel.dataset.noteDel; setActiveStandaloneNotes(activeStandaloneNotes().filter(n=>n.id!==id)); renderNotes(); return; }
   const notesNewBtn = e.target.closest('#notesNewBtn');
   if(notesNewBtn){ state._noteModal = { id:null, title:'', cat:'Life', body:'', linkTo:null }; renderNotes(); return; }
   const noteAreaPill = e.target.closest('[data-note-area]');
@@ -3522,10 +3887,10 @@ document.getElementById('app').addEventListener('click', e=>{
     if(linkEl.value){ const [kind,id] = linkEl.value.split(':'); const opt = noteLinkOptions().find(o=>o.kind===kind && o.id===id); if(opt) linkTo = {kind:opt.kind, id:opt.id, label:opt.label}; }
     if(title || body){
       if(state._noteModal.id){
-        const existing = state.standaloneNotes.find(n=>n.id===state._noteModal.id);
+        const existing = activeStandaloneNotes().find(n=>n.id===state._noteModal.id);
         if(existing){ existing.title=title; existing.cat=state._noteModal.cat; existing.body=body; existing.linked=linkTo; }
       } else {
-        state.standaloneNotes.push({ id:'note-'+Date.now(), title, cat:state._noteModal.cat, body, linked:linkTo });
+        activeStandaloneNotes().push({ id:'note-'+Date.now(), title, cat:state._noteModal.cat, body, linked:linkTo });
       }
     }
     state._noteModal = null;
@@ -3542,7 +3907,7 @@ document.getElementById('app').addEventListener('click', e=>{
   const orbAmbigPin = e.target.closest('[data-orb-ambig-pin]');
   if(orbAmbigPin){
     const id = orbAmbigPin.dataset.orbAmbigPin;
-    const item = state.orbAmbiguousItems.find(x=>x.id===id);
+    const item = activeOrbAmbiguousItems().find(x=>x.id===id);
     if(item){
       item.resolution = 'pin';
       addCustomPin('orb-ambig', EVIDENCE[id].body);
@@ -3551,7 +3916,7 @@ document.getElementById('app').addEventListener('click', e=>{
   }
   const orbAmbigDismiss = e.target.closest('[data-orb-ambig-dismiss]');
   if(orbAmbigDismiss){
-    const item = state.orbAmbiguousItems.find(x=>x.id===orbAmbigDismiss.dataset.orbAmbigDismiss);
+    const item = activeOrbAmbiguousItems().find(x=>x.id===orbAmbigDismiss.dataset.orbAmbigDismiss);
     if(item) item.resolution = 'dismissed';
     renderReview(); return;
   }
@@ -3572,7 +3937,7 @@ document.getElementById('app').addEventListener('click', e=>{
   // click navigates rather than opening the editor.
   const noteEdit = e.target.closest('[data-note-edit]');
   if(noteEdit){
-    const n = state.standaloneNotes.find(x=>x.id===noteEdit.dataset.noteEdit);
+    const n = activeStandaloneNotes().find(x=>x.id===noteEdit.dataset.noteEdit);
     if(n){ state._noteModal = { id:n.id, title:n.title, cat:n.cat, body:n.body, linkTo:n.linked }; renderNotes(); }
     return;
   }
@@ -3748,7 +4113,12 @@ const ORB_EXAMPLES = {
   braindump: 'Actually, any basic four-function calculator is fine for Mia \u2014 doesn\u2019t need to be scientific. Her teacher said cases aren\u2019t required either.',
   miaparty: 'Mia keeps talking about having a party with a few girls from school but I haven\u2019t decided if we should do something at home or book somewhere.',
   email: 'Subject: Y6 Residential Trip \u2014 deposit reminder\n\nDear parents, please pay the \u00a350 deposit by Friday to confirm your child\u2019s place on the Y6 residential trip. Payment via the school app.',
-  ambiguous: 'Not sure if we still need the extra key cut for Jacob, or if he already sorted it himself.'
+  ambiguous: 'Not sure if we still need the extra key cut for Jacob, or if he already sorted it himself.',
+  jakeMed: 'Need to remember to actually pick up my prescription this week, keep forgetting it\u2019s ready.',
+  jakeDeadline: 'Still need to finish the literature review chapter \u2014 my supervisor wants it before Thursday.',
+  jakeRent: 'Rent comes out on the 1st, just want to make sure the standing order actually goes through this month.',
+  jakeShift: 'Priya asked me to cover her Saturday shift, haven\u2019t told her yes or no yet.',
+  jakeSocial: 'A few of us were talking about doing a housewarming at the new flat but nothing\u2019s actually been decided.'
 };
 function showOrbCompose(){
   document.getElementById('orbComposerHead').hidden = false;
@@ -3762,6 +4132,9 @@ function openOrbComposer(){
   state._orbPending = null;
   document.getElementById('orbComposerBackdrop').hidden = false;
   document.getElementById('orbComposerInput').value = '';
+  document.querySelectorAll('[data-orb-persona]').forEach(btn=>{
+    btn.hidden = btn.dataset.orbPersona !== state.persona;
+  });
   showOrbCompose();
   document.getElementById('orbComposerInput').focus();
 }
@@ -3789,6 +4162,35 @@ function flashLanded(selector){
 function buildOrbPreview(text){
   const t = text.trim();
   const lower = t.toLowerCase();
+  if(state.persona==='jake'){
+    if(lower.indexOf('prescription') !== -1 || lower.indexOf('pharmacy') !== -1){
+      return { kind:'jakeMed', text:t, items:[
+        {tag:'Existing Pin updated', detail:'Collect prescription from the pharmacy \u2014 nothing new is created, this stays the same responsibility.'},
+        {tag:'Note retained', detail:'\u201c'+t+'\u201d \u2014 kept as your own note, linked back to that Pin.'}
+      ]};
+    }
+    if(lower.indexOf('literature review') !== -1 || lower.indexOf('dissertation') !== -1 || lower.indexOf('chapter') !== -1 || lower.indexOf('deadline') !== -1){
+      return { kind:'jakeDeadline', text:t, items:[
+        {tag:'Existing Pin updated', detail:'Send dissertation chapter draft \u2014 nothing new is created, this stays the same responsibility.'},
+        {tag:'Note retained', detail:'\u201c'+t+'\u201d \u2014 kept as your own note, linked back to that Pin.'}
+      ]};
+    }
+    if(lower.indexOf('rent') !== -1){
+      return { kind:'jakeRent', text:t, items:[
+        {tag:'Existing Pin updated', detail:'Pay rent \u2014 nothing new is created, this stays the same responsibility.'},
+        {tag:'Note retained', detail:'\u201c'+t+'\u201d \u2014 kept as your own note, linked back to that Pin.'}
+      ]};
+    }
+    if(lower.indexOf('shift') !== -1){
+      return { kind:'jakeShift', text:t, items:[
+        {tag:'Existing Pin updated', detail:'Reply to Priya about the Saturday shift \u2014 nothing new is created, this stays the same responsibility.'},
+        {tag:'Note retained', detail:'\u201c'+t+'\u201d \u2014 kept as your own note, linked back to that Pin.'}
+      ]};
+    }
+    return { kind:'ambiguous', text:t, items:[
+      {tag:'Needs Review', detail:'Arelo isn\u2019t confident enough to place this on its own \u2014 it will wait in Review for your judgement, not be guessed at.'}
+    ]};
+  }
   if(lower.indexOf('calculator') !== -1){
     return { kind:'braindump', text:t, items:[
       {tag:'Existing Pin updated', detail:'Buy Mia a calculator \u2014 nothing new is created, this stays the same responsibility.'},
@@ -3837,7 +4239,7 @@ function confirmOrbPending(){
   if(!pending) return;
   if(pending.kind === 'braindump'){
     const noteId = 'note-orb-'+Date.now();
-    state.standaloneNotes.push({ id:noteId, title:'Note for Gemma', cat:'Family', body:pending.text,
+    activeStandaloneNotes().push({ id:noteId, title:'Note for Gemma', cat:'Family', body:pending.text,
       linked:{kind:'pin', id:'calculator', label:'Buy Mia a calculator'} });
     closeOrbComposer();
     switchTab('notes');
@@ -3851,7 +4253,7 @@ function confirmOrbPending(){
     flashLanded('.pin[data-openpin^="custom-orb-email-"]');
   } else if(pending.kind === 'miaparty'){
     const noteId = 'note-orb-'+Date.now();
-    state.standaloneNotes.push({ id:noteId, title:'Note for Gemma', cat:'Family', body:pending.text,
+    activeStandaloneNotes().push({ id:noteId, title:'Note for Gemma', cat:'Family', body:pending.text,
       linked:{kind:'journey', id:'miaparty', label:'Mia\u2019s birthday party'} });
     closeOrbComposer();
     state._activeJourney = 'miaparty';
@@ -3859,10 +4261,42 @@ function confirmOrbPending(){
     renderJourney();
     renderNotes();
     flashLanded('.jr-switch-btn[data-journey="miaparty"]');
+  } else if(pending.kind === 'jakeMed'){
+    const noteId = 'note-orb-'+Date.now();
+    activeStandaloneNotes().push({ id:noteId, title:'Note to self', cat:'Life', body:pending.text,
+      linked:{kind:'pin', id:'jake-prescription', label:'Collect prescription from the pharmacy'} });
+    closeOrbComposer();
+    switchTab('notes');
+    renderNotes();
+    flashLanded(`[data-note-edit="${noteId}"]`);
+  } else if(pending.kind === 'jakeDeadline'){
+    const noteId = 'note-orb-'+Date.now();
+    activeStandaloneNotes().push({ id:noteId, title:'Note to self', cat:'Work', body:pending.text,
+      linked:{kind:'pin', id:'jake-dissertation', label:'Send dissertation chapter draft'} });
+    closeOrbComposer();
+    switchTab('notes');
+    renderNotes();
+    flashLanded(`[data-note-edit="${noteId}"]`);
+  } else if(pending.kind === 'jakeRent'){
+    const noteId = 'note-orb-'+Date.now();
+    activeStandaloneNotes().push({ id:noteId, title:'Note to self', cat:'Life', body:pending.text,
+      linked:{kind:'pin', id:'jake-rent', label:'Pay rent'} });
+    closeOrbComposer();
+    switchTab('notes');
+    renderNotes();
+    flashLanded(`[data-note-edit="${noteId}"]`);
+  } else if(pending.kind === 'jakeShift'){
+    const noteId = 'note-orb-'+Date.now();
+    activeStandaloneNotes().push({ id:noteId, title:'Note to self', cat:'Work', body:pending.text,
+      linked:{kind:'pin', id:'jake-shift-swap', label:'Reply to Priya about the Saturday shift'} });
+    closeOrbComposer();
+    switchTab('notes');
+    renderNotes();
+    flashLanded(`[data-note-edit="${noteId}"]`);
   } else {
     const id = 'orb-ambig-'+Date.now();
     EVIDENCE[id] = {type:'conversation', from:'You, to Arelo', date: rd('Tuesday 8 September'), subject:'Something to look at', body:pending.text};
-    state.orbAmbiguousItems.push({id, text:pending.text, resolution:null});
+    activeOrbAmbiguousItems().push({id, text:pending.text, resolution:null});
     closeOrbComposer();
     switchTab('review');
     state._reviewOpen = id;
