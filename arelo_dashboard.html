@@ -3,7 +3,25 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Gemma's Week — Arelo Demo</title>
+<title>Interactive Demo — Arelo</title>
+<meta name="description" content="Try Arelo's interactive demo — see how a messy inbox and scattered to-dos turn into a calm, organised day. This is a walkthrough demo, not a live account.">
+<link rel="canonical" href="https://myarelo.com/demo">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><radialGradient id='og' cx='35%' cy='35%' r='65%'><stop offset='0%' stop-color='%23ffffff'/><stop offset='35%' stop-color='%23b8e8e8'/><stop offset='70%' stop-color='%235bbfbf'/><stop offset='100%' stop-color='%232a8080'/></radialGradient></defs><ellipse cx='16' cy='16' rx='14' ry='14' fill='url(%23og)'/></svg>">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Arelo">
+<meta property="og:url" content="https://myarelo.com/demo">
+<meta property="og:title" content="Interactive Demo — Arelo">
+<meta property="og:description" content="Try Arelo's interactive demo — see how a messy inbox and scattered to-dos turn into a calm, organised day. This is a walkthrough demo, not a live account.">
+<meta property="og:image" content="https://myarelo.com/assets/social/arelo-social-preview.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Interactive Demo — Arelo">
+<meta name="twitter:description" content="Try Arelo's interactive demo — see how a messy inbox and scattered to-dos turn into a calm, organised day. This is a walkthrough demo, not a live account.">
+<meta name="twitter:image" content="https://myarelo.com/assets/social/arelo-social-preview.png">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=DM+Serif+Display&family=Nunito:wght@600;700;800&display=swap');
 
@@ -1034,6 +1052,13 @@ body.persona-gate-open #arrivalExploreCue{ display:none }
   .nt-group-meta{flex:1 1 100%;justify-content:flex-end}
 }
 </style>
+<!-- ARELO-357: shared cookieless analytics helper (see assets/analytics.js — no-op until the
+     provider site id is configured). Loaded before the demo's own scripts so
+     window.AreloAnalytics exists wherever they call it. Now that ARELO-355's tour-bubble code is
+     merged alongside this instrumentation, the three walkthrough events (started/skipped/
+     completed) are wired directly into maybeShowTourIntro()/skipTour()/maybeShowTourForTab() —
+     see those functions below (Jira ARELO-357, comment 15055). -->
+<script src="assets/analytics.js"></script>
 </head>
 <body>
 <!-- ===== Persona choice gate (ARELO — persona choice screen, 15 Sep) — the visitor picks which
@@ -1370,6 +1395,7 @@ function applyArrivalCopyFor(persona){
 // persona is settled, whichever way that happened.
 var __beginArrivalPlayback = null;
 function choosePersona(p){
+  if(window.AreloAnalytics) window.AreloAnalytics.track('Persona selected', { persona: p });
   var gate = document.getElementById('personaGate');
   ARRIVAL_PERSONA = p;
   ARRIVAL_FRAGMENTS = arrivalFragmentsFor(p);
@@ -1393,6 +1419,7 @@ function choosePersona(p){
 function showPersonaGate(){
   var gate = document.getElementById('personaGate');
   if(!gate){ if(__beginArrivalPlayback) __beginArrivalPlayback(); return; }
+  if(window.AreloAnalytics) window.AreloAnalytics.track('Persona gate shown');
   document.body.classList.add('persona-gate-open');
   gate.hidden = false;
   gate.addEventListener('click', function(e){
@@ -1507,6 +1534,7 @@ function __arrivalInit(){
   syncFinalCompositionFromRealFocus();
 
   var done = false;
+  var skippedArrival = false;
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var prevOverflow = document.body.style.overflow;
   document.body.style.overflow = 'hidden';
@@ -1660,6 +1688,9 @@ function __arrivalInit(){
   function dissolve(){
     if(done) return;
     done = true;
+    if(window.AreloAnalytics){
+      window.AreloAnalytics.track(skippedArrival ? 'Arrival skipped' : 'Arrival completed', { reduced_motion: reduce });
+    }
     stopComposition();
     document.body.style.overflow = prevOverflow || '';
     root.setAttribute('data-leaving','');
@@ -1699,6 +1730,7 @@ function __arrivalInit(){
 
   function fastForward(){
     if(done) return;
+    skippedArrival = true;
     stopComposition();
     stage.setAttribute('data-done','');
     finalLayer.setAttribute('data-shown','');
@@ -1730,6 +1762,7 @@ function __arrivalInit(){
     // are guaranteed settled before the branch is chosen — matchMedia itself stays live either way.
     window.requestAnimationFrame(function(){
       reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if(window.AreloAnalytics) window.AreloAnalytics.track('Arrival started', { persona: ARRIVAL_PERSONA, reduced_motion: reduce });
       if(reduce){
         // Static two-state still, not an instant skip — keeps the chaos -> organised meaning,
         // loses only the motion. Held ~1.6s, dismissible immediately by Skip or any interaction.
@@ -3983,6 +4016,10 @@ function switchTab(tab){
   // maybeShowTourForTab — no-ops for tabs with no scripted copy, e.g. Calendar/Emails, and for a
   // tab already seen).
   maybeShowTourForTab(tab);
+  // ARELO-357: "destination viewed" funnel event. trackDestination dedupes consecutive
+  // same-tab calls so switchPersona() — which always re-selects 'focus' even when it was
+  // already showing — never double-fires the same event.
+  if(window.AreloAnalytics) window.AreloAnalytics.trackDestination(tab);
 }
 document.getElementById('tabstrip').addEventListener('click', e=>{
   const btn = e.target.closest('button[data-tab]'); if(!btn) return;
@@ -4413,6 +4450,7 @@ function openOrbComposer(){
   // for the Orb itself, so nothing should pop up behind/alongside the composer they're opening.
   _tourNext = null;
   closeTourBubble();
+  if(window.AreloAnalytics) window.AreloAnalytics.track('Orb opened');
   state._orbComposerOpen = true;
   state._orbPending = null;
   document.getElementById('orbComposerBackdrop').hidden = false;
@@ -4538,12 +4576,14 @@ function closeTourBubble(){
 // the rest of the session (Product Office decision: these are two separate actions).
 function skipTour(){
   state._tourSkipped = true;
+  if(window.AreloAnalytics) window.AreloAnalytics.track('Walkthrough skipped');
   _tourNext = null;
   closeTourBubble();
 }
 function maybeShowTourIntro(){
   if(state._tourSkipped || state._tourIntroShown) return;
   state._tourIntroShown = true;
+  if(window.AreloAnalytics) window.AreloAnalytics.track('Walkthrough started');
   // #arrivalExploreCue occupies the same post-arrival window (shows ~550ms after dissolve, fades
   // ~2.2s later — see showExploreCueThenFade) — wait for it to clear so the visitor is never
   // reading two ambient messages at once.
@@ -4565,6 +4605,10 @@ function maybeShowTourForTab(tab){
     // Reserve it now so a second tab reaching "all 5 seen" in the same tick can't double-queue —
     // the invite itself only actually appears once this bubble closes (see closeTourBubble/_tourNext).
     state._tourInviteShown = true;
+    // ARELO-357: every scripted surface has now been shown its line — this is the walkthrough's
+    // natural end (mirrors "Arrival completed": reached the end without being skipped, since
+    // skipTour() returns out of this function before it ever reaches here).
+    if(window.AreloAnalytics) window.AreloAnalytics.track('Walkthrough completed');
     _tourNext = ()=>{ showTourBubble(TOUR_COPY.invite); };
   }
 }
@@ -4661,6 +4705,10 @@ function showOrbPreview(){
   const text = document.getElementById('orbComposerInput').value;
   if(!text.trim()) return;
   state._orbPending = buildOrbPreview(text);
+  // Only ever the scripted scenario id — never .text or .items, which may carry the visitor's
+  // own typed words (Jira ARELO-357, comment 15055: never spread the Orb pending-interpretation
+  // object into analytics).
+  if(window.AreloAnalytics) window.AreloAnalytics.track('Orb preview shown', { kind: state._orbPending.kind });
   renderOrbPreviewItems(state._orbPending);
   document.getElementById('orbComposerHead').hidden = true;
   document.getElementById('orbComposerInput').hidden = true;
@@ -4673,6 +4721,8 @@ function showOrbPreview(){
 function confirmOrbPending(){
   const pending = state._orbPending;
   if(!pending) return;
+  // Same rule as "Orb preview shown" — only the scenario id, never the pending object's text/items.
+  if(window.AreloAnalytics) window.AreloAnalytics.track('Orb preview confirmed', { kind: pending.kind });
   if(pending.kind === 'braindump'){
     const noteId = 'note-orb-'+Date.now();
     activeStandaloneNotes().push({ id:noteId, title:'Note for Gemma', cat:'Family', body:pending.text,
@@ -4747,6 +4797,8 @@ document.getElementById('orbComposerBackdrop').addEventListener('click', e=>{
 });
 document.querySelectorAll('[data-orb-example]').forEach(btn=>{
   btn.addEventListener('click', ()=>{
+    // Only the example's own key (e.g. "braindump") — never the scripted text it fills in.
+    if(window.AreloAnalytics) window.AreloAnalytics.track('Orb example selected', { example: btn.dataset.orbExample });
     document.getElementById('orbComposerInput').value = ORB_EXAMPLES[btn.dataset.orbExample];
     document.getElementById('orbComposerInput').focus();
   });
