@@ -5,8 +5,43 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Arelo — A calm AI life companion</title>
 <meta name="description" content="Arelo is a calm AI life companion that keeps up with what's changing in your life — email, plans, people — so you don't have to hold it all yourself. See the interactive demo.">
+<link rel="canonical" href="https://myarelo.com/">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><radialGradient id='og' cx='35%' cy='35%' r='65%'><stop offset='0%' stop-color='%23ffffff'/><stop offset='35%' stop-color='%23b8e8e8'/><stop offset='70%' stop-color='%235bbfbf'/><stop offset='100%' stop-color='%232a8080'/></radialGradient></defs><ellipse cx='16' cy='16' rx='14' ry='14' fill='url(%23og)'/></svg>">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Arelo">
+<meta property="og:url" content="https://myarelo.com/">
+<meta property="og:title" content="Arelo — A calm AI life companion">
+<meta property="og:description" content="Arelo is a calm AI life companion that keeps up with what's changing in your life — email, plans, people — so you don't have to hold it all yourself. See the interactive demo.">
+<meta property="og:image" content="https://myarelo.com/assets/social/arelo-social-preview.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Arelo — A calm AI life companion">
+<meta name="twitter:description" content="Arelo is a calm AI life companion that keeps up with what's changing in your life — email, plans, people — so you don't have to hold it all yourself. See the interactive demo.">
+<meta name="twitter:image" content="https://myarelo.com/assets/social/arelo-social-preview.png">
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Nunito:wght@400;600;700;800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Arelo",
+  "url": "https://myarelo.com/",
+  "description": "Arelo is a calm AI life companion that keeps up with what's changing in your life — email, plans, people — so you don't have to hold it all yourself."
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Arelo",
+  "description": "Arelo is a calm AI life companion that keeps up with what's changing in your life — email, plans, people — so you don't have to hold it all yourself.",
+  "url": "https://myarelo.com/",
+  "applicationCategory": "LifestyleApplication"
+}
+</script>
 <style>
 :root {
   --navy:       #3d5a7a;
@@ -391,6 +426,9 @@ footer {
   .step-desc, .feat-desc { font-size:14px; line-height:1.5; }
 }
 </style>
+<!-- ARELO-357: shared cookieless analytics helper (see assets/analytics.js — no-op until the
+     provider site id is configured). Loaded before any script that calls window.AreloAnalytics. -->
+<script src="assets/analytics.js"></script>
 </head>
 <body>
 <div class="bg"></div>
@@ -405,7 +443,7 @@ footer {
     <a class="nav-link" href="#how">How it works</a>
     <a class="nav-link" href="#features">Features</a>
     <a class="nav-link" href="arelo_login.html">Sign in</a>
-    <a class="nav-btn" href="/demo">See the demo</a>
+    <a class="nav-btn" href="/demo" data-analytics-event="Demo CTA clicked" data-analytics-source="nav">See the demo</a>
   </div>
 </nav>
 
@@ -420,7 +458,7 @@ footer {
   <p class="hero-sub">Email, messages, school, work, appointments, letters — life arrives in fragments. Arelo turns the meaning into something manageable.</p>
   <div class="hero-ctas">
     <a class="cta-primary" href="#transformation">See Arelo organise it</a>
-    <a class="cta-ghost" href="/coming-soon">Join the waiting list</a>
+    <a class="cta-ghost" href="/coming-soon" data-analytics-event="Waitlist CTA clicked" data-analytics-source="hero">Join the waiting list</a>
   </div>
   <p class="hero-signin">Already have an account? <a href="arelo_login.html">Sign in</a></p>
   <div class="scroll-hint">
@@ -491,7 +529,7 @@ footer {
   <h2 class="section-title">See Gemma's life, organised.</h2>
   <p class="section-sub">Watch her chaos arrive, then see it become this. Step through "Gemma's Week" — a guided, interactive demonstration of how Arelo works. See a cancelled Brownies session get quietly handled, and a client waiting on pricing followed up without anyone having to chase it.</p>
   <div style="display:flex;justify-content:center">
-    <a class="cta-primary" href="/demo" style="font-size:16px;padding:14px 32px;">Try the interactive demo</a>
+    <a class="cta-primary" href="/demo" style="font-size:16px;padding:14px 32px;" data-analytics-event="Demo CTA clicked" data-analytics-source="mid">Try the interactive demo</a>
   </div>
   <p style="text-align:center;color:var(--muted);font-size:13px;margin-top:18px">A guided demonstration built to show how Arelo works — not a live account.</p>
 </div>
@@ -557,7 +595,7 @@ footer {
     <div class="feat-card">
       <div class="feat-icon">🔄</div>
       <div class="feat-title">Keeps up as things change</div>
-      <p class="feat-desc">Plans move, emails arrive, things get resolved. Arelo is built to fold new information in and gently update what it's tracking — <a href="/demo" style="color:var(--teal-text)">see it in the interactive demo</a>.</p>
+      <p class="feat-desc">Plans move, emails arrive, things get resolved. Arelo is built to fold new information in and gently update what it's tracking — <a href="/demo" style="color:var(--teal-text)" data-analytics-event="Demo CTA clicked" data-analytics-source="inline">see it in the interactive demo</a>.</p>
     </div>
     <div class="feat-card">
       <div class="feat-icon">🌙</div>
@@ -573,7 +611,7 @@ footer {
   <h2 class="hero-title" style="position:relative;">YOUR CHAOS —<br><em>ORGANISED.</em></h2>
   <p class="hero-sub" style="position:relative;">What you need to deal with now. What's next. Arelo holds the rest.</p>
   <div class="hero-ctas" style="position:relative;">
-    <a class="cta-primary" href="/coming-soon">Join the waiting list</a>
+    <a class="cta-primary" href="/coming-soon" data-analytics-event="Waitlist CTA clicked" data-analytics-source="bottom">Join the waiting list</a>
     <a class="cta-ghost" href="arelo_login.html">Sign in to your account</a>
   </div>
 </section>
@@ -598,6 +636,16 @@ const nav = document.getElementById('nav');
 window.addEventListener('scroll', () => {
   nav.classList.toggle('scrolled', window.scrollY > 40);
 }, { passive: true });
+
+// ARELO-357: delegated CTA click tracking. Every tracked link carries data-analytics-event (the
+// event name) and, where the destination is reachable from more than one place on the page,
+// data-analytics-source (which CTA it was) — direct/typed navigation to /demo never passes
+// through here, so the direct-vs-CTA measurement distinction is preserved automatically.
+document.addEventListener('click', (e) => {
+  const el = e.target.closest('[data-analytics-event]');
+  if (!el || !window.AreloAnalytics) return;
+  window.AreloAnalytics.track(el.dataset.analyticsEvent, { source: el.dataset.analyticsSource || undefined });
+});
 </script>
 </body>
 </html>

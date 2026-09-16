@@ -5,8 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Demo feedback — Arelo</title>
 <meta name="description" content="Tell us what you thought of the Arelo demo and idea. Quick, informal, and optional to leave your details.">
+<link rel="canonical" href="https://myarelo.com/feedback">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><radialGradient id='og' cx='35%' cy='35%' r='65%'><stop offset='0%' stop-color='%23ffffff'/><stop offset='35%' stop-color='%23b8e8e8'/><stop offset='70%' stop-color='%235bbfbf'/><stop offset='100%' stop-color='%232a8080'/></radialGradient></defs><ellipse cx='16' cy='16' rx='14' ry='14' fill='url(%23og)'/></svg>">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Arelo">
+<meta property="og:url" content="https://myarelo.com/feedback">
+<meta property="og:title" content="Demo feedback — Arelo">
+<meta property="og:description" content="Tell us what you thought of the Arelo demo and idea. Quick, informal, and optional to leave your details.">
+<meta property="og:image" content="https://myarelo.com/assets/social/arelo-social-preview.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Demo feedback — Arelo">
+<meta name="twitter:description" content="Tell us what you thought of the Arelo demo and idea. Quick, informal, and optional to leave your details.">
+<meta name="twitter:image" content="https://myarelo.com/assets/social/arelo-social-preview.png">
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Nunito:wght@400;600;700;800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<!-- ARELO-357: shared cookieless analytics helper (see assets/analytics.js — no-op until the
+     provider site id is configured). -->
+<script src="assets/analytics.js"></script>
 <style>
 :root {
   --navy:       #3d5a7a;
@@ -189,6 +208,7 @@ footer {
 </footer>
 
 <script>
+if (window.AreloAnalytics) window.AreloAnalytics.track('Feedback opened');
 const form = document.getElementById('feedbackForm');
 form.addEventListener('submit', function (e) {
   e.preventDefault();
@@ -201,6 +221,7 @@ form.addEventListener('submit', function (e) {
     .then(() => {
       form.style.display = 'none';
       document.getElementById('feedbackSuccess').classList.add('show');
+      if (window.AreloAnalytics) window.AreloAnalytics.track('Feedback submitted');
     })
     .catch(() => { form.submit(); });
 });
