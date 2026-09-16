@@ -222,6 +222,37 @@ body.persona-gate-open #arrivalExploreCue{ display:none }
   opacity:0;transition:opacity .6s ease;
 }
 .arrival-explore-cue.show{opacity:1}
+/* ===== ARELO-355 — Orb-guided walkthrough: a small non-blocking speech bubble anchored to the
+   existing persistent Orb, never a modal/spotlight/backdrop. Same "never blocks the page underneath"
+   posture as .arrival-explore-cue above, but this one carries real controls (close / skip tour), so
+   only the bubble itself accepts pointer events while hidden/showing — everything behind and around
+   it stays fully interactive throughout. ===== */
+.tour-bubble{
+  position:fixed;z-index:997;max-width:272px;
+  background:#fff;border:1px solid #d5e0e9;border-radius:14px;
+  padding:13px 34px 13px 15px;box-shadow:0 10px 28px rgba(23,50,77,.18);
+  font-family:"Nunito",Arial,sans-serif;font-size:13px;line-height:1.45;color:#17324d;
+  opacity:0;transform:translateY(4px);transition:opacity .35s ease,transform .35s ease;
+  pointer-events:none;
+}
+.tour-bubble.show{opacity:1;transform:translateY(0);pointer-events:auto}
+.tour-bubble-close{
+  position:absolute;top:6px;right:8px;border:0;background:transparent;color:#8397ab;
+  font-size:16px;line-height:1;cursor:pointer;padding:4px 7px;border-radius:6px;
+}
+.tour-bubble-close:hover{background:#f0f4f8;color:#17324d}
+.tour-bubble-text{margin:0 0 8px}
+.tour-bubble-skip{
+  border:0;background:transparent;color:#5b7186;font-family:inherit;font-size:11.5px;
+  font-weight:800;text-decoration:underline;cursor:pointer;padding:0;
+}
+.tour-bubble-skip:hover{color:#17324d}
+@media(max-width:680px){
+  .tour-bubble{max-width:calc(100vw - 32px)}
+}
+@media (prefers-reduced-motion: reduce){
+  .tour-bubble{transition:opacity .25s ease!important;transform:none!important}
+}
 .arrival{
   position:fixed;inset:0;z-index:999;background:#eef3f8;color:#17324d;
   overflow:hidden;transition:opacity .55s ease;
@@ -1042,6 +1073,17 @@ body.persona-gate-open #arrivalExploreCue{ display:none }
 <div id="arrivalDisclosure" class="arrival-disclosure">Interactive demo · not a live account</div>
 <div id="arrivalOrb" class="arrival-orb" aria-hidden="true"></div>
 <div id="arrivalExploreCue" class="arrival-explore-cue" aria-hidden="true">Explore Gemma's Arelo</div>
+<!-- ARELO-355 — Orb-guided walkthrough bubble: one non-blocking message at a time, anchored to
+     the existing persistent Orb (#arrivalOrb). Two distinct controls per the Product Office
+     decision: the × closes only the message currently on screen; "Skip tour" opts out of all
+     remaining guidance for the session. Neither ever mutates demo state or touches the Orb's
+     existing input flow. Real instructional copy (not decorative), so this is announced via
+     aria-live rather than aria-hidden like the arrival elements around it. -->
+<div class="tour-bubble" id="tourBubble" role="status" aria-live="polite" hidden>
+  <button type="button" class="tour-bubble-close" id="tourBubbleClose" aria-label="Close this message">&times;</button>
+  <p class="tour-bubble-text" id="tourBubbleText"></p>
+  <button type="button" class="tour-bubble-skip" id="tourBubbleSkip">Skip tour</button>
+</div>
 <!-- ARELO-332/347 — the Orb's composer: Arelo's one universal input portal. Global overlay (not
      scoped to any single panel) so it opens over whichever surface the user is currently on. The
      demo is deterministic (no live AI), so this offers a small, clearly-labelled set of scripted
@@ -1624,6 +1666,10 @@ function __arrivalInit(){
     settleOrbThenFade();
     fadeArrivalDisclosure();
     showExploreCueThenFade();
+    // ARELO-355: single funnel for "arrival is over" — fires identically whether the visitor
+    // watched the full animation, hit Skip, or is on prefers-reduced-motion, so the walkthrough
+    // never needs a second entry point.
+    if(typeof maybeShowTourIntro === 'function') maybeShowTourIntro();
     window.setTimeout(function(){ if(root && root.parentNode) root.parentNode.removeChild(root); }, 650);
   }
 
@@ -2002,7 +2048,16 @@ const state = {
   orbAmbiguousItemsByPersona:{ gemma:[], jake:[] },  // ARELO-332/347: items submitted via the Orb that Arelo can't confidently place — surfaced in Review, never auto-resolved, namespaced per persona
   jakeDone:{},            // jake pin id -> bool — Jake's equivalent of robConsentDone/calculatorDone/etc., one map since he has several simple checkbox-style Pins
   _orbComposerOpen: false, // whether the Orb's "Give something to Arelo" composer is open
-  _orbPending: null       // the previewed-but-not-yet-applied interpretation, set by showOrbPreview()/buildOrbPreview()
+  _orbPending: null,      // the previewed-but-not-yet-applied interpretation, set by showOrbPreview()/buildOrbPreview()
+  // ARELO-355 — Orb-guided walkthrough. Deliberately NOT namespaced by persona and NEVER reset by
+  // switchPersona() (Product Office decision: switching Gemma/Jake must not restart the tour) —
+  // there is exactly one walkthrough progression per browser session, same as there is exactly
+  // one persistent Orb.
+  _tourSkipped: false,      // "Skip tour" was used — suppresses all further tour bubbles this session
+  _tourIntroShown: false,   // the one-line post-arrival orientation has already been shown
+  _tourSeenTabs: {},        // tab id -> bool, which of the 5 scripted surfaces already got their line
+  _tourInviteShown: false,  // the end-of-walkthrough "try the Orb" invite has already been shown
+  _orbComposerEverOpened: false // suppresses the end-of-walkthrough invite once the visitor has already used the Orb input
 };
 // Persona-aware accessors (ARELO — Jake persona addition, 15 Sep): the few pieces of state that
 // must never mix between personas are namespaced by state.persona under the hood; every existing
@@ -3898,6 +3953,12 @@ function switchPersona(p){
   state._expandedFocus = null; state._keepOpen = false;
   state._journeySourcesOpen = false;
   closeOrbComposer();
+  // ARELO-355: deliberately NOT touched here — _tourSkipped/_tourSeenTabs/_tourIntroShown/
+  // _tourInviteShown all survive a persona switch (Product Office decision: switching Gemma/Jake
+  // must not restart the walkthrough). Only the bubble currently on screen, if any, is closed —
+  // an automatic close, not a "Skip tour" — so the tour simply continues on whichever tab the new
+  // persona lands on.
+  closeTourBubble();
   switchTab('focus');
   renderAll();
 }
@@ -3918,6 +3979,10 @@ function switchTab(tab){
   // Pins panel actually becomes visible, rather than relying on whatever the last resize/render
   // happened to compute while it wasn't.
   if(tab==='pins') updateBoardNavVisibility();
+  // ARELO-355: contextual walkthrough line for this surface, shown once per tab per session (see
+  // maybeShowTourForTab — no-ops for tabs with no scripted copy, e.g. Calendar/Emails, and for a
+  // tab already seen).
+  maybeShowTourForTab(tab);
 }
 document.getElementById('tabstrip').addEventListener('click', e=>{
   const btn = e.target.closest('button[data-tab]'); if(!btn) return;
@@ -4339,6 +4404,15 @@ function showOrbCompose(){
   document.getElementById('orbPreview').hidden = true;
 }
 function openOrbComposer(){
+  // ARELO-355: opening the composer is the walkthrough's own end goal, so treat it as "the
+  // visitor got there" regardless of whether the tour ever finished — suppresses a redundant
+  // end-of-walkthrough invite later — and never leave a tour bubble showing over the modal.
+  state._orbComposerEverOpened = true;
+  // Drop any queued bubble (e.g. Focus queued behind an intro the visitor closed early) rather
+  // than letting it cascade into view once this close finishes — the visitor just went straight
+  // for the Orb itself, so nothing should pop up behind/alongside the composer they're opening.
+  _tourNext = null;
+  closeTourBubble();
   state._orbComposerOpen = true;
   state._orbPending = null;
   document.getElementById('orbComposerBackdrop').hidden = false;
@@ -4354,6 +4428,157 @@ function closeOrbComposer(){
   state._orbPending = null;
   document.getElementById('orbComposerBackdrop').hidden = true;
 }
+
+/* =========================================================================
+   ARELO-355 — Orb-guided walkthrough.
+   A lightweight, dismissible guide layered over the existing demo — never a chatbot, never
+   conversational, never implying live AI. Exactly one persistent Orb still does the talking; this
+   only adds short, non-blocking bubbles anchored to it, plus the "seen" bookkeeping that decides
+   when each one is due. Nothing here mutates any Focus/Review/Pins/Calendar/Emails/Journey/Notes
+   state — it only reads which tab is showing and whether the Orb composer has been used.
+   ========================================================================= */
+var TOUR_COPY = {
+  intro: "I’ve organised this into what needs you now, what can wait, and what I’m keeping in the background.",
+  focus: "This is what matters today.",
+  review: "This is where Arelo asks when it is not sure.",
+  pins: "These are the responsibilities Arelo is keeping track of.",
+  journey: "This is the bigger story connected things belong to.",
+  notes: "Not everything needs to become something to do.",
+  invite: "Whenever something’s on your mind, you can give it to Arelo here — try it with anything."
+};
+// The five principal destinations the Product Office called out for contextual guidance.
+// Calendar/Emails deliberately carry no scripted line — maybeShowTourForTab() no-ops for them.
+var TOUR_TAB_ORDER = ['focus','review','pins','journey','notes'];
+
+var _tourHideTimer = null;
+// The one thing queued to run once the CURRENT bubble finishes closing — never two bubbles on
+// screen at once. Only ever one slot is needed: the Focus line waits behind the intro, and the
+// end-of-walkthrough invite waits behind the 5th tab line, but nothing else ever queues behind
+// those in turn.
+var _tourNext = null;
+
+function _tourBubbleEls(){
+  return {
+    bubble: document.getElementById('tourBubble'),
+    text: document.getElementById('tourBubbleText')
+  };
+}
+// Re-measured every time a bubble is shown (rather than assumed once) so it always tracks the
+// Orb's real current position — mid-height of the side rail on desktop, floating above the bottom
+// nav on mobile (see .arrival-orb.phase-rest and its @media override).
+//
+// Desktop deliberately keeps the whole bubble INSIDE the sidebar's own column (never spilling
+// rightward into the main content pane): the Orb already rests in the genuinely empty stretch of
+// the rail below the nav list and above the footer meta block (see settleOrbThenFade), so anchoring
+// here at the same height never covers a nav label or a card in whatever the active tab is showing
+// — main content varies too much per tab (a tall Pins board can fill the whole viewport) to trust
+// any fixed on-screen position for a solid card except this one column, which the Orb itself
+// already proves is a safe rest. This is what satisfies "does not obscure navigation or content"
+// on every tab rather than just the ones this was eyeballed against.
+function positionTourBubble(){
+  const { bubble } = _tourBubbleEls();
+  const orb = document.getElementById('arrivalOrb');
+  const rail = document.querySelector('.topbar');
+  if(!bubble || !orb) return;
+  const rect = orb.getBoundingClientRect();
+  if(!rect.width) return; // Orb not laid out yet — leave whatever position it already had
+  const mobile = window.innerWidth <= 680;
+  if(mobile){
+    bubble.style.maxWidth = '';
+    bubble.style.top = 'auto';
+    bubble.style.left = 'auto';
+    bubble.style.right = Math.max(12, window.innerWidth - rect.right) + 'px';
+    bubble.style.bottom = (window.innerHeight - rect.top + 12) + 'px';
+  } else {
+    const railWidth = rail ? rail.getBoundingClientRect().width : 220;
+    bubble.style.right = 'auto';
+    bubble.style.bottom = 'auto';
+    // Stacked just below the Orb, not beside it — the sidebar is only ~220px wide, too narrow for
+    // the Orb and a same-height bubble to sit side by side without the two overlapping (and the
+    // Orb's own z-index sits above the bubble's, so an overlap would swallow the bubble's clicks).
+    bubble.style.top = (rect.bottom + 10) + 'px';
+    bubble.style.left = '14px';
+    bubble.style.maxWidth = Math.max(150, railWidth - 28) + 'px';
+  }
+}
+function showTourBubble(text){
+  if(state._tourSkipped) return;
+  const { bubble, text: textEl } = _tourBubbleEls();
+  if(!bubble || !textEl) return;
+  // Whatever was queued to follow the PREVIOUS bubble is stale the moment a new one is forced on
+  // screen directly (e.g. the visitor navigated to a new tab before the old bubble auto-closed) —
+  // only an explicit chain set immediately after this same call (see maybeShowTourIntro/
+  // maybeShowTourForTab) should survive.
+  _tourNext = null;
+  textEl.textContent = text;
+  bubble.hidden = false;
+  positionTourBubble();
+  requestAnimationFrame(()=>{ bubble.classList.add('show'); });
+  if(_tourHideTimer) window.clearTimeout(_tourHideTimer);
+  // Calm auto-fade — never demands a reply, never blocks normal use either way.
+  _tourHideTimer = window.setTimeout(closeTourBubble, 9000);
+}
+function closeTourBubble(){
+  const { bubble } = _tourBubbleEls();
+  if(!bubble) return;
+  const next = _tourNext;
+  _tourNext = null;
+  if(_tourHideTimer){ window.clearTimeout(_tourHideTimer); _tourHideTimer = null; }
+  if(bubble.hidden){
+    if(next && !state._tourSkipped) next();
+    return;
+  }
+  bubble.classList.remove('show');
+  window.setTimeout(()=>{
+    bubble.hidden = true;
+    if(next && !state._tourSkipped) next();
+  }, 320);
+}
+// "Skip tour" — distinct from closing the current bubble: opts out of every remaining bubble for
+// the rest of the session (Product Office decision: these are two separate actions).
+function skipTour(){
+  state._tourSkipped = true;
+  _tourNext = null;
+  closeTourBubble();
+}
+function maybeShowTourIntro(){
+  if(state._tourSkipped || state._tourIntroShown) return;
+  state._tourIntroShown = true;
+  // #arrivalExploreCue occupies the same post-arrival window (shows ~550ms after dissolve, fades
+  // ~2.2s later — see showExploreCueThenFade) — wait for it to clear so the visitor is never
+  // reading two ambient messages at once.
+  window.setTimeout(()=>{
+    showTourBubble(TOUR_COPY.intro);
+    // The visitor already lands on Focus by default (no switchTab() click fires for the initial
+    // tab), so Focus's own line is queued to follow once the intro bubble actually closes — never
+    // shown at the same time as it — rather than firing on a nav click that never happens here.
+    _tourNext = ()=>{ maybeShowTourForTab('focus'); };
+  }, 3600);
+}
+function maybeShowTourForTab(tab){
+  if(state._tourSkipped) return;
+  if(TOUR_TAB_ORDER.indexOf(tab) === -1) return; // Calendar/Emails: no scripted copy
+  if(state._tourSeenTabs[tab]) return;
+  state._tourSeenTabs[tab] = true;
+  showTourBubble(TOUR_COPY[tab]);
+  if(!state._tourInviteShown && !state._orbComposerEverOpened && TOUR_TAB_ORDER.every(t=>state._tourSeenTabs[t])){
+    // Reserve it now so a second tab reaching "all 5 seen" in the same tick can't double-queue —
+    // the invite itself only actually appears once this bubble closes (see closeTourBubble/_tourNext).
+    state._tourInviteShown = true;
+    _tourNext = ()=>{ showTourBubble(TOUR_COPY.invite); };
+  }
+}
+(function wireTourBubbleControls(){
+  const closeBtn = document.getElementById('tourBubbleClose');
+  const skipBtn = document.getElementById('tourBubbleSkip');
+  if(closeBtn) closeBtn.addEventListener('click', closeTourBubble);
+  if(skipBtn) skipBtn.addEventListener('click', skipTour);
+  window.addEventListener('resize', ()=>{
+    const bubble = document.getElementById('tourBubble');
+    if(bubble && !bubble.hidden) positionTourBubble();
+  });
+})();
+
 // Briefly flash-highlight whatever surface the scripted interpretation just updated, so the
 // user can see where Arelo put the information without a disconnected explanation screen.
 function flashLanded(selector){
