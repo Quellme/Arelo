@@ -4,12 +4,9 @@
  * script-tag analytics platform in the Plausible/Fathom family — no Google Tag Manager unless
  * unavoidable, no personal data, no raw free text ever leaves the browser as an event property.
  *
- * BLOCKED ON AN EXTERNAL DEPENDENCY (Jira ARELO-357, comment 15057):
- * loading the real provider script requires a site registered under Shani's own analytics
- * account, and this file must not invent a placeholder domain/site id. Until
- * ARELO_ANALYTICS_DOMAIN below is set to that real value, every track() call in this codebase
- * is a safe no-op — the instrumentation is fully wired and ready to go live the moment the site
- * identifier is supplied; nothing needs to change at any call site.
+ * ARELO_ANALYTICS_DOMAIN is set to the registered Plausible site domain, confirmed by Shani
+ * (Jira ARELO-357, comment 15378). track() calls remain safe no-ops until the provider script
+ * actually loads and window.plausible becomes available — no call site needs to change.
  *
  * Loaded on every public page (index.html, /demo, coming-soon.html, feedback.html) before any
  * other inline script that calls window.AreloAnalytics.
@@ -17,10 +14,7 @@
 (function (window, document) {
   'use strict';
 
-  // TODO(Shani): set this to the registered Plausible site domain (e.g. 'myarelo.com') once that
-  // account/site exists, then this file will start loading the real tracking script. Do not fill
-  // this in with a guessed or placeholder value — see Jira ARELO-357 comment 15057.
-  var ARELO_ANALYTICS_DOMAIN = null;
+  var ARELO_ANALYTICS_DOMAIN = 'myarelo.com';
 
   var providerLoaded = false;
   function ensureProviderLoaded() {
