@@ -650,6 +650,44 @@ body.persona-gate-open #arrivalExploreCue{ display:none }
 .scope-review .followup-note .fu-actions{display:flex;gap:7px;margin-top:7px}
 .scope-review .resolved-strip{padding:11px 16px;font-family:"Nunito",Arial,sans-serif;font-size:12.5px;color:var(--teal-dark);font-weight:700;background:var(--teal-soft)}
 .scope-review .review-item.is-resolved .arelo-block{opacity:.55}
+/* Orb-led Review module — anything Arelo authors on Review is spoken by the Orb (PO decision,
+   24 Sep). Source evidence stays above it, visibly separate; the Orb's speech bubble carries
+   Arelo's interpretation; quick decisions and any suggested Pins sit directly beneath it. The
+   avatar reuses the existing Orb gradient (.orb-composer-dot) rather than a new visual. */
+.scope-review .ev-meta{display:flex;flex-wrap:wrap;gap:4px 10px;margin:0 0 6px;font-family:"Nunito",Arial,sans-serif;font-size:11.5px;color:var(--muted)}
+.scope-review .ev-meta b{color:var(--ink);font-weight:800}
+.scope-review .ev-label{font-family:"Nunito",Arial,sans-serif;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 5px}
+.scope-review .evidence{margin:0 0 14px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
+.scope-review .evidence .snippet{margin:0}
+.scope-review .evidence .snippet.clamped{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.scope-review .ev-links{display:flex;gap:14px;margin-top:6px}
+.scope-review .ev-link{font-family:"Nunito",Arial,sans-serif;border:0;background:none;padding:2px 0;font-size:11.5px;font-weight:800;color:var(--teal-dark);cursor:pointer}
+.scope-review .ev-link:hover{text-decoration:underline}
+.scope-review .orb-module{display:flex;flex-direction:column;gap:10px}
+.scope-review .orb-says{display:flex;gap:11px;align-items:flex-start}
+.scope-review .orb-avatar{width:34px;height:34px;flex:0 0 34px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff 0%,#bfe9e2 30%,#0f8a7c 70%,#0b6459 100%);box-shadow:0 0 14px rgba(15,138,124,.38)}
+.scope-review .orb-avatar.sm{width:12px;height:12px;flex:0 0 12px;box-shadow:0 0 6px rgba(15,138,124,.35);display:inline-block;vertical-align:-1px;margin-right:6px}
+.scope-review .orb-speech{min-width:0;flex:1}
+.scope-review .orb-id{font-family:"Nunito",Arial,sans-serif;font-size:11px;font-weight:800;color:var(--teal-dark);margin:1px 0 4px}
+.scope-review .orb-bubble{position:relative;background:var(--rcat-bg,var(--teal-soft));border:1px solid var(--rcat-line,#CFECE7);border-radius:4px 16px 16px 16px;padding:11px 14px;font-size:14px;line-height:1.5;color:var(--ink)}
+.scope-review .orb-bubble+.orb-bubble{margin-top:8px}
+.scope-review .orb-reply{margin-left:45px}
+.scope-review .orb-choices{display:flex;flex-wrap:wrap;gap:8px;margin-left:45px}
+.scope-review .orb-choice{font-family:"Nunito",Arial,sans-serif;border-radius:999px;padding:8px 15px;font-size:12.5px;font-weight:800;background:#fff;border:1.5px solid var(--rcat-border,#3E9088);color:var(--rcat-text,var(--teal-dark));cursor:pointer;min-height:36px}
+.scope-review .orb-choice.primary{background:var(--rcat-text,var(--teal-dark));border-color:var(--rcat-text,var(--teal-dark));color:#fff}
+.scope-review .orb-choice.quiet{border:1px solid var(--line);color:var(--muted)}
+.scope-review .orb-choice:hover{box-shadow:0 1px 5px rgba(30,46,62,.16)}
+.scope-review .orb-choice:focus-visible,.scope-review .ev-link:focus-visible{outline:2px solid var(--teal-dark);outline-offset:2px}
+.scope-review .orb-actions{margin-left:45px}
+.scope-review .suggested-tag{display:inline-flex;align-items:center;font-family:"Nunito",Arial,sans-serif;font-size:9.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:2px 7px;border-radius:999px;border:1px dashed var(--rcat-border,#3E9088);color:var(--rcat-text,var(--teal-dark));background:#fff;margin-left:6px;white-space:nowrap}
+.scope-review .understanding.is-suggested{background:#fff;border:1px dashed var(--rcat-border,#3E9088);border-radius:12px;padding:9px 11px}
+.scope-review .understanding.is-suggested+.understanding{border-top:0}
+@media (max-width:640px){
+  .scope-review .orb-reply,.scope-review .orb-choices,.scope-review .orb-actions{margin-left:0}
+  .scope-review .orb-choice{flex:1 1 auto;text-align:center}
+  .scope-review .understanding{grid-template-columns:1fr}
+  .scope-review .row-controls{justify-content:flex-start}
+}
 .scope-review .empty-queue{padding:26px;text-align:center;color:var(--muted);font-family:"Nunito",Arial,sans-serif;font-size:13.5px;border:1px dashed var(--line);border-radius:20px}
 
 /* Emails: a calm inbox list — deliberately NOT Review's card grammar */
@@ -2050,6 +2088,12 @@ const state = {
   sophie: { rsvp:false, rsvpDeclined:false, calendar:false, present:false, rota:false },
   pta: { raffle:false, meeting:false },
   northstar: { created:false, nextAction:0, done:false },
+  // Orb-led Review examples (PO decision, 24 Sep). Gemma-only fixtures, same flat shape as
+  // sophie/pta above. volunteer.status: null|'yes'|'no'|'snoozed'; volunteer.pin: null|'added'|'removed'
+  // (only offered after "Yes — let's see what's involved"). amazonPay.status: null|'pinned'|'snoozed'|'dismissed'.
+  volunteer: { status:null, pin:null },
+  amazonPay: { status:null },
+  _evMore:{},          // review card id -> bool, source evidence "Show more" (presentation only)
   robConsentDone:false,
   calculatorDone:false,
   lemonsDone:false,
@@ -2162,6 +2206,12 @@ const EVIDENCE = {
      Focus line ("Three parcels are on their way today"). None of these creates a Pin. ---- */
   'delivery-amazon': {type:'email', from:'Amazon', date:rd('Tue 8 Sep'), subject:'Your order is out for delivery', body:'Your parcel (order #112-4483920-7761143) is out for delivery today. Track your package for live updates.'},
   'delivery-inpost': {type:'email', from:'InPost', date:rd('Tue 8 Sep'), subject:'Your parcel is arriving today', body:'Your delivery is on its way to Oakfield Road Locker (Locker bank 3, locker 14). We’ll text a collection code once it’s dropped off — expected before 6pm today.'},
+  /* ---- Orb-led Review examples (PO decision, 24 Sep). Two new pieces of evidence the Product
+     Office named explicitly: one Arelo genuinely can't judge (interest is Gemma's call), and one
+     with a clear consequence. The payment email is a DIFFERENT order from delivery-amazon, so the
+     "three parcels on their way today" Focus summary stays true and untouched. ---- */
+  'school-security': {type:'email', from:'Oakfield School Office', to:'Gemma · personal inbox', date:rd('Mon 7 Sep'), subject:'Parent security volunteer shifts needed', body:rd('We’re looking for parent volunteers to help with gate security at drop-off and pick-up this term. Shifts are 30 minutes (8:30–9:00am or 3:00–3:30pm) on a rota, and a short safeguarding briefing is provided for new volunteers. If you can help, please sign up using the form by Friday 11 September.')},
+  'amazon-payment':  {type:'email', from:'Amazon', to:'Gemma · personal inbox', date:rd('Tue 8 Sep'), subject:'Update payment method for order', body:'We couldn’t process the payment for your order #204-7715392-2208316 (children’s art easel). Please update your payment method so we can dispatch it. If the payment isn’t updated, your order may be delayed or cancelled.'},
   'delivery-evri':   {type:'email', from:'Evri', date:rd('Tue 8 Sep'), subject:'Your parcel is on its way', body:'Expected today between 14:00–16:00. If you’re not in, we’ll leave it in a safe place where possible.'},
 
   /* ---- Money evidence: three transactional/billing emails Arelo folds into one quiet
@@ -2194,6 +2244,8 @@ function connectedPins(evId){
     c.push({label:'Get Sophie a present/card', done: state.sophie.present, pending: !state.sophie.present});
     c.push({label:'Sort the party rota', done: state.sophie.rota, pending: !state.sophie.rota});
   }
+  if(evId==='school-security' && state.volunteer.pin==='added') c.push({label:ov('volunteer-signup','t','Sign up for a gate-security shift'), done:true, pending:false});
+  if(evId==='amazon-payment' && state.amazonPay.status==='pinned') c.push({label:ov('amazon-pay','t','Update the payment method for your Amazon order'), done:true, pending:false});
   if(evId==='pta'){
     c.push({label:'Bring the raffle-prize update to the PTA meeting', done: state.pta.raffle, pending: !state.pta.raffle});
     c.push({label:'PTA meeting (calendar)', done: state.pta.meeting, pending: !state.pta.meeting});
@@ -2374,6 +2426,19 @@ function buildGemmaPins(){
   P.push({id:'italy-kennels', t:ov('italy-kennels','t','Book the dog into kennels'), cat:'Family', time:'Later', lifecycle:'Open', attention:'Active', progress:'Waiting', size:'small',
     summary:'Worth booking ahead — good kennels nearby tend to fill up over half-term.', na:ov('italy-kennels','na',rd('Book kennels for 24 Oct – 4 Nov')),
     remind:ov('italy-kennels','remind',rd('Early October')), need:ov('italy-kennels','need','Before you travel'), source:null});
+
+  // Orb-led Review Pins — exist only once Gemma accepts them in Review; one identity each, sourced
+  // to the evidence that suggested them (never duplicated, never created speculatively).
+  if(state.persona!=='jake' && state.amazonPay.status==='pinned'){
+    P.push({id:'amazon-pay', t:ov('amazon-pay','t','Update the payment method for your Amazon order'), cat:'Life', time:'Now', lifecycle:'Open', attention:'Active', progress:'Needs you', size:'small',
+      summary:'Payment didn’t go through — the order won’t dispatch until it’s updated.', na:ov('amazon-pay','na','Update the card on your Amazon account'),
+      remind:ov('amazon-pay','remind','Today'), need:ov('amazon-pay','need','Today, so the delivery isn’t affected'), source:'amazon-payment'});
+  }
+  if(state.persona!=='jake' && state.volunteer.pin==='added'){
+    P.push({id:'volunteer-signup', t:ov('volunteer-signup','t','Sign up for a gate-security shift'), cat:'Family', time:'This week', lifecycle:'Open', attention:'Active', progress:'Needs you', size:'small',
+      summary:'30-minute gate shifts at drop-off or pick-up, on a rota.', na:ov('volunteer-signup','na','Pick a shift on the school’s form'),
+      remind:ov('volunteer-signup','remind',rd('Thu 10 September')), need:ov('volunteer-signup','need',rd('Sign-up closes Friday 11 September')), source:'school-security'});
+  }
 
   if(state.northstar.created){
     // This week, not Now — the enrichment table placed an example under Now, but that isn't this
@@ -2970,7 +3035,7 @@ function reviewCards(){
   if(state.persona==='jake'){
     activeOrbAmbiguousItems().forEach(item=>{
       if(!item.resolution){
-        cards.push({id:item.id, ev:item.id, cat:'Life', kicker:'You gave Arelo this via the Orb',
+        cards.push({id:item.id, ev:item.id, cat:'Life', kicker:'You gave Arelo this via the Orb', say:'You gave me this, but I’m not confident enough to place it on my own. Is it something to keep track of?',
           hint:'Not clear enough to place on its own — worth a quick look', resolved:false, render: renderOrbAmbiguousCard.bind(null,item)});
       } else {
         cards.push({id:item.id, ev:item.id, resolved:true,
@@ -2980,9 +3045,34 @@ function reviewCards(){
     return cards;
   }
 
+  // 0a. School security volunteers — Arelo genuinely doesn't know whether this matters to Gemma,
+  // so the Orb asks rather than proposing a task. A Pin is only suggested after she says yes.
+  if(!state.volunteer.status || (state.volunteer.status==='yes' && !state.volunteer.pin)){
+    cards.push({id:'school-security', ev:'school-security', cat:'Family',
+      say:'The school is asking for parent volunteers for security duty. I don’t know if you’re interested or not.',
+      hint:'Arelo isn’t sure this matters to you — your call', resolved:false, render: renderVolunteerCard});
+  } else {
+    cards.push({id:'school-security', ev:'school-security', resolved:true,
+      resolvedNote: state.volunteer.pin==='added' ? 'Pinned — sign up for a gate-security shift before Friday.'
+        : state.volunteer.status==='snoozed' ? 'Snoozed — this will come back to Review tomorrow.'
+        : state.volunteer.pin==='removed' ? 'Nothing held — you looked at what’s involved and left it.'
+        : 'Noted — you’re not interested, so Arelo isn’t holding anything for this.'});
+  }
+  // 0b. Amazon payment — clear consequence, one suggested Pin for today.
+  if(!state.amazonPay.status){
+    cards.push({id:'amazon-payment', ev:'amazon-payment', cat:'Life',
+      say:'This is your Amazon order and the payment method needs updating. I’d suggest doing this today so the delivery isn’t affected.',
+      hint:'Email · one Pin suggested for today', resolved:false, render: renderAmazonPayCard});
+  } else {
+    cards.push({id:'amazon-payment', ev:'amazon-payment', resolved:true,
+      resolvedNote: state.amazonPay.status==='pinned' ? 'Pinned for today — update the payment method.'
+        : state.amazonPay.status==='snoozed' ? 'Snoozed — this will come back to Review tomorrow.'
+        : 'Dismissed — nothing held.'});
+  }
+
   // 1. Sophie — judgement card, multiple suggestions together
   if(!(state.sophie.rsvp||state.sophie.rsvpDeclined) || !state.sophie.calendar || (!state.sophie.present && !state._sophiePresentDeclined) || !state.sophie.rota){
-    cards.push({id:'sophie', ev:'sophie', cat:'Family', kicker:'Arelo connected this to Mia’s friendships',
+    cards.push({id:'sophie', ev:'sophie', cat:'Family', kicker:'Arelo connected this to Mia’s friendships', say:'Mia’s been invited to Sophie’s 7th birthday party. Around the date itself, I think there are three things worth holding for you.',
       hint:'Invitation · 4 things Arelo thinks are worth holding', resolved:false, render: renderSophieCard});
   } else {
     cards.push({id:'sophie', ev:'sophie', resolved:true, resolvedNote:'Sorted — RSVP’d, on the calendar, present and rota in hand.'});
@@ -2990,10 +3080,10 @@ function reviewCards(){
 
   // 2. Robotics day change
   if(!state.robotics.moved){
-    cards.push({id:'robotics', ev:'robotics', cat:'Family', kicker:'Arelo noticed a change to something it’s already holding',
+    cards.push({id:'robotics', ev:'robotics', cat:'Family', kicker:'Arelo noticed a change to something it’s already holding', say:'Robotics Club is moving from Wednesday to Tuesday. That changes something I’m already holding for you — shall I update the calendar?',
       hint:'This changes something Arelo is already holding', resolved:false, render: renderRoboticsCard});
   } else if(state.robotics.clashChecked===null){
-    cards.push({id:'robotics', ev:'robotics', cat:'Family', kicker:'One more thing worth checking',
+    cards.push({id:'robotics', ev:'robotics', cat:'Family', kicker:'One more thing worth checking', say:'One more thing worth checking now the day has moved.',
       hint:'Arelo spotted a possible schedule overlap', resolved:false, render: renderRoboticsFollowup});
   } else {
     cards.push({id:'robotics', ev:'robotics', resolved:true, resolvedNote: state.robotics.clashChecked==='sort' ? 'Calendar updated — flagged for sorting.' : 'Calendar updated — you said it’s fine.'});
@@ -3001,7 +3091,7 @@ function reviewCards(){
 
   // 3. PTA — noisy agenda, exactly one genuine responsibility
   if(!state.pta.raffle || !state.pta.meeting){
-    cards.push({id:'pta', ev:'pta', cat:'Family', kicker:'Most of this is information. There’s one thing for you to do.',
+    cards.push({id:'pta', ev:'pta', cat:'Family', kicker:'Most of this is information. There’s one thing for you to do.', say:'Most of this agenda is information. There’s one thing for you: they’ve asked you to bring the raffle-prize update.',
       hint:'Arelo read the agenda · 1 thing for you', preview:'Bring the raffle-prize update',
       context:'The rest of the agenda is background for the meeting. Nothing else needs holding.',
       resolved:false, render: renderPtaCard});
@@ -3011,7 +3101,7 @@ function reviewCards(){
 
   // 4. Northstar
   if(!state.northstar.created){
-    cards.push({id:'northstar', ev:'northstar', cat:'Work', kicker:'Arelo found a genuine follow-up',
+    cards.push({id:'northstar', ev:'northstar', cat:'Work', kicker:'Arelo found a genuine follow-up', say:'Northstar want a revised proposal with new pricing and dates by Friday. That’s genuine new work — I’d suggest holding it as a Pin.',
       hint:'Email · one Pin proposed', resolved:false, render: renderNorthstarCard});
   } else {
     cards.push({id:'northstar', ev:'northstar', resolved:true, resolvedNote:'Pinned as an open work responsibility.'});
@@ -3022,7 +3112,7 @@ function reviewCards(){
   // Review. Never auto-resolved, never silently turned into a Pin.
   activeOrbAmbiguousItems().forEach(item=>{
     if(!item.resolution){
-      cards.push({id:item.id, ev:item.id, cat:'Life', kicker:'You gave Arelo this via the Orb',
+      cards.push({id:item.id, ev:item.id, cat:'Life', kicker:'You gave Arelo this via the Orb', say:'You gave me this, but I’m not confident enough to place it on my own. Is it something to keep track of?',
         hint:'Not clear enough to place on its own — worth a quick look', resolved:false, render: renderOrbAmbiguousCard.bind(null,item)});
     } else {
       cards.push({id:item.id, ev:item.id, resolved:true,
@@ -3181,6 +3271,73 @@ function renderOrbAmbiguousCard(item){
   </div>`;
 }
 
+// Orb-led Review — the two Product Office examples. Quick decisions are the primary interaction;
+// no generic "That's right / Not quite" judgement buttons.
+function orbChoices(btns){
+  return `<div class="orb-choices" role="group" aria-label="Your choice">${btns.map(b=>`<button type="button" class="orb-choice${b.cls?' '+b.cls:''}" data-orbchoice="${b.act}">${b.label}</button>`).join('')}</div>`;
+}
+function renderVolunteerCard(){
+  if(state.volunteer.status==='yes'){
+    // "Let's see what's involved" — the Orb answers from the email itself (no invented facts),
+    // then offers exactly one suggested Pin Gemma can add, edit or remove.
+    const id='volunteer-signup';
+    const t = ov(id,'t','Sign up for a gate-security shift');
+    const remind = ov(id,'remind',rd('Thu 10 September'));
+    const need = ov(id,'need',rd('Sign-up closes Friday 11 September'));
+    return `<div class="orb-bubble orb-reply">${rd('Here’s what’s involved: 30-minute shifts at the gate, either 8:30–9:00am or 3:00–3:30pm, on a rota. New volunteers get a short safeguarding briefing. Sign-up closes on Friday 11 September — if you’d like, I can hold that for you.')}</div>
+    <div class="orb-actions">
+      <div class="understanding is-suggested">
+        <div class="understanding-main">
+          <div class="understanding-title">${pinMark()}${t}<span class="suggested-tag">Suggested Pin</span></div>
+          <div class="understanding-meta">Next action: ${ov(id,'na','Pick a shift on the school’s form')}</div>
+          ${datesLine(remind, need)}
+        </div>
+        <div class="row-controls">${editBtn(id)}<button class="action-btn secondary" type="button" data-orbchoice="vol-remove">Remove</button><button class="action-btn done" type="button" data-orbchoice="vol-add">Add Pin</button></div>
+        ${editForm(id, {t, na: ov(id,'na','Pick a shift on the school’s form'), remind, need})}
+      </div>
+    </div>`;
+  }
+  return orbChoices([
+    {act:'vol-no', label:'No, I’m not interested', cls:'quiet'},
+    {act:'vol-yes', label:'Yes — let’s see what’s involved', cls:'primary'},
+    {act:'vol-snooze', label:'Snooze', cls:'quiet'}
+  ]);
+}
+function renderAmazonPayCard(){
+  const id='amazon-pay';
+  const t = ov(id,'t','Update the payment method for your Amazon order');
+  return `${orbChoices([
+    {act:'amz-pin', label:'Add Pin for today', cls:'primary'},
+    {act:'amz-snooze', label:'Snooze', cls:'quiet'},
+    {act:'amz-dismiss', label:'Dismiss', cls:'quiet'}
+  ])}
+  <div class="orb-actions">
+    <div class="understanding is-suggested">
+      <div class="understanding-main">
+        <div class="understanding-title">${pinMark()}${t}<span class="suggested-tag">Suggested Pin</span></div>
+        <div class="understanding-meta">Next action: ${ov(id,'na','Update the card on your Amazon account')}</div>
+        ${datesLine(ov(id,'remind','Today'), ov(id,'need','Today, so the delivery isn’t affected'))}
+      </div>
+      <div class="row-controls">${editBtn(id)}</div>
+      ${editForm(id, {t, na: ov(id,'na','Update the card on your Amazon account'), remind: ov(id,'remind','Today'), need: ov(id,'need','Today, so the delivery isn’t affected')})}
+    </div>
+  </div>`;
+}
+// Source evidence block — kept visibly separate from the Orb's interpretation.
+function reviewEvidence(c, ev){
+  const isConv = ev.type==='conversation';
+  const account = ev.to || (isConv ? 'Given to Arelo directly' : (c.cat==='Work' ? 'Gemma · work inbox' : 'Gemma · personal inbox'));
+  const long = (ev.body||'').length > 150;
+  const more = !!state._evMore[c.id];
+  const canOpen = emailTabIds().indexOf(c.ev) !== -1;
+  return `<div class="evidence">
+    <div class="ev-label">${isConv?'What you gave Arelo':'The original'}</div>
+    <div class="ev-meta"><span>From <b>${ev.from}</b></span><span>To <b>${account}</b></span><span>${ev.date}</span></div>
+    <div class="snippet${long&&!more?' clamped':''}">${ev.body}</div>
+    ${(long||canOpen)? `<div class="ev-links">${long?`<button type="button" class="ev-link" data-evmore="${c.id}" aria-expanded="${more?'true':'false'}">${more?'Show less':'Show more'}</button>`:''}${canOpen?`<button type="button" class="ev-link" data-gotosource="${c.ev}">Show the original ↗</button>`:''}</div>` : ''}
+  </div>`;
+}
+
 function renderReview(){
   const cards = reviewCards();
   const open = cards.filter(c=>!c.resolved);
@@ -3202,7 +3359,7 @@ function renderReview(){
       <button type="button" class="email-head" data-review-toggle="${c.id}" aria-expanded="${expanded?'true':'false'}">
         <div class="review-head-main">
           <div class="topline"><span class="subject">${ev.subject}</span><span class="sender">· ${ev.from}</span><span class="review-cat-chip">${cs.label}</span></div>
-          <div class="review-understood">${understood}</div>
+          <div class="review-understood"><span class="orb-avatar sm" aria-hidden="true"></span>${understood}</div>
           <div class="review-hint">${c.hint}</div>
           ${c.preview? `<div class="review-preview">${c.preview}</div>` : ''}
         </div>
@@ -3212,9 +3369,12 @@ function renderReview(){
         <span class="review-chevron-chip" aria-hidden="true"><svg class="review-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
       </button>
       <div class="review-body"${expanded?'':' hidden'}>
-        <div class="snippet">${ev.body}</div>
-        <div class="arelo-block">
-          <div class="arelo-kicker">${c.kicker}</div>
+        ${reviewEvidence(c, ev)}
+        <div class="orb-module">
+          <div class="orb-says">
+            <span class="orb-avatar" aria-hidden="true"></span>
+            <div class="orb-speech"><div class="orb-id">Arelo</div><div class="orb-bubble">${c.say||c.kicker}</div></div>
+          </div>
           ${c.render(c)}
         </div>
       </div>
@@ -3250,6 +3410,12 @@ function emailClassification(id, rc){
     case 'northstar': return state.northstar.created
       ? {tag:'Pin created', kind:'pin', understood:'A client asking for a revised proposal, with new pricing and dates, by a set deadline — genuine new work.'}
       : {tag:'1 Pin proposed · in Review', kind:'review', understood:'A client asking for a revised proposal, with new pricing and dates, by a set deadline — genuine new work.'};
+    case 'school-security': return c.resolved
+      ? {tag: state.volunteer.pin==='added' ? 'Pin created' : (state.volunteer.status==='snoozed' ? 'Snoozed' : 'You weren’t interested · nothing held'), kind: state.volunteer.pin==='added'?'pin':'none', understood:'The school is asking parents to volunteer for gate-security shifts this term.', note: state.volunteer.status==='snoozed' ? 'Snoozed from Review — it’ll come back tomorrow.' : 'You said you weren’t interested — Arelo isn’t holding anything for this.'}
+      : {tag:'Needs your judgement · in Review', kind:'review', understood:'The school is asking parents to volunteer for gate-security shifts this term.'};
+    case 'amazon-payment': return c.resolved
+      ? {tag: state.amazonPay.status==='pinned' ? 'Pin created · today' : (state.amazonPay.status==='snoozed' ? 'Snoozed' : 'Dismissed · nothing held'), kind: state.amazonPay.status==='pinned'?'pin':'none', understood:'An Amazon order can’t be dispatched until the payment method is updated.', note: state.amazonPay.status==='snoozed' ? 'Snoozed from Review — it’ll come back tomorrow.' : 'Dismissed — Arelo isn’t holding anything for this.'}
+      : {tag:'1 Pin suggested · in Review', kind:'review', understood:'An Amazon order can’t be dispatched until the payment method is updated.'};
     case 'robconsent': return {tag: state.robConsentDone?'Pin created · done':'Pin created · overdue', kind:'pin', understood:'The school needs a signed consent form before Mia’s next Robotics session.'};
     case 'esin': return {tag:'Read and assessed · nothing needed', kind:'none', understood:'A colleague confirming she’s working on the Northstar pricing you’re waiting on.', note:'Folded into the Northstar Pin Arelo’s already holding — nothing new for you.'};
     case 'delivery-amazon': return {tag:'Read and assessed · contributes to today’s delivery summary', kind:'none', understood:'A parcel is out for delivery today.', note:'Folded into “Three parcels are on their way today” on Focus — nothing needed from you.'};
@@ -3283,7 +3449,7 @@ function emailClassification(id, rc){
    EMAIL_TAB_IDS is the one source of truth for "is this evidence actually visible in Emails" —
    also used by pinSourceAction() below so a Pin's "Open email" link only ever appears when
    there's a real row to open, never a dead link. */
-const EMAIL_TAB_IDS_GEMMA = ['sophie','pta','robotics','northstar','esin',
+const EMAIL_TAB_IDS_GEMMA = ['school-security','amazon-payment','sophie','pta','robotics','northstar','esin',
   'delivery-amazon','delivery-inpost','delivery-evri',
   'money-youfibre','money-amex','money-scottishpower',
   'brownies','robconsent','noise1','noise2'];
@@ -4075,6 +4241,25 @@ document.getElementById('app').addEventListener('click', e=>{
     state._reviewOpen = (state._reviewOpen === id) ? null : id;
     renderReview();
     return;
+  }
+
+  // ---- Review: source evidence "Show more" (presentation only) ----
+  const evMore = e.target.closest('[data-evmore]');
+  if(evMore){ const id = evMore.dataset.evmore; state._evMore[id] = !state._evMore[id]; renderReview(); return; }
+  // ---- Review: Orb quick decisions ----
+  const oc = e.target.closest('[data-orbchoice]');
+  if(oc){
+    const a = oc.dataset.orbchoice;
+    if(a==='vol-no') state.volunteer.status='no';
+    else if(a==='vol-yes') state.volunteer.status='yes';
+    else if(a==='vol-snooze') state.volunteer.status='snoozed';
+    else if(a==='vol-add') state.volunteer.pin='added';
+    else if(a==='vol-remove') state.volunteer.pin='removed';
+    else if(a==='amz-pin') state.amazonPay.status='pinned';
+    else if(a==='amz-snooze') state.amazonPay.status='snoozed';
+    else if(a==='amz-dismiss') state.amazonPay.status='dismissed';
+    state._editingRow = null;
+    renderAll(); renderDrawer(); return;
   }
 
   // ---- Review: Sophie ----
